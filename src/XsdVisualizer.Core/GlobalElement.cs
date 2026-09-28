@@ -26,6 +26,17 @@ public sealed class GlobalElement
     /// <summary>Árvore do elemento; os filhos de cada nó são construídos sob demanda.</summary>
     public SchemaNode Tree => _tree ??= new SchemaTreeBuilder(Unit.Schemas).Build(Declaration);
 
+    /// <summary>Sample com todos os opcionais e, em cada choice, o ramo fixado em <paramref name="pins"/> (caminho do nó → índice) ou o primeiro.</summary>
+    public Sample GenerateMaximal(IReadOnlyDictionary<string, int>? pins = null) =>
+        Finish(SampleKind.Maximal, 0, new SampleGenerator(GenerationMode.Maximal, new PinnedChoices(pins)).Generate(Tree), []);
+
+    /// <summary>Sample só com o que o schema exige.</summary>
+    public Sample GenerateMinimal() =>
+        Finish(SampleKind.Minimal, 0, new SampleGenerator(GenerationMode.Minimal, new PinnedChoices(null)).Generate(Tree), []);
+
+    private Sample Finish(SampleKind kind, int number, string xml, IReadOnlyList<string> covers) =>
+        new(this, kind, number, xml, covers, Validate(xml));
+
     /// <summary>Valida um XML contra a unidade de compilação em que este elemento foi declarado.</summary>
     public IReadOnlyList<ValidationIssue> Validate(string xml)
     {
