@@ -2,7 +2,8 @@ using System.Text.Json;
 
 namespace XsdVisualizer.App.Services;
 
-public enum ThemeChoice { System, Light, Dark }
+/// <summary>Tema escolhido; os três primeiros valores são os de antes dos temas nomeados (sessões antigas continuam válidas).</summary>
+public enum ThemeChoice { System, Light, Dark, GitHubLight, GitHubDark, Dracula, GruvboxLight, Andromeda }
 
 /// <summary>"System" segue o idioma do sistema operacional; os demais são culturas (pt-BR, en).</summary>
 public static class LanguageChoice
