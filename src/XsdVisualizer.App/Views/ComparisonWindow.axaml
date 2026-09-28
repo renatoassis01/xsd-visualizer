@@ -160,24 +160,33 @@
             <GridSplitter Grid.Column="3" ResizeDirection="Columns" />
 
             <!-- Lado a lado -->
-            <Grid Grid.Column="4" ColumnDefinitions="*,1,*" RowDefinitions="Auto,*" ClipToBounds="True">
-                <Border Grid.Column="0" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <Grid Grid.Column="4" ColumnDefinitions="*,1,*" RowDefinitions="Auto,Auto,*" ClipToBounds="True">
+                <!-- Limitação do lado a lado, explicada onde ela aparece -->
+                <Border Grid.Row="0" Grid.ColumnSpan="3" Padding="10,6" BorderThickness="0,0,0,1"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                    <DockPanel>
+                        <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconInfo}" Width="14" Height="14" Opacity="0.7"
+                                  VerticalAlignment="Top" Margin="0,1,8,0" />
+                        <TextBlock Text="{x:Static res:Strings.ComparisonHint}" TextWrapping="Wrap" FontSize="11" Opacity="0.75" />
+                    </DockPanel>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="0" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
                     <TextBlock>
                         <Run Text="{x:Static res:Strings.Before}" FontWeight="SemiBold" />
                         <Run Text="{Binding Before.Name, StringFormat='  {0}'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                     </TextBlock>
                 </Border>
-                <Border Grid.Column="2" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                <Border Grid.Row="1" Grid.Column="2" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
                     <TextBlock>
                         <Run Text="{x:Static res:Strings.After}" FontWeight="SemiBold" />
                         <Run Text="{Binding After.Name, StringFormat='  {0}'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                     </TextBlock>
                 </Border>
-                <ae:TextEditor Grid.Row="1" Grid.Column="0" x:Name="BeforeEditor" IsReadOnly="True" ShowLineNumbers="False"
+                <ae:TextEditor Grid.Row="2" Grid.Column="0" x:Name="BeforeEditor" IsReadOnly="True" ShowLineNumbers="False"
                                Background="{DynamicResource EditorBackground}" Foreground="{DynamicResource EditorForeground}"
                                FontFamily="{DynamicResource MonospaceFont}" FontSize="12" HorizontalScrollBarVisibility="Auto" />
-                <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-                <ae:TextEditor Grid.Row="1" Grid.Column="2" x:Name="AfterEditor" IsReadOnly="True" ShowLineNumbers="False"
+                <Border Grid.Row="2" Grid.Column="1" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+                <ae:TextEditor Grid.Row="2" Grid.Column="2" x:Name="AfterEditor" IsReadOnly="True" ShowLineNumbers="False"
                                Background="{DynamicResource EditorBackground}" Foreground="{DynamicResource EditorForeground}"
                                FontFamily="{DynamicResource MonospaceFont}" FontSize="12" HorizontalScrollBarVisibility="Auto" />
             </Grid>

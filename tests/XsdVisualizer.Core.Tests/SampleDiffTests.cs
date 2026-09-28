@@ -43,4 +43,30 @@ public class SampleDiffTests
         Assert.All(novo.After, l => Assert.Equal(DiffLineKind.Added, l.Kind));
         Assert.All(novo.Before, l => Assert.Equal(DiffLineKind.Imaginary, l.Kind));
     }
+
+    [Fact]
+    public void Focusing_a_change_inside_a_later_choice_branch_brings_that_branch_into_both_samples()
+    {
+        static string Xsd(string monofasia) => SchemaFolder.Xsd($"""
+            <xs:element name="IBSCBS">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="gIBSCBS" type="xs:string"/>
+                  <xs:element name="gIBSCBSMono"><xs:complexType><xs:sequence>{monofasia}</xs:sequence></xs:complexType></xs:element>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            """);
+        using var before = new SchemaFolder(("n.xsd", Xsd("""<xs:element name="qBCMono" type="xs:decimal"/><xs:element name="vIBSMono" type="xs:decimal"/>""")));
+        using var after = new SchemaFolder(("n.xsd", Xsd("""<xs:element name="vIBSMono" type="xs:decimal"/>""")));
+        var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single();
+        var qBCMono = pair.Changes().Single(c => c.Label == "qBCMono");
+
+        var unfocused = pair.DiffSamples(SampleKind.Maximal);
+        var focused = pair.DiffSamples(SampleKind.Maximal, focus: qBCMono);
+
+        Assert.DoesNotContain(unfocused.Before, l => l.Text.Contains("<qBCMono>"));
+        Assert.Contains(focused.Before, l => l.Kind == DiffLineKind.Removed && l.Path == "IBSCBS/gIBSCBSMono/qBCMono");
+        Assert.Contains(focused.After, l => l.Text.Contains("<gIBSCBSMono>"));
+    }
 }

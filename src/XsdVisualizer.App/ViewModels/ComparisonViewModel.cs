@@ -115,7 +115,25 @@ public sealed partial class ComparisonViewModel : ViewModelBase
 
     partial void OnSelectedChangeChanged(ChangeNodeViewModel? value)
     {
-        if (value is not null) RevealPathRequested?.Invoke(value.Model.Path);
+        if (value is null) return;
+        // A mudança está num ramo que o XML atual não mostra (ex.: segundo ramo de um choice): regera com foco nela.
+        if (!UseMinimal && !InDiff(value.Model)) _ = LoadDiffAsync(value.Model);
+        else RevealPathRequested?.Invoke(value.Model.Path);
+    }
+
+    private bool InDiff(ChangeNode node)
+    {
+        if (Diff is not { } diff) return true;
+        var lines = node.Kind switch
+        {
+            ChangeKind.Removed => diff.Before,
+            ChangeKind.Added => diff.After,
+            _ => diff.Before.Concat(diff.After),
+        };
+        // Atributos e alternativas xsi:type não têm linha própria: vale o elemento que os contém.
+        var path = System.Text.RegularExpressions.Regex.Replace(node.Path, @"\[[^\]]*\]", "");
+        if (path.Contains("/@")) path = path[..path.IndexOf("/@", StringComparison.Ordinal)];
+        return lines.Any(l => l.Path == path);
     }
 
     private void RebuildTree()
@@ -172,9 +190,9 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     [ObservableProperty] public partial SampleDiff? Diff { get; private set; }
     private int _diffVersion;
 
-    partial void OnUseMinimalChanged(bool value) => _ = LoadDiffAsync();
+    partial void OnUseMinimalChanged(bool value) => _ = LoadDiffAsync(SelectedChange?.Model);
 
-    private async Task LoadDiffAsync()
+    private async Task LoadDiffAsync(ChangeNode? focus = null)
     {
         var version = ++_diffVersion;
         if (SelectedPair is not { } pair)
@@ -183,7 +201,7 @@ public sealed partial class ComparisonViewModel : ViewModelBase
             return;
         }
         var kind = UseMinimal ? SampleKind.Minimal : SampleKind.Maximal;
-        var diff = await Task.Run(() => pair.Model.DiffSamples(kind));
+        var diff = await Task.Run(() => pair.Model.DiffSamples(kind, focus));
         Dispatcher.UIThread.Post(() =>
         {
             if (version == _diffVersion) Diff = diff;
