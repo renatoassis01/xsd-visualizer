@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XsdVisualizer.App.ViewModels"
+             xmlns:core="using:XsdVisualizer.Core"
+             xmlns:res="using:XsdVisualizer.App.Resources"
+             xmlns:ae="using:AvaloniaEdit"
+             x:Class="XsdVisualizer.App.Views.XmlEditorView"
+             x:DataType="vm:EditorTabViewModel">
+    <Grid RowDefinitions="Auto,*,4,Auto">
+        <!-- Barra da aba: Samples, Binding, salvar -->
+        <Border Grid.Row="0" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="8,0,0,0" VerticalAlignment="Top">
+                    <Button Content="{x:Static res:Strings.Save}" IsVisible="{Binding IsDocument}"
+                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveCommand}" CommandParameter="{Binding}" />
+                    <Button Content="{x:Static res:Strings.SaveAs}"
+                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveAsCommand}" CommandParameter="{Binding}" />
+                </StackPanel>
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <ComboBox ItemsSource="{Binding SampleItems}" SelectedItem="{Binding SelectedSampleItem}"
+                              IsVisible="{Binding HasSeveralSamples}" MinWidth="220" HorizontalAlignment="Left">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SampleItem">
+                                <TextBlock Text="{Binding Display}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <DockPanel IsVisible="{Binding IsDocument}">
+                        <TextBlock DockPanel.Dock="Left" Text="{x:Static res:Strings.Binding}" VerticalAlignment="Center" Margin="0,0,6,0"
+                                   IsVisible="{Binding Candidates.Count}" />
+                        <ComboBox DockPanel.Dock="Left" ItemsSource="{Binding Candidates}" SelectedItem="{Binding BoundElement}"
+                                  IsVisible="{Binding Candidates.Count}" MinWidth="220" MaxWidth="520">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:GlobalElementViewModel">
+                                    <TextBlock TextTrimming="CharacterEllipsis">
+                                        <Run Text="{Binding Model.Name}" />
+                                        <Run Text="{Binding Model.SchemaSet.Name, StringFormat='  [{0}'}" Foreground="Gray" />
+                                        <Run Text="{Binding SourceFileName, StringFormat=' / {0}]'}" Foreground="Gray" />
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Text="{Binding BindingMessage}" Foreground="DarkOrange" VerticalAlignment="Center"
+                                   TextWrapping="Wrap" Margin="6,0,0,0" />
+                    </DockPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ae:TextEditor Grid.Row="1" x:Name="Editor" Document="{Binding Document}"
+                       ShowLineNumbers="True" FontFamily="{DynamicResource MonospaceFont}" FontSize="13"
+                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
+
+        <GridSplitter Grid.Row="2" ResizeDirection="Rows" />
+
+        <!-- Validation Issues e o que o Sample cobre -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" MaxHeight="220" MinHeight="60">
+            <DockPanel Grid.Column="0" Margin="8,4">
+                <TextBlock DockPanel.Dock="Top" Text="{Binding IssuesSummary}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                <ListBox x:Name="IssueList" ItemsSource="{Binding Issues}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="core:ValidationIssue">
+                            <TextBlock TextWrapping="Wrap" FontSize="12">
+                                <Run Text="{Binding Line, StringFormat='{}{0}:'}" FontWeight="SemiBold" />
+                                <Run Text="{Binding Column, StringFormat='{}{0}  '}" FontWeight="SemiBold" />
+                                <Run Text="{Binding Message}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+            <DockPanel Grid.Column="1" Margin="8,4" Width="340" IsVisible="{Binding HasCovers}">
+                <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Strings.Covers}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                <ListBox ItemsSource="{Binding Covers}" FontSize="12" />
+            </DockPanel>
+        </Grid>
+    </Grid>
+</UserControl>

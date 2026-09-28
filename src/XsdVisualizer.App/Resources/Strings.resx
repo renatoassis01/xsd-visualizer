@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppTitle" xml:space="preserve"><value>XSD Visualizer</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Abrir pasta…</value></data>
+  <data name="OpenXml" xml:space="preserve"><value>Abrir XML…</value></data>
+  <data name="Recent" xml:space="preserve"><value>Recentes</value></data>
+  <data name="NoRecent" xml:space="preserve"><value>(nenhum)</value></data>
+  <data name="ExportAll" xml:space="preserve"><value>Gerar todos…</value></data>
+  <data name="DropHint" xml:space="preserve"><value>Arraste para cá uma pasta de XSDs, um .xsd ou um XML</value></data>
+  <data name="SchemaSets" xml:space="preserve"><value>Schema Sets</value></data>
+  <data name="CloseSchemaSet" xml:space="preserve"><value>Fechar Schema Set</value></data>
+  <data name="LoadIssuesCount" xml:space="preserve"><value>{0} problema(s) na carga</value></data>
+  <data name="SelectElementHint" xml:space="preserve"><value>Selecione um Global Element à esquerda.</value></data>
+  <data name="SearchTree" xml:space="preserve"><value>Pesquisar na árvore (nome ou documentação)…</value></data>
+  <data name="Maximal" xml:space="preserve"><value>Maximal</value></data>
+  <data name="Minimal" xml:space="preserve"><value>Minimal</value></data>
+  <data name="CoverageSet" xml:space="preserve"><value>Coverage Set</value></data>
+  <data name="Save" xml:space="preserve"><value>Salvar</value></data>
+  <data name="SaveAs" xml:space="preserve"><value>Salvar como…</value></data>
+  <data name="CloseTab" xml:space="preserve"><value>Fechar</value></data>
+  <data name="Issues" xml:space="preserve"><value>Validation Issues</value></data>
+  <data name="NoIssues" xml:space="preserve"><value>Nenhum problema de validação.</value></data>
+  <data name="Valid" xml:space="preserve"><value>válido</value></data>
+  <data name="Invalid" xml:space="preserve"><value>inválido</value></data>
+  <data name="Type" xml:space="preserve"><value>Tipo</value></data>
+  <data name="Cardinality" xml:space="preserve"><value>Cardinalidade</value></data>
+  <data name="Facets" xml:space="preserve"><value>Facets</value></data>
+  <data name="Documentation" xml:space="preserve"><value>Documentação</value></data>
+  <data name="Fixed" xml:space="preserve"><value>Valor fixo</value></data>
+  <data name="Default" xml:space="preserve"><value>Valor padrão</value></data>
+  <data name="Path" xml:space="preserve"><value>Caminho</value></data>
+  <data name="Recursive" xml:space="preserve"><value>Recursivo: expanda sob demanda.</value></data>
+  <data name="Wildcard" xml:space="preserve"><value>Aceita qualquer conteúdo do namespace {0}.</value></data>
+  <data name="Branch" xml:space="preserve"><value>Ramo fixado para o Maximal</value></data>
+  <data name="Binding" xml:space="preserve"><value>Validando contra</value></data>
+  <data name="NoCandidate" xml:space="preserve"><value>Nenhum Schema Set aberto declara &lt;{0}&gt;: exibindo sem validação.</value></data>
+  <data name="Malformed" xml:space="preserve"><value>XML malformado: exibindo sem validação.</value></data>
+  <data name="ManyCandidates" xml:space="preserve"><value>Há vários Global Elements possíveis: escolha um para validar.</value></data>
+  <data name="ConfirmSaveTitle" xml:space="preserve"><value>Salvar com erros?</value></data>
+  <data name="ConfirmSaveInvalid" xml:space="preserve"><value>Este documento tem {0} erro(s) de validação. Salvar mesmo assim?</value></data>
+  <data name="ConfirmSave" xml:space="preserve"><value>Salvar mesmo assim</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="Loading" xml:space="preserve"><value>Abrindo {0}…</value></data>
+  <data name="Generating" xml:space="preserve"><value>Gerando {0}…</value></data>
+  <data name="Exporting" xml:space="preserve"><value>Gerando {0}…</value></data>
+  <data name="ExportDone" xml:space="preserve"><value>{0} Samples gravados ({1} inválidos) em {2}.</value></data>
+  <data name="Covers" xml:space="preserve"><value>Cobre</value></data>
+  <data name="SampleOf" xml:space="preserve"><value>Sample {0} de {1}</value></data>
+  <data name="Reloaded" xml:space="preserve"><value>{0} recarregado: arquivos alterados em disco.</value></data>
+  <data name="Saved" xml:space="preserve"><value>Salvo em {0}.</value></data>
+  <data name="Opened" xml:space="preserve"><value>{0} aberto: {1} Global Elements.</value></data>
+  <data name="ChooseExportFolder" xml:space="preserve"><value>Escolha a pasta de saída</value></data>
+  <data name="ChooseSchemaFolder" xml:space="preserve"><value>Escolha a pasta de XSDs</value></data>
+  <data name="ChooseXml" xml:space="preserve"><value>Escolha um XML</value></data>
+  <data name="Error" xml:space="preserve"><value>Erro: {0}</value></data>
+  <data name="Ready" xml:space="preserve"><value>Pronto.</value></data>
+</root>

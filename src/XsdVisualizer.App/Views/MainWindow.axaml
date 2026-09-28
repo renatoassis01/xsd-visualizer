@@ -1,22 +1,196 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:XsdVisualizer.App.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:views="using:XsdVisualizer.App.Views"
+        xmlns:core="using:XsdVisualizer.Core"
+        xmlns:res="using:XsdVisualizer.App.Resources"
         x:Class="XsdVisualizer.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="XsdVisualizer.App">
+        Title="{x:Static res:Strings.AppTitle}"
+        Width="1400" Height="850"
+        DragDrop.AllowDrop="True">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
+    <Window.Styles>
+        <Style Selector="Button.tool">
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+        </Style>
+        <Style Selector="Button.icon">
+            <Setter Property="Padding" Value="4,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,8,0,2" />
+        </Style>
+    </Window.Styles>
 
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+    <DockPanel>
+        <!-- Barra superior -->
+        <Border DockPanel.Dock="Top" Padding="8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <StackPanel Orientation="Horizontal">
+                <Button Classes="tool" Content="{x:Static res:Strings.OpenFolder}" Command="{Binding OpenFolderCommand}" />
+                <Button Classes="tool" Content="{x:Static res:Strings.OpenXml}" Command="{Binding OpenXmlCommand}" />
+                <Button Classes="tool" Content="{x:Static res:Strings.Recent}">
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <ItemsControl ItemsSource="{Binding Recent}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Button Classes="icon" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                                Content="{Binding}"
+                                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenRecentCommand}"
+                                                CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </StackPanel>
+        </Border>
 
+        <!-- Barra de status -->
+        <Border DockPanel.Dock="Bottom" Padding="8,4" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <DockPanel>
+                <ProgressBar DockPanel.Dock="Right" Width="120" IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+                <TextBlock Text="{Binding Status}" TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+        </Border>
+
+        <Grid ColumnDefinitions="300,4,420,4,*">
+            <!-- Schema Sets e Global Elements -->
+            <DockPanel Grid.Column="0" Margin="8">
+                <TextBlock DockPanel.Dock="Top" Classes="caption" Text="{x:Static res:Strings.SchemaSets}" />
+                <TreeView ItemsSource="{Binding SchemaSets}" SelectedItem="{Binding SelectedSchemaItem}">
+                    <TreeView.DataTemplates>
+                        <TreeDataTemplate DataType="vm:SchemaSetViewModel" ItemsSource="{Binding GlobalElements}">
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{Binding Folder}">
+                                <StackPanel MaxWidth="180">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding LoadIssuesSummary}" Foreground="OrangeRed" FontSize="11"
+                                               IsVisible="{Binding HasLoadIssues}">
+                                        <ToolTip.Tip>
+                                            <ItemsControl ItemsSource="{Binding LoadIssues}" MaxWidth="700" />
+                                        </ToolTip.Tip>
+                                    </TextBlock>
+                                </StackPanel>
+                                <Button Classes="icon" Content="⇩" VerticalAlignment="Top"
+                                        ToolTip.Tip="{x:Static res:Strings.ExportAll}"
+                                        Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ExportAllCommand}"
+                                        CommandParameter="{Binding}" />
+                                <Button Classes="icon" Content="✕" VerticalAlignment="Top"
+                                        ToolTip.Tip="{x:Static res:Strings.CloseSchemaSet}"
+                                        Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).CloseSchemaSetCommand}"
+                                        CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </TreeDataTemplate>
+                        <DataTemplate DataType="vm:GlobalElementViewModel">
+                            <TextBlock Text="{Binding DisplayName}" ToolTip.Tip="{Binding Namespace}" />
+                        </DataTemplate>
+                    </TreeView.DataTemplates>
+                </TreeView>
+            </DockPanel>
+
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+
+            <!-- Árvore do Global Element -->
+            <Grid Grid.Column="2" Margin="8" RowDefinitions="Auto,Auto,Auto,*,4,Auto">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
+                    <Button Classes="tool" Content="{x:Static res:Strings.Maximal}" Command="{Binding GenerateMaximalCommand}" />
+                    <Button Classes="tool" Content="{x:Static res:Strings.Minimal}" Command="{Binding GenerateMinimalCommand}" />
+                    <Button Classes="tool" Content="{x:Static res:Strings.CoverageSet}" Command="{Binding GenerateCoverageSetCommand}" />
+                </StackPanel>
+                <TextBox Grid.Row="1" PlaceholderText="{x:Static res:Strings.SearchTree}" Text="{Binding SearchText}"
+                         IsEnabled="{Binding HasSelectedElement}" />
+                <ListBox Grid.Row="2" MaxHeight="180" Margin="0,4,0,0" ItemsSource="{Binding SearchResults}"
+                         SelectedItem="{Binding SelectedSearchResult}" IsVisible="{Binding SearchResults.Count}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SearchResultViewModel">
+                            <TextBlock Text="{Binding Display}" FontSize="12" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Panel Grid.Row="3" Margin="0,6,0,0">
+                    <TextBlock Text="{x:Static res:Strings.SelectElementHint}" Opacity="0.6"
+                               IsVisible="{Binding !HasSelectedElement}" />
+                    <TreeView ItemsSource="{Binding TreeRoots}">
+                        <TreeView.Styles>
+                            <Style Selector="TreeViewItem" x:DataType="vm:SchemaNodeViewModel">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            </Style>
+                        </TreeView.Styles>
+                        <TreeView.DataTemplates>
+                            <TreeDataTemplate DataType="vm:SchemaNodeViewModel" ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding Icon}" Opacity="0.6" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Cardinality}" Opacity="0.6" FontSize="11" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding TypeName}" Opacity="0.6" FontSize="11" FontStyle="Italic" VerticalAlignment="Center" />
+                                    <TextBlock Text="↻" IsVisible="{Binding IsRecursive}" VerticalAlignment="Center" />
+                                    <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding Branches}"
+                                              SelectedIndex="{Binding PinnedBranch}" FontSize="11" Padding="4,0" MinHeight="22"
+                                              ToolTip.Tip="{x:Static res:Strings.Branch}" />
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.DataTemplates>
+                    </TreeView>
+                </Panel>
+                <GridSplitter Grid.Row="4" ResizeDirection="Rows" />
+                <ScrollViewer Grid.Row="5" MaxHeight="280" DataContext="{Binding SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
+                              IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel>
+                        <TextBlock Classes="caption" Text="{Binding Label}" FontSize="15" />
+                        <TextBlock Text="{Binding Node.Path}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" Foreground="DarkOrange"
+                                   IsVisible="{Binding Notes, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Type}" />
+                        <SelectableTextBlock Text="{Binding TypeName}" />
+                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Cardinality}" />
+                        <TextBlock Text="{Binding Cardinality}" />
+                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Fixed}"
+                                   IsVisible="{Binding Node.FixedValue, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <SelectableTextBlock Text="{Binding Node.FixedValue}"
+                                             IsVisible="{Binding Node.FixedValue, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Facets}" IsVisible="{Binding HasFacets}" />
+                        <SelectableTextBlock Text="{Binding FacetsText}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}"
+                                             IsVisible="{Binding HasFacets}" />
+                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Documentation}"
+                                   IsVisible="{Binding Documentation, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <GridSplitter Grid.Column="3" ResizeDirection="Columns" />
+
+            <!-- Editor -->
+            <Panel Grid.Column="4">
+                <TextBlock Text="{x:Static res:Strings.DropHint}" Opacity="0.5" FontSize="16"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           IsVisible="{Binding !Tabs.Count}" />
+                <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EditorTabViewModel">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" />
+                                <TextBlock Text="●" FontSize="10" IsVisible="{Binding IsDirty}" VerticalAlignment="Center" />
+                                <Button Classes="icon" Content="✕" ToolTip.Tip="{x:Static res:Strings.CloseTab}"
+                                        Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).CloseTabCommand}"
+                                        CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate x:DataType="vm:EditorTabViewModel">
+                            <views:XmlEditorView />
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+            </Panel>
+        </Grid>
+    </DockPanel>
 </Window>
