@@ -10,7 +10,7 @@
   <data name="Recent" xml:space="preserve"><value>Recentes</value></data>
   <data name="NoRecent" xml:space="preserve"><value>(nenhum)</value></data>
   <data name="ExportAll" xml:space="preserve"><value>Gerar todos…</value></data>
-  <data name="DropHint" xml:space="preserve"><value>Arraste para cá uma pasta de XSDs, um .xsd ou um XML</value></data>
+  <data name="DropHint" xml:space="preserve"><value>Arraste para cá uma pasta de XSDs, um .xsd, um .wsdl ou um XML</value></data>
   <data name="SchemaSets" xml:space="preserve"><value>Schema Sets</value></data>
   <data name="CloseSchemaSet" xml:space="preserve"><value>Fechar Schema Set</value></data>
   <data name="LoadIssuesCount" xml:space="preserve"><value>{0} Validation Issue(s) na carga</value></data>
