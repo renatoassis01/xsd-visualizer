@@ -4,15 +4,15 @@ namespace XsdVisualizer.App.Themes;
 
 public enum ThemeMode { System, Light, Dark }
 
-/// <summary>Todas as cores de um tema, em "#RRGGBB", por papel na interface.</summary>
+/// <summary>Todas as cores de um tema, por papel na interface.</summary>
 public sealed record ThemeColors(
-    string Window, string Panel, string Editor, string Selection, string Hover, string Border,
-    string Text, string TextMuted, string Accent, string OnAccent, string Link,
-    string SyntaxTag, string SyntaxAttribute, string SyntaxValue, string SyntaxComment,
-    string SyntaxDeclaration, string SyntaxEntity, string SyntaxCData,
-    string DiffAdded, string DiffRemoved, string DiffModified,
-    string DiffAddedLine, string DiffRemovedLine, string DiffModifiedLine, string DiffBlankLine,
-    string IssueError, string IssueWarning);
+    ThemeColor Window, ThemeColor Panel, ThemeColor Editor, ThemeColor Selection, ThemeColor Hover, ThemeColor Border,
+    ThemeColor Text, ThemeColor TextMuted, ThemeColor Accent, ThemeColor OnAccent, ThemeColor Link,
+    ThemeColor SyntaxTag, ThemeColor SyntaxAttribute, ThemeColor SyntaxValue, ThemeColor SyntaxComment,
+    ThemeColor SyntaxDeclaration, ThemeColor SyntaxEntity, ThemeColor SyntaxCData,
+    ThemeColor DiffAdded, ThemeColor DiffRemoved, ThemeColor DiffModified,
+    ThemeColor DiffAddedLine, ThemeColor DiffRemovedLine, ThemeColor DiffModifiedLine, ThemeColor DiffBlankLine,
+    ThemeColor IssueError, ThemeColor IssueWarning);
 
 /// <summary>
 /// Um tema da lista de Configurações. Os padrões (Sistema/Claro/Escuro) mantêm o Fluent e a cor de destaque

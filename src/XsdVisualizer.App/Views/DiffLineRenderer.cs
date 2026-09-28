@@ -14,13 +14,13 @@ internal sealed class DiffLineRenderer : IBackgroundRenderer
 
     private static IBrush? Fill(DiffLineKind kind)
     {
-        var c = Themes.ThemeApplier.Colors;
+        var brushes = Themes.ThemeApplier.Brushes;
         return kind switch
         {
-            DiffLineKind.Added => Themes.ThemeApplier.Brush(c.DiffAddedLine),
-            DiffLineKind.Removed => Themes.ThemeApplier.Brush(c.DiffRemovedLine),
-            DiffLineKind.Modified => Themes.ThemeApplier.Brush(c.DiffModifiedLine),
-            DiffLineKind.Imaginary => Themes.ThemeApplier.Brush(c.DiffBlankLine),
+            DiffLineKind.Added => brushes.DiffAddedLine,
+            DiffLineKind.Removed => brushes.DiffRemovedLine,
+            DiffLineKind.Modified => brushes.DiffModifiedLine,
+            DiffLineKind.Imaginary => brushes.DiffBlankLine,
             _ => null,
         };
     }
@@ -36,7 +36,7 @@ internal sealed class DiffLineRenderer : IBackgroundRenderer
             var rect = new Rect(0, y, textView.Bounds.Width, visual.Height);
             if (Fill(Lines[index].Kind) is { } brush) context.FillRectangle(brush, rect);
             if (Highlighted == index)
-                context.DrawRectangle(null, new Pen(Themes.ThemeApplier.Brush(Themes.ThemeApplier.Colors.Accent), 1.5), rect.Deflate(0.75));
+                context.DrawRectangle(null, Themes.ThemeApplier.Brushes.RevealedLine, rect.Deflate(0.75));
         }
     }
 }

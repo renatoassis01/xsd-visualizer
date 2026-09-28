@@ -21,10 +21,10 @@ public sealed record ThemeOption(AppTheme Theme)
 
     // "Igual ao sistema" mostra a amostra do modo claro.
     private ThemeColors Swatch => Theme.ColorsFor(Theme.Mode == ThemeMode.Dark);
-    public IBrush Background => ThemeApplier.Brush(Swatch.Editor);
-    public IBrush Accent => ThemeApplier.Brush(Swatch.Accent);
-    public IBrush Tag => ThemeApplier.Brush(Swatch.SyntaxTag);
-    public IBrush Attribute => ThemeApplier.Brush(Swatch.SyntaxAttribute);
-    public IBrush Value => ThemeApplier.Brush(Swatch.SyntaxValue);
-    public IBrush Border => ThemeApplier.Brush(Swatch.Border);
+    public IBrush Background => ThemeBrushes.ToBrush(Swatch.Editor);
+    public IBrush Accent => ThemeBrushes.ToBrush(Swatch.Accent);
+    public IBrush Tag => ThemeBrushes.ToBrush(Swatch.SyntaxTag);
+    public IBrush Attribute => ThemeBrushes.ToBrush(Swatch.SyntaxAttribute);
+    public IBrush Value => ThemeBrushes.ToBrush(Swatch.SyntaxValue);
+    public IBrush Border => ThemeBrushes.ToBrush(Swatch.Border);
 }

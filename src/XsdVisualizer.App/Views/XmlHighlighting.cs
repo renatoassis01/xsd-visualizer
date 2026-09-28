@@ -11,7 +11,7 @@ internal static class XmlHighlighting
 
     public static void Apply(ThemeColors c)
     {
-        var palette = new Dictionary<string, string>
+        var palette = new Dictionary<string, ThemeColor>
         {
             ["Comment"] = c.SyntaxComment,
             ["CData"] = c.SyntaxCData,
@@ -24,9 +24,9 @@ internal static class XmlHighlighting
             ["BrokenEntity"] = c.IssueError,
         };
         foreach (var color in Definition.NamedHighlightingColors)
-            if (palette.TryGetValue(color.Name, out var hex))
-                color.Foreground = new SimpleHighlightingBrush(Color.Parse(hex));
+            if (palette.TryGetValue(color.Name, out var value))
+                color.Foreground = new SimpleHighlightingBrush(ThemeBrushes.ToColor(value));
     }
 
-    public static IBrush LinkBrush(ThemeColors c) => ThemeApplier.Brush(c.Link);
+    public static IBrush LinkBrush => ThemeApplier.Brushes.Link;
 }

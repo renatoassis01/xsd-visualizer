@@ -29,19 +29,19 @@ public class ThemeCatalogTests
     public void Named_themes_bring_their_own_accent_and_the_defaults_keep_the_system_accent()
     {
         Assert.All(ThemeCatalog.All, t => Assert.Equal(!t.IsNamed, t.UsesSystemAccent));
-        Assert.Equal("#BD93F9", ThemeCatalog.Get(ThemeChoice.Dracula).ColorsFor(dark: true).Accent, ignoreCase: true);
+        Assert.Equal("#BD93F9", ThemeCatalog.Get(ThemeChoice.Dracula).ColorsFor(dark: true).Accent.ToString(), ignoreCase: true);
     }
 
     [Theory]
     [MemberData(nameof(Palettes))]
-    public void Every_theme_defines_every_color_as_a_hex_value(ThemeChoice choice, bool dark)
+    public void Every_theme_defines_every_color(ThemeChoice choice, bool dark)
     {
         var colors = ThemeCatalog.Get(choice).ColorsFor(dark);
 
         foreach (var property in typeof(ThemeColors).GetProperties())
         {
-            var value = property.GetValue(colors) as string;
-            Assert.True(value is { Length: 7 } && value[0] == '#' && int.TryParse(value[1..], NumberStyles.HexNumber, null, out _),
+            var value = property.GetValue(colors);
+            Assert.True(value is ThemeColor color && ThemeColor.Parse(color.ToString()) == color,
                 $"{choice}/{(dark ? "dark" : "light")}: {property.Name} = '{value}'");
         }
     }
@@ -60,7 +60,7 @@ public class ThemeCatalogTests
         foreach (var line in new[] { c.DiffAddedLine, c.DiffRemovedLine, c.DiffModifiedLine })
             AssertContrast(c.Text, line, 4.5, "texto/linha do diff");
 
-        void AssertContrast(string fg, string bg, double min, string what) =>
+        void AssertContrast(ThemeColor fg, ThemeColor bg, double min, string what) =>
             Assert.True(Contrast(fg, bg) >= min, $"{choice}/{(dark ? "dark" : "light")} {what}: {fg} sobre {bg} = {Contrast(fg, bg):0.00} (< {min})");
     }
 
@@ -69,13 +69,13 @@ public class ThemeCatalogTests
     public void Syntax_diff_link_and_underline_colors_stand_out_from_their_background(ThemeChoice choice, bool dark)
     {
         var c = ThemeCatalog.Get(choice).ColorsFor(dark);
-        var onEditor = new Dictionary<string, string>
+        var onEditor = new Dictionary<string, ThemeColor>
         {
             ["tag"] = c.SyntaxTag, ["atributo"] = c.SyntaxAttribute, ["valor"] = c.SyntaxValue, ["comentário"] = c.SyntaxComment,
             ["declaração"] = c.SyntaxDeclaration, ["entidade"] = c.SyntaxEntity, ["cdata"] = c.SyntaxCData, ["link"] = c.Link,
             ["erro"] = c.IssueError, ["aviso"] = c.IssueWarning,
         };
-        var onPanel = new Dictionary<string, string>
+        var onPanel = new Dictionary<string, ThemeColor>
         {
             ["entrou"] = c.DiffAdded, ["saiu"] = c.DiffRemoved, ["mudou"] = c.DiffModified, ["destaque"] = c.Accent,
         };
@@ -92,7 +92,7 @@ public class ThemeCatalogTests
     public void Colors_stay_readable_where_they_are_also_drawn(ThemeChoice choice, bool dark)
     {
         var c = ThemeCatalog.Get(choice).ColorsFor(dark);
-        var pairs = new List<(string What, string Fg, string Bg)> { ("texto secundário/editor (números de linha)", c.TextMuted, c.Editor) };
+        var pairs = new List<(string What, ThemeColor Fg, ThemeColor Bg)> { ("texto secundário/editor (números de linha)", c.TextMuted, c.Editor) };
         foreach (var line in new[] { c.DiffAddedLine, c.DiffRemovedLine, c.DiffModifiedLine })
             foreach (var syntax in new[] { c.SyntaxTag, c.SyntaxAttribute, c.SyntaxValue, c.SyntaxComment, c.SyntaxDeclaration })
                 pairs.Add(("sintaxe/linha do diff", syntax, line));
@@ -124,19 +124,19 @@ public class ThemeCatalogTests
     }
 
     // Fórmulas da WCAG 2.x (luminância relativa e razão de contraste), independentes do código de produção.
-    private static double Contrast(string a, string b)
+    private static double Contrast(ThemeColor a, ThemeColor b)
     {
         var (la, lb) = (Luminance(a), Luminance(b));
         return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
     }
 
-    private static double Luminance(string hex)
+    private static double Luminance(ThemeColor color)
     {
-        double Channel(int i)
+        static double Channel(byte value)
         {
-            var c = int.Parse(hex.Substring(1 + i * 2, 2), NumberStyles.HexNumber) / 255.0;
+            var c = value / 255.0;
             return c <= 0.03928 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
         }
-        return 0.2126 * Channel(0) + 0.7152 * Channel(1) + 0.0722 * Channel(2);
+        return 0.2126 * Channel(color.R) + 0.7152 * Channel(color.G) + 0.0722 * Channel(color.B);
     }
 }

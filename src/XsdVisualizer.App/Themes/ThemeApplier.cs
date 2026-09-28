@@ -6,6 +6,8 @@ using Avalonia.Themes.Fluent;
 namespace XsdVisualizer.App.Themes;
 
 /// <summary>
+/// Tema ativo do app. É estado global de propósito: o tema é do app inteiro (todas as janelas e editores), e
+/// passá-lo por injeção a cada controle só aumentaria o código de ligação.
 /// Aplica um tema do catálogo ao app: variante claro/escuro (e a barra de título), paleta do Fluent e os recursos
 /// próprios (editor, diff, avisos). A paleta do Fluent só vale se estiver na instância quando ela carrega, então
 /// trocar de tema troca a instância do FluentTheme.
@@ -16,6 +18,9 @@ public static class ThemeApplier
 
     /// <summary>Cores em uso agora (para "Igual ao sistema", as do modo atual do sistema).</summary>
     public static ThemeColors Colors { get; private set; } = ThemeCatalog.All[0].Light;
+
+    /// <summary>Pincéis prontos das cores em uso, para renderizadores e editores.</summary>
+    public static ThemeBrushes Brushes { get; private set; } = new(ThemeCatalog.All[0].Light);
 
     /// <summary>Disparado depois de trocar o tema ou o modo do sistema: editores e diffs se redesenham.</summary>
     public static event Action<ThemeColors>? Changed;
@@ -48,7 +53,8 @@ public static class ThemeApplier
     {
         var dark = Theme.Mode == ThemeMode.System ? app.ActualThemeVariant == ThemeVariant.Dark : Theme.Mode == ThemeMode.Dark;
         var c = Colors = Theme.ColorsFor(dark);
-        void Set(string key, string color) => app.Resources[key] = new SolidColorBrush(Color.Parse(color));
+        Brushes = new ThemeBrushes(c);
+        void Set(string key, ThemeColor color) => app.Resources[key] = ThemeBrushes.ToBrush(color);
         Set("EditorBackground", c.Editor);
         Set("EditorForeground", c.Text);
         Set("EditorLineNumbers", c.TextMuted);
@@ -61,11 +67,9 @@ public static class ThemeApplier
         Changed?.Invoke(c);
     }
 
-    public static IBrush Brush(string color) => new SolidColorBrush(Color.Parse(color));
-
     private static ColorPaletteResources Palette(ThemeColors c)
     {
-        Color C(string hex) => Color.Parse(hex);
+        static Color C(ThemeColor color) => ThemeBrushes.ToColor(color);
         return new ColorPaletteResources
         {
             Accent = C(c.Accent),

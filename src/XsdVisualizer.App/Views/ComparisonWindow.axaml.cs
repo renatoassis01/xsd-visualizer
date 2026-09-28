@@ -99,7 +99,7 @@ public partial class ComparisonWindow : Window
         XmlHighlighting.Apply(c);
         foreach (var editor in new[] { BeforeEditor, AfterEditor })
         {
-            editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(c);
+            editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush;
             editor.TextArea.TextView.Redraw();
         }
     }

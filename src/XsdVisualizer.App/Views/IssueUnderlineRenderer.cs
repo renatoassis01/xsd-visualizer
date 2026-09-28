@@ -9,8 +9,8 @@ namespace XsdVisualizer.App.Views;
 /// <summary>Sublinha no editor o trecho apontado por cada Validation Issue.</summary>
 internal sealed class IssueUnderlineRenderer : IBackgroundRenderer
 {
-    private static IPen ErrorPen => new Pen(Themes.ThemeApplier.Brush(Themes.ThemeApplier.Colors.IssueError), 1.5);
-    private static IPen WarningPen => new Pen(Themes.ThemeApplier.Brush(Themes.ThemeApplier.Colors.IssueWarning), 1.5);
+    private static IPen ErrorPen => Themes.ThemeApplier.Brushes.ErrorUnderline;
+    private static IPen WarningPen => Themes.ThemeApplier.Brushes.WarningUnderline;
 
     public IReadOnlyList<ValidationIssue> Issues { get; set; } = [];
     public KnownLayer Layer => KnownLayer.Selection;
