@@ -6,7 +6,7 @@
         xmlns:res="using:XsdVisualizer.App.Resources"
         x:Class="XsdVisualizer.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/app.png"
         Title="{x:Static res:Strings.AppTitle}"
         Width="1400" Height="850"
         DragDrop.AllowDrop="True">
@@ -29,6 +29,12 @@
                     </Border>
                     <TextBlock Text="{x:Static res:Strings.AppTitle}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center" />
                 </StackPanel>
+                <Button DockPanel.Dock="Right" Classes="toolbar" Click="OnSettingsClick" ToolTip.Tip="{x:Static res:Strings.Settings}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconSettings}" />
+                        <TextBlock Text="{x:Static res:Strings.Settings}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
                 <Button DockPanel.Dock="Right" Classes="toolbar" Click="OnAboutClick" ToolTip.Tip="{x:Static res:Strings.About}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource IconInfo}" />

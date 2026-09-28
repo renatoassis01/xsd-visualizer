@@ -1,7 +1,6 @@
 using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
-using AvaloniaEdit.Highlighting;
 using XsdVisualizer.App.ViewModels;
 using XsdVisualizer.Core;
 
@@ -15,12 +14,31 @@ public partial class XmlEditorView : UserControl
     public XmlEditorView()
     {
         InitializeComponent();
-        Editor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("XML");
+        XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
+        Editor.SyntaxHighlighting = XmlHighlighting.Definition;
         Editor.TextArea.TextView.BackgroundRenderers.Add(_underlines);
         IssueList.SelectionChanged += (_, _) =>
         {
             if (IssueList.SelectedItem is ValidationIssue issue) GoTo(issue);
         };
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        if (Application.Current is { } app) app.ActualThemeVariantChanged += OnThemeChanged;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (Application.Current is { } app) app.ActualThemeVariantChanged -= OnThemeChanged;
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
+        Editor.TextArea.TextView.Redraw();
     }
 
     protected override void OnDataContextChanged(EventArgs e)

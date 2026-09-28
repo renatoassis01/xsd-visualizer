@@ -11,17 +11,18 @@ namespace XsdVisualizer.App.ViewModels;
 public sealed partial class MainViewModel : ViewModelBase, IDisposable
 {
     private const int MaxSearchResults = 300;
-    private readonly SessionStore _session = new();
+    private readonly SessionStore _session;
     private readonly SchemaSetLoader _loader = new();
     private readonly Dictionary<string, SchemaFolderWatcher> _watchers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Task> _opening = new(StringComparer.Ordinal);
     private CancellationTokenSource? _exportCancellation;
 
-    public MainViewModel()
+    public MainViewModel(SessionStore session)
     {
-        var session = _session.Load();
-        Recent = new(session.Recent);
-        foreach (var folder in session.OpenSchemaSets.Where(Directory.Exists))
+        _session = session;
+        var saved = session.Current;
+        Recent = new(saved.Recent);
+        foreach (var folder in saved.OpenSchemaSets.Where(Directory.Exists))
             _ = OpenSchemaSetAsync(folder, remember: false);
     }
 
@@ -232,7 +233,14 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         foreach (var tab in Tabs) tab.RefreshBinding(SchemaSets.Select(s => s.Model));
     }
 
-    private void SaveSession() => _session.Save(SchemaSets.Select(s => s.Folder), Recent);
+    private void SaveSession() => _session.SaveSchemaSets(SchemaSets.Select(s => s.Folder), Recent);
+
+    /// <summary>Depois de trocar o idioma: textos que o view model guarda voltam a ser lidos dos recursos.</summary>
+    public void RefreshTexts()
+    {
+        Status = Strings.Ready;
+        foreach (var set in SchemaSets) set.RefreshTexts();
+    }
 
     // ---- Gerar ----
     private bool CanGenerate() => SelectedElement is not null && !IsBusy;

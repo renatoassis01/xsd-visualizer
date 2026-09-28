@@ -43,8 +43,8 @@
                                 <DataTemplate x:DataType="vm:GlobalElementViewModel">
                                     <TextBlock TextTrimming="CharacterEllipsis">
                                         <Run Text="{Binding Model.Name}" />
-                                        <Run Text="{Binding Model.SchemaSet.Name, StringFormat='  [{0}'}" Foreground="Gray" />
-                                        <Run Text="{Binding SourceFileName, StringFormat=' / {0}]'}" Foreground="Gray" />
+                                        <Run Text="{Binding Model.SchemaSet.Name, StringFormat='  [{0}'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                        <Run Text="{Binding SourceFileName, StringFormat=' / {0}]'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                                     </TextBlock>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>

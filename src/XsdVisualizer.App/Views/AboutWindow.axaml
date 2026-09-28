@@ -4,7 +4,8 @@
         x:Class="XsdVisualizer.App.Views.AboutWindow"
         Title="{x:Static res:Strings.About}"
         Width="420" SizeToContent="Height" CanResize="False"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Icon="/Assets/app.png">
     <StackPanel Margin="28" Spacing="10" HorizontalAlignment="Center">
         <Border Width="64" Height="64" CornerRadius="16" HorizontalAlignment="Center"
                 Background="{DynamicResource SystemControlHighlightAccentBrush}">
@@ -14,6 +15,15 @@
         <TextBlock x:Name="Version" Opacity="0.6" HorizontalAlignment="Center" />
         <TextBlock Text="{x:Static res:Strings.AboutDescription}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,6,0,0" />
         <TextBlock Text="{x:Static res:Strings.AboutBuiltWith}" Opacity="0.6" FontSize="12" HorizontalAlignment="Center" />
+        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+            <TextBlock Text="{x:Static res:Strings.Author}" Opacity="0.6" VerticalAlignment="Center" />
+            <HyperlinkButton NavigateUri="https://github.com/renatoassis01" Padding="4,2">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Data="{StaticResource IconGithub}" Width="14" Height="14" />
+                    <TextBlock Text="renatoassis01" VerticalAlignment="Center" />
+                </StackPanel>
+            </HyperlinkButton>
+        </StackPanel>
         <Button x:Name="CloseButton" Classes="accent" Content="{x:Static res:Strings.Close}" HorizontalAlignment="Center"
                 Margin="0,10,0,0" IsDefault="True" IsCancel="True" />
     </StackPanel>

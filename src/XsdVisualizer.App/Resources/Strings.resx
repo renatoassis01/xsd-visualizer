@@ -68,4 +68,14 @@
   <data name="MinimalTip" xml:space="preserve"><value>Só o que o Schema Set exige</value></data>
   <data name="CoverageTip" xml:space="preserve"><value>Cada ramo de choice, opcional e valor de enumeração aparece ao menos uma vez</value></data>
   <data name="Generate" xml:space="preserve"><value>Gerar</value></data>
+  <data name="Settings" xml:space="preserve"><value>Configurações</value></data>
+  <data name="SettingsMenu" xml:space="preserve"><value>Configurações…</value></data>
+  <data name="Theme" xml:space="preserve"><value>Tema</value></data>
+  <data name="ThemeSystem" xml:space="preserve"><value>Igual ao sistema</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Claro</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Escuro</value></data>
+  <data name="Language" xml:space="preserve"><value>Idioma</value></data>
+  <data name="LanguageSystem" xml:space="preserve"><value>Igual ao sistema</value></data>
+  <data name="Author" xml:space="preserve"><value>Autor</value></data>
+  <data name="SettingsHint" xml:space="preserve"><value>As mudanças são aplicadas na hora e ficam salvas.</value></data>
 </root>

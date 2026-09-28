@@ -60,6 +60,9 @@ public partial class MainWindow : Window, IDialogService
 
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(this);
 
+    private void OnSettingsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
+        (Avalonia.Application.Current as App)?.ShowSettings();
+
     private void OnAboutClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => _ = ShowAboutAsync();
 
     public Task<bool> ConfirmAsync(string title, string message, string confirm, string cancel) =>

@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="using:XsdVisualizer.App.Resources"
+        x:Class="XsdVisualizer.App.Views.SettingsWindow"
+        Title="{x:Static res:Strings.Settings}"
+        Width="420" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Icon="/Assets/app.png">
+    <StackPanel Margin="24" Spacing="16">
+        <TextBlock Text="{x:Static res:Strings.Settings}" FontSize="20" FontWeight="SemiBold" />
+        <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto" RowSpacing="12">
+            <TextBlock Grid.Row="0" Text="{x:Static res:Strings.Theme}" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ThemeBox" HorizontalAlignment="Stretch" />
+            <TextBlock Grid.Row="1" Text="{x:Static res:Strings.Language}" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="LanguageBox" HorizontalAlignment="Stretch" />
+        </Grid>
+        <TextBlock Text="{x:Static res:Strings.SettingsHint}" Opacity="0.6" FontSize="12" TextWrapping="Wrap" />
+        <Button x:Name="CloseButton" Classes="accent" Content="{x:Static res:Strings.Close}" HorizontalAlignment="Right"
+                IsDefault="True" IsCancel="True" />
+    </StackPanel>
+</Window>

@@ -19,4 +19,6 @@ public sealed class SchemaSetViewModel : ViewModelBase
     public IReadOnlyList<ValidationIssue> LoadIssues => Model.LoadIssues;
     public bool HasLoadIssues => LoadIssues.Count > 0;
     public string LoadIssuesSummary => string.Format(Strings.LoadIssuesCount, LoadIssues.Count);
+
+    public void RefreshTexts() => OnPropertyChanged(nameof(LoadIssuesSummary));
 }
