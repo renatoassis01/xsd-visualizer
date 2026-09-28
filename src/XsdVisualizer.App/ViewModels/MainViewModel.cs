@@ -100,7 +100,21 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     [ObservableProperty] public partial IReadOnlyList<SearchResultViewModel> SearchResults { get; set; } = [];
     [ObservableProperty] public partial SearchResultViewModel? SelectedSearchResult { get; set; }
 
-    partial void OnSearchTextChanged(string value) => SearchResults = Search(value);
+    partial void OnSearchTextChanged(string value)
+    {
+        SearchResults = Search(value);
+        OnPropertyChanged(nameof(SearchSummary));
+        OnPropertyChanged(nameof(HasSearchText));
+    }
+
+    public bool HasSearchText => !string.IsNullOrWhiteSpace(SearchText);
+
+    public string SearchSummary => SearchResults.Count == 0
+        ? Strings.NoSearchResults
+        : string.Format(Strings.SearchResults, SearchResults.Count);
+
+    [RelayCommand]
+    private void ClearSearch() => SearchText = "";
 
     partial void OnSelectedSearchResultChanged(SearchResultViewModel? value)
     {

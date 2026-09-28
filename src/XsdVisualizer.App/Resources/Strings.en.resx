@@ -15,7 +15,7 @@
   <data name="CloseSchemaSet" xml:space="preserve"><value>Close Schema Set</value></data>
   <data name="LoadIssuesCount" xml:space="preserve"><value>{0} Validation Issue(s) while loading</value></data>
   <data name="SelectElementHint" xml:space="preserve"><value>Select a Global Element on the left.</value></data>
-  <data name="SearchTree" xml:space="preserve"><value>Search the tree (name or documentation)…</value></data>
+  <data name="SearchTree" xml:space="preserve"><value>Search by name or documentation</value></data>
   <data name="Maximal" xml:space="preserve"><value>Maximal</value></data>
   <data name="Minimal" xml:space="preserve"><value>Minimal</value></data>
   <data name="CoverageSet" xml:space="preserve"><value>Coverage Set</value></data>
@@ -81,4 +81,7 @@
   <data name="Copy" xml:space="preserve"><value>Copy</value></data>
   <data name="CopyTip" xml:space="preserve"><value>Copy the whole XML</value></data>
   <data name="Copied" xml:space="preserve"><value>XML copied to the clipboard.</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>{0} result(s)</value></data>
+  <data name="NoSearchResults" xml:space="preserve"><value>No results</value></data>
+  <data name="ClearSearch" xml:space="preserve"><value>Clear search (Esc)</value></data>
 </root>

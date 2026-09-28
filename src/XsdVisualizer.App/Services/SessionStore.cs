@@ -24,8 +24,10 @@ public sealed class Session
 public sealed class SessionStore
 {
     private const int MaxRecent = 10;
-    private readonly string _file = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XsdVisualizer", "session.json");
+    /// <summary>XSDVISUALIZER_SESSION troca o arquivo (útil para testes não mexerem na sessão real).</summary>
+    private readonly string _file = Environment.GetEnvironmentVariable("XSDVISUALIZER_SESSION") is { Length: > 0 } custom
+        ? custom
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XsdVisualizer", "session.json");
 
     public SessionStore() => Current = Load();
 

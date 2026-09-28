@@ -183,16 +183,39 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <TextBox Grid.Row="1" PlaceholderText="{x:Static res:Strings.SearchTree}" Text="{Binding SearchText}"
-                         IsEnabled="{Binding HasSelectedElement}" />
-                <ListBox Grid.Row="2" MaxHeight="180" Margin="0,4,0,0" ItemsSource="{Binding SearchResults}"
-                         SelectedItem="{Binding SelectedSearchResult}" IsVisible="{Binding SearchResults.Count}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="vm:SearchResultViewModel">
-                            <TextBlock Text="{Binding Display}" FontSize="12" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <TextBox Grid.Row="1" Classes="search" PlaceholderText="{x:Static res:Strings.SearchTree}" Text="{Binding SearchText}"
+                         IsEnabled="{Binding HasSelectedElement}">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                    </TextBox.KeyBindings>
+                    <TextBox.InnerLeftContent>
+                        <PathIcon Classes="searchIcon" Data="{StaticResource IconSearch}" />
+                    </TextBox.InnerLeftContent>
+                    <TextBox.InnerRightContent>
+                        <Button Classes="icon" Margin="0,0,4,0" Command="{Binding ClearSearchCommand}"
+                                ToolTip.Tip="{x:Static res:Strings.ClearSearch}" IsVisible="{Binding HasSearchText}">
+                            <PathIcon Data="{StaticResource IconClose}" Width="10" Height="10" />
+                        </Button>
+                    </TextBox.InnerRightContent>
+                </TextBox>
+                <StackPanel Grid.Row="2" Margin="0,6,0,0" Spacing="4" IsVisible="{Binding HasSearchText}">
+                    <TextBlock Text="{Binding SearchSummary}" FontSize="11" Opacity="0.6" Margin="4,0" />
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                            ClipToBounds="True" IsVisible="{Binding SearchResults.Count}">
+                        <ListBox Classes="results" MaxHeight="200" ItemsSource="{Binding SearchResults}"
+                                 SelectedItem="{Binding SelectedSearchResult}" Background="Transparent">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SearchResultViewModel">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Label}" FontWeight="SemiBold" FontSize="13" />
+                                        <TextBlock Text="{Binding ParentPath}" FontSize="11" Opacity="0.6"
+                                                   TextTrimming="PrefixCharacterEllipsis" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </StackPanel>
                 <Panel Grid.Row="3" Margin="0,6,0,0">
                     <TextBlock Text="{x:Static res:Strings.SelectElementHint}" Opacity="0.6"
                                IsVisible="{Binding !HasSelectedElement}" />
