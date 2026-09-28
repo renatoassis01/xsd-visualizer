@@ -130,6 +130,8 @@
                                     <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding Cardinality}" Opacity="0.6" FontSize="11" VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding TypeName}" Opacity="0.6" FontSize="11" FontStyle="Italic" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Node.WildcardNamespace}" Opacity="0.6" FontSize="11" FontStyle="Italic" VerticalAlignment="Center"
+                                               IsVisible="{Binding Node.WildcardNamespace, Converter={x:Static ObjectConverters.IsNotNull}}" />
                                     <TextBlock Text="↻" IsVisible="{Binding IsRecursive}" VerticalAlignment="Center" />
                                     <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding Branches}"
                                               SelectedIndex="{Binding PinnedBranch}" FontSize="11" Padding="4,0" MinHeight="22"

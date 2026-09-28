@@ -31,7 +31,7 @@ internal sealed class SampleGenerator
         _choices = choices;
     }
 
-    public string Generate(SchemaNode root, string? comment = null)
+    public string Generate(SchemaNode root)
     {
         var buffer = new MemoryStream();
         var settings = new XmlWriterSettings
@@ -44,7 +44,6 @@ internal sealed class SampleGenerator
         using (_writer = XmlWriter.Create(buffer, settings))
         {
             _writer.WriteStartDocument();
-            if (comment is not null) _writer.WriteComment(comment);
             WriteElement(root, _mode, 0);
             _writer.WriteEndDocument();
         }

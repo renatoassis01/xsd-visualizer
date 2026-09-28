@@ -300,9 +300,9 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
 
     private async Task<bool> ConfirmIfInvalid(EditorTabViewModel tab)
     {
-        var errors = tab.Issues.Count(i => i.Severity == IssueSeverity.Error);
-        return errors == 0 || Dialogs is null ||
-               await Dialogs.ConfirmAsync(Strings.ConfirmSaveTitle, string.Format(Strings.ConfirmSaveInvalid, errors), Strings.ConfirmSave, Strings.Cancel);
+        var issues = tab.Issues.Count;
+        return issues == 0 || Dialogs is null ||
+               await Dialogs.ConfirmAsync(Strings.ConfirmSaveTitle, string.Format(Strings.ConfirmSaveInvalid, issues), Strings.ConfirmSave, Strings.Cancel);
     }
 
     private async Task WriteTab(EditorTabViewModel tab, string path)

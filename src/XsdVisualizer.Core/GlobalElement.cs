@@ -30,7 +30,7 @@ public sealed class GlobalElement
     public Sample GenerateMaximal(IReadOnlyDictionary<string, int>? pins = null) =>
         Finish(SampleKind.Maximal, 0, new SampleGenerator(GenerationMode.Maximal, new PinnedChoices(pins)).Generate(Tree), []);
 
-    /// <summary>Sample só com o que o schema exige.</summary>
+    /// <summary>Sample só com o que o Schema Set exige.</summary>
     public Sample GenerateMinimal() =>
         Finish(SampleKind.Minimal, 0, new SampleGenerator(GenerationMode.Minimal, new PinnedChoices(null)).Generate(Tree), []);
 

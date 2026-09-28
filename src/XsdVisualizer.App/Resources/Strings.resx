@@ -13,7 +13,7 @@
   <data name="DropHint" xml:space="preserve"><value>Arraste para cá uma pasta de XSDs, um .xsd ou um XML</value></data>
   <data name="SchemaSets" xml:space="preserve"><value>Schema Sets</value></data>
   <data name="CloseSchemaSet" xml:space="preserve"><value>Fechar Schema Set</value></data>
-  <data name="LoadIssuesCount" xml:space="preserve"><value>{0} problema(s) na carga</value></data>
+  <data name="LoadIssuesCount" xml:space="preserve"><value>{0} Validation Issue(s) na carga</value></data>
   <data name="SelectElementHint" xml:space="preserve"><value>Selecione um Global Element à esquerda.</value></data>
   <data name="SearchTree" xml:space="preserve"><value>Pesquisar na árvore (nome ou documentação)…</value></data>
   <data name="Maximal" xml:space="preserve"><value>Maximal</value></data>
@@ -23,7 +23,7 @@
   <data name="SaveAs" xml:space="preserve"><value>Salvar como…</value></data>
   <data name="CloseTab" xml:space="preserve"><value>Fechar</value></data>
   <data name="Issues" xml:space="preserve"><value>Validation Issues</value></data>
-  <data name="NoIssues" xml:space="preserve"><value>Nenhum problema de validação.</value></data>
+  <data name="NoIssues" xml:space="preserve"><value>Nenhuma Validation Issue.</value></data>
   <data name="Valid" xml:space="preserve"><value>válido</value></data>
   <data name="Invalid" xml:space="preserve"><value>inválido</value></data>
   <data name="Type" xml:space="preserve"><value>Tipo</value></data>
@@ -40,8 +40,8 @@
   <data name="NoCandidate" xml:space="preserve"><value>Nenhum Schema Set aberto declara &lt;{0}&gt;: exibindo sem validação.</value></data>
   <data name="Malformed" xml:space="preserve"><value>XML malformado: exibindo sem validação.</value></data>
   <data name="ManyCandidates" xml:space="preserve"><value>Há vários Global Elements possíveis: escolha um para validar.</value></data>
-  <data name="ConfirmSaveTitle" xml:space="preserve"><value>Salvar com erros?</value></data>
-  <data name="ConfirmSaveInvalid" xml:space="preserve"><value>Este documento tem {0} erro(s) de validação. Salvar mesmo assim?</value></data>
+  <data name="ConfirmSaveTitle" xml:space="preserve"><value>Salvar com Validation Issues?</value></data>
+  <data name="ConfirmSaveInvalid" xml:space="preserve"><value>Este Document tem {0} Validation Issue(s). Salvar mesmo assim?</value></data>
   <data name="ConfirmSave" xml:space="preserve"><value>Salvar mesmo assim</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancelar</value></data>
   <data name="Loading" xml:space="preserve"><value>Abrindo {0}…</value></data>

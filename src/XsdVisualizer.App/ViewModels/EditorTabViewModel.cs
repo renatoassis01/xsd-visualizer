@@ -48,7 +48,6 @@ public sealed partial class EditorTabViewModel : ViewModelBase
     public TextDocument Document { get; }
     public string? FilePath { get; private set; }
     public bool IsDocument { get; private init; }
-    public bool IsSample => !IsDocument;
 
     [ObservableProperty] public partial bool IsDirty { get; set; }
 
