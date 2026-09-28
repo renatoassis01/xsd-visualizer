@@ -17,12 +17,16 @@ public sealed record PropertyChange(string Property, string? Before, string? Aft
         : $"{propertyName?.Invoke(Property) ?? Property}: {Before ?? "—"} {arrow} {After ?? "—"}";
 }
 
+/// <summary>Uma propriedade da definição de um nó (tipo, cardinalidade, um facet, valor fixo ou padrão).</summary>
+public sealed record DefinitionItem(string Property, string Value);
+
 /// <summary>Nó da árvore de Changes: um elemento/atributo presente no Before, no After ou nos dois.</summary>
 public sealed class ChangeNode
 {
     internal ChangeNode(string label, string path, SchemaNode? before, SchemaNode? after, ChangeKind kind,
-        IReadOnlyList<PropertyChange> differences, IReadOnlyList<ChangeNode> children)
+        IReadOnlyList<PropertyChange> differences, IReadOnlyList<DefinitionItem> definition, IReadOnlyList<ChangeNode> children)
     {
+        Definition = definition;
         Label = label;
         Path = path;
         Before = before;
@@ -44,6 +48,8 @@ public sealed class ChangeNode
     public SchemaNode? After { get; }
     public ChangeKind Kind { get; }
     public IReadOnlyList<PropertyChange> Differences { get; }
+    /// <summary>Definição do nó no After (ou no Before, se saiu): tipo, cardinalidade efetiva, facets, valor fixo e padrão.</summary>
+    public IReadOnlyList<DefinitionItem> Definition { get; }
     public IReadOnlyList<ChangeNode> Children { get; }
     /// <summary>Changes (sem contar só documentação) nos descendentes.</summary>
     public int ChangeCount { get; }
@@ -99,7 +105,7 @@ internal static class StructuralDiff
                 : differences.Count > 0 ? ChangeKind.DocumentationOnly
                 : ChangeKind.Unchanged;
         }
-        return new ChangeNode(label, path, before, after, kind, differences, children);
+        return new ChangeNode(label, path, before, after, kind, differences, Define((after ?? before)!), children);
     }
 
     /// <summary>Filho nomeado com a cardinalidade efetiva (somando a dos compositores entre ele e o pai).</summary>
@@ -147,6 +153,22 @@ internal static class StructuralDiff
             merged.Insert(previous + 1, (before[i].Key, before[i].Named, null));
         }
         return merged;
+    }
+
+    private static List<DefinitionItem> Define(SchemaNode node)
+    {
+        var result = new List<DefinitionItem>();
+        void Add(string property, string? value)
+        {
+            if (value is not null) result.Add(new DefinitionItem(property, value));
+        }
+
+        Add("type", node.XsiType ?? node.TypeName);
+        Add("cardinality", EffectiveCardinality(node));
+        foreach (var kind in node.Facets.Select(f => f.Kind).Distinct()) Add(kind, FacetValue(node, kind));
+        Add("fixed", node.FixedValue);
+        Add("default", node.DefaultValue);
+        return result;
     }
 
     private static List<PropertyChange> Compare(SchemaNode before, SchemaNode after)

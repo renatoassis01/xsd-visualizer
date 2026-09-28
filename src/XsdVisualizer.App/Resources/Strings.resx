@@ -137,4 +137,7 @@
   <data name="ThemeGitHubLight" xml:space="preserve"><value>GitHub Claro</value></data>
   <data name="ThemeGitHubDark" xml:space="preserve"><value>GitHub Escuro</value></data>
   <data name="ComparisonHint" xml:space="preserve"><value>A árvore à esquerda mostra todas as mudanças. O XML lado a lado é um exemplo: em cada escolha entre alternativas ele usa um ramo só, e em listas de valores usa um valor só. Ao clicar numa mudança de outro ramo, o XML é gerado de novo passando por ela. Mudanças de valores de lista, de padrão ou de tamanho aparecem nos detalhes, mas podem não mudar o XML.</value></data>
+  <data name="Definition" xml:space="preserve">
+    <value>Definição do campo</value>
+  </data>
 </root>

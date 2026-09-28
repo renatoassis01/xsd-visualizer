@@ -17,6 +17,8 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     {
         Before = before;
         After = after;
+        // O Minimal é mais enxuto de ler e passa pela mudança selecionada; o Maximal fica como opção.
+        UseMinimal = true;
     }
 
     public SchemaSet Before { get; }
@@ -271,6 +273,10 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
 
     /// <summary>Linhas "propriedade: antes → depois" (e valores de enumeração que entraram/saíram).</summary>
     public IReadOnlyList<string> DifferenceLines => Model.Differences.Select(d => d.Describe(PropertyName, arrow: " → ")).ToList();
+
+    /// <summary>Linhas "propriedade: valor" da definição do campo (tipo, cardinalidade, facets, valor fixo/padrão).</summary>
+    public IReadOnlyList<string> DefinitionLines => Model.Definition.Select(d => $"{PropertyName(d.Property)}: {d.Value}").ToList();
+    public bool HasDefinition => Model.Definition.Count > 0;
 
     private static string PropertyName(string property) => property switch
     {

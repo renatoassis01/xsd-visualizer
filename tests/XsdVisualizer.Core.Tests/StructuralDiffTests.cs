@@ -59,6 +59,31 @@ public class StructuralDiffTests
     }
 
     [Fact]
+    public void Added_and_removed_nodes_carry_their_definition()
+    {
+        using var before = new SchemaFolder(("p.xsd", SchemaFolder.Xsd("""
+            <xs:element name="dest"><xs:complexType><xs:sequence>
+              <xs:element name="fax" type="xs:string" default="0"/>
+            </xs:sequence></xs:complexType></xs:element>
+            """)));
+        using var after = new SchemaFolder(("p.xsd", SchemaFolder.Xsd("""
+            <xs:simpleType name="TCnpj"><xs:restriction base="xs:string"><xs:pattern value="[0-9]{14}"/><xs:maxLength value="14"/></xs:restriction></xs:simpleType>
+            <xs:element name="dest"><xs:complexType><xs:choice>
+              <xs:element name="CPF" type="xs:string"/>
+              <xs:element name="CNPJ" type="TCnpj"/>
+            </xs:choice></xs:complexType></xs:element>
+            """)));
+
+        var changes = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path))
+            .Pairs.Single().Changes().ToDictionary(c => c.Label);
+
+        Assert.Equal(["type TCnpj", "cardinality 0..1", "pattern [0-9]{14}", "maxLength 14"],
+            changes["CNPJ"].Definition.Select(d => $"{d.Property} {d.Value}"));
+        Assert.Equal(["type xs:string", "cardinality 1..1", "default 0"],
+            changes["fax"].Definition.Select(d => $"{d.Property} {d.Value}"));
+    }
+
+    [Fact]
     public void A_schema_set_compared_with_itself_has_no_changes()
     {
         using var f = new ComparisonFixture();

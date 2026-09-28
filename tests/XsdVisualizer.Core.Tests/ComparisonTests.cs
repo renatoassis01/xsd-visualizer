@@ -56,8 +56,8 @@ public class ComparisonTests
         Assert.Contains("- legado", markdown);
         Assert.Contains("| pedido/xPed | Modified | cardinality: 0..1 → 1..1; maxLength: 15 → 60 |", markdown);
         Assert.Contains("| pedido/cStat | Modified | enumeration: +150, +151, −999 |", markdown);
-        Assert.Contains("| pedido/IBSCBS | Added | |", markdown);
-        Assert.Contains("| pedido/fax | Removed | |", markdown);
+        Assert.Contains("| pedido/IBSCBS | Added | type: xs:string; cardinality: 0..1 |", markdown);
+        Assert.Contains("| pedido/fax | Removed | type: xs:string; cardinality: 0..1 |", markdown);
         Assert.DoesNotContain("pedido/obs", markdown);
         Assert.DoesNotContain("igual", markdown);
         Assert.Contains("pedido/obs", Comparison.Compare(f.Before, f.After).ToMarkdown(includeDocumentation: true));

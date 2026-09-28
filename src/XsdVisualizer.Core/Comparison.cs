@@ -77,9 +77,12 @@ public sealed class Comparison
                 md.AppendLine("| Caminho | Mudança | Detalhes |").AppendLine("|---|---|---|");
                 foreach (var change in pair.Changes(includeDocumentation))
                 {
-                    var details = string.Join("; ", change.Differences
-                        .Where(d => includeDocumentation || !d.IsDocumentation)
-                        .Select(d => d.Describe()));
+                    // Quem entrou ou saiu não tem antes → depois: o detalhe é a definição do campo.
+                    var details = change.Kind is ChangeKind.Added or ChangeKind.Removed
+                        ? string.Join("; ", change.Definition.Select(d => $"{d.Property}: {d.Value}"))
+                        : string.Join("; ", change.Differences
+                            .Where(d => includeDocumentation || !d.IsDocumentation)
+                            .Select(d => d.Describe()));
                     md.AppendLine(details.Length == 0
                         ? $"| {change.Path} | {change.Kind} | |"
                         : $"| {change.Path} | {change.Kind} | {details.Replace("|", "\\|").Replace("\n", " ")} |");

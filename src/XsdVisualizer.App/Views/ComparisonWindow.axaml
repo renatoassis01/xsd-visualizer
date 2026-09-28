@@ -54,8 +54,8 @@
                         <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <RadioButton Content="{x:Static res:Strings.Maximal}" IsChecked="{Binding !UseMinimal}" GroupName="kind" />
                         <RadioButton Content="{x:Static res:Strings.Minimal}" IsChecked="{Binding UseMinimal}" GroupName="kind" />
+                        <RadioButton Content="{x:Static res:Strings.Maximal}" IsChecked="{Binding !UseMinimal}" GroupName="kind" />
                     </StackPanel>
                     <TextBlock Text="{Binding Status}" Opacity="0.7" VerticalAlignment="Center" />
                     <ProgressBar IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
@@ -136,16 +136,13 @@
                     </TreeView>
                 </Panel>
                 <GridSplitter Grid.Row="3" ResizeDirection="Rows" />
-                <ScrollViewer Grid.Row="4" MaxHeight="240" DataContext="{Binding SelectedChange}" x:DataType="vm:ChangeNodeViewModel"
+                <ScrollViewer Grid.Row="4" MaxHeight="320" DataContext="{Binding SelectedChange}" x:DataType="vm:ChangeNodeViewModel"
                               IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <StackPanel Spacing="4" Margin="0,8,0,0">
                         <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding Model.Path}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding KindText}" FontWeight="SemiBold"
                                    Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}" Classes.modified="{Binding IsModified}" />
-                        <TextBlock Text="{x:Static res:Strings.Documentation}" FontWeight="SemiBold" Margin="0,6,0,0"
-                                   IsVisible="{Binding HasDocumentation}" />
-                        <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" IsVisible="{Binding HasDocumentation}" />
                         <ItemsControl ItemsSource="{Binding DifferenceLines}" Margin="0,6,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
@@ -153,6 +150,18 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        <TextBlock Text="{x:Static res:Strings.Definition}" FontWeight="SemiBold" Margin="0,6,0,0"
+                                   IsVisible="{Binding HasDefinition}" />
+                        <ItemsControl ItemsSource="{Binding DefinitionLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}" FontSize="12" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{x:Static res:Strings.Documentation}" FontWeight="SemiBold" Margin="0,6,0,0"
+                                   IsVisible="{Binding HasDocumentation}" />
+                        <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" IsVisible="{Binding HasDocumentation}" />
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

@@ -137,4 +137,7 @@
   <data name="ThemeGitHubLight" xml:space="preserve"><value>GitHub Light</value></data>
   <data name="ThemeGitHubDark" xml:space="preserve"><value>GitHub Dark</value></data>
   <data name="ComparisonHint" xml:space="preserve"><value>The tree on the left shows every change. The side-by-side XML is an example: for each choice between alternatives it uses one branch, and for value lists it uses one value. Clicking a change in another branch regenerates the XML through it. Changes to list values, patterns or lengths show in the details but may not change the XML.</value></data>
+  <data name="Definition" xml:space="preserve">
+    <value>Field definition</value>
+  </data>
 </root>

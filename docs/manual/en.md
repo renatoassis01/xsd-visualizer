@@ -186,9 +186,10 @@ The Comparison window has three areas:
    - 🔴 **Removed:** an element or attribute that is gone.
    - 🟡 **Modified:** a change of type, cardinality, facets (length, `pattern`, digits, ranges), fixed or default value, or enumeration values. The details panel shows *before → after* and, for enumerations, the values added and removed.
    - Documentation-only changes are hidden; check **Documentation changes** to see them.
+   - When you select a field, the panel also shows the **Field definition**: type, cardinality, facets (`pattern`, lengths, digits, ranges, enumeration) and fixed or default value. For an added field this is its definition in After; for a removed one, in Before.
    - A collapsed node shows how many changes it contains.
    - The ⌃ ⌄ arrows go to the previous or next change.
-3. **Side-by-side XML** (right): a Sample from Before and one from After, with added lines in green, removed lines in red and modified lines in amber. Clicking a change scrolls both sides to it. **Maximal** and **Minimal**, at the top, switch the kind of Sample used.
+3. **Side-by-side XML** (right): a Sample from Before and one from After, with added lines in green, removed lines in red and modified lines in amber. Clicking a change scrolls both sides to it. **Minimal** (the default) and **Maximal**, at the top, switch the kind of Sample used: the Minimal is leaner and goes through the selected change; the Maximal shows every optional item of the chosen branch at once.
 
 **Limits of the side-by-side XML.** The tree shows every change. The XML is only an example:
 
@@ -196,7 +197,7 @@ The Comparison window has three areas:
 - Clicking a change in another branch regenerates the XML through it. In the Minimal, the selected change is included too, even when it is optional.
 - Changes to list values, patterns or lengths show in the details but may not change the XML.
 
-**Summary.** **Copy summary** and **Export summary…** produce Markdown listing the Global Elements that were added, removed and changed. For each changed one, there is a table with the path, the kind of change and *before → after*, ready to paste into an issue or a team document.
+**Summary.** **Copy summary** and **Export summary…** produce Markdown listing the Global Elements that were added, removed and changed. For each changed one, there is a table with the path, the kind of change and *before → after* (or, for added or removed fields, the field definition), ready to paste into an issue or a team document.
 
 The comparison covers XSDs. WSDL Services and Operations are not compared, and renames show up as a removal plus an addition.
 

@@ -186,9 +186,10 @@ A janela de Comparação tem três áreas:
    - 🔴 **Saiu:** elemento ou atributo removido.
    - 🟡 **Mudou:** mudança de tipo, cardinalidade, facets (tamanho, `pattern`, dígitos, faixas), valor fixo ou padrão, ou valores de enumeração. O painel de detalhes mostra *antes → depois* e, para enumerações, os valores que entraram e os que saíram.
    - Mudanças só de documentação ficam escondidas; marque **Mudanças de documentação** para vê-las.
+   - Ao selecionar um campo, o painel mostra também a **Definição do campo**: tipo, cardinalidade, facets (`pattern`, tamanhos, dígitos, faixas, enumeração) e valor fixo ou padrão. Para um campo que entrou é a definição no Depois; para um que saiu, no Antes.
    - Um nó recolhido mostra quantas mudanças tem dentro dele.
    - As setas ⌃ ⌄ vão para a mudança anterior ou para a próxima.
-3. **XML lado a lado** (direita): um Sample do Antes e um do Depois, com as linhas que entraram em verde, as que saíram em vermelho e as que mudaram em âmbar. Clicar numa mudança rola os dois lados até ela. **Maximal** e **Minimal**, no topo, trocam o tipo de Sample usado.
+3. **XML lado a lado** (direita): um Sample do Antes e um do Depois, com as linhas que entraram em verde, as que saíram em vermelho e as que mudaram em âmbar. Clicar numa mudança rola os dois lados até ela. **Minimal** (o padrão) e **Maximal**, no topo, trocam o tipo de Sample usado: o Minimal é mais enxuto e passa pela mudança selecionada; o Maximal mostra de uma vez todos os opcionais do ramo escolhido.
 
 **Limites do XML lado a lado.** A árvore mostra todas as mudanças. O XML é só um exemplo:
 
@@ -196,7 +197,7 @@ A janela de Comparação tem três áreas:
 - Ao clicar numa mudança que está em outro ramo, o XML é gerado de novo passando por ela. No Minimal, a mudança selecionada também é incluída, mesmo que seja opcional.
 - Mudanças de valores de lista, de `pattern` ou de tamanho aparecem nos detalhes, mas podem não mudar o XML.
 
-**Resumo.** **Copiar resumo** e **Exportar resumo…** geram um Markdown com os Global Elements que entraram, saíram e mudaram. Para cada um que mudou, há uma tabela com o caminho, o tipo da mudança e *antes → depois*, pronta para colar numa issue ou documento do time.
+**Resumo.** **Copiar resumo** e **Exportar resumo…** geram um Markdown com os Global Elements que entraram, saíram e mudaram. Para cada um que mudou, há uma tabela com o caminho, o tipo da mudança e *antes → depois* (ou, para campos que entraram ou saíram, a definição do campo), pronta para colar numa issue ou documento do time.
 
 A comparação cobre XSDs. Services e Operations de WSDL não são comparados, e renomeações aparecem como uma remoção mais uma entrada.
 
