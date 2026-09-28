@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="W3C\*.xsd" LogicalName="W3C.%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

@@ -4,8 +4,14 @@ using System.Xml.Schema;
 namespace XsdVisualizer.Core;
 
 /// <summary>Abre pastas de XSD como Schema Sets.</summary>
-public sealed class SchemaSetLoader
+/// <param name="downloader">Usado para schemas remotos não embutidos e fora do cache (padrão: HTTP).</param>
+/// <param name="cacheDirectory">Onde schemas baixados ficam guardados (padrão: pasta local do usuário).</param>
+public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string? cacheDirectory = null)
 {
+    private readonly ISchemaDownloader _downloader = downloader ?? new HttpSchemaDownloader();
+    private readonly string _cacheDirectory = cacheDirectory ?? Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XsdVisualizer", "schema-cache");
+
     private static readonly HashSet<string> Xsd11Constructs =
         ["assert", "assertion", "alternative", "openContent", "defaultOpenContent", "override"];
 
@@ -19,7 +25,7 @@ public sealed class SchemaSetLoader
         var referenced = files.SelectMany(f => ReferencedFiles(f, issues, unreadable)).ToHashSet(StringComparer.Ordinal);
         var units = files
             .Where(f => !referenced.Contains(f) && !unreadable.Contains(f))
-            .Select(f => Compile(f, issues))
+            .Select(f => Compile(f, issues, _downloader, _cacheDirectory))
             .OfType<CompilationUnit>()
             .ToList();
 
@@ -65,10 +71,12 @@ public sealed class SchemaSetLoader
     }
 
     /// <summary>Compila um arquivo raiz; devolve null (e registra os problemas) se a compilação falhar.</summary>
-    private static CompilationUnit? Compile(string file, List<ValidationIssue> issues)
+    private static CompilationUnit? Compile(string file, List<ValidationIssue> issues, ISchemaDownloader downloader, string cacheDirectory)
     {
         var failed = false;
-        var schemas = new XmlSchemaSet { XmlResolver = new XmlUrlResolver() };
+        var resolver = new SchemaResolver(downloader, cacheDirectory, uri => issues.Add(new ValidationIssue(
+            $"Não foi possível obter o schema remoto {uri} (sem conexão e sem cópia em cache).", file, 0, 0)));
+        var schemas = new XmlSchemaSet { XmlResolver = resolver };
         schemas.ValidationEventHandler += (_, e) =>
         {
             if (e.Severity == XmlSeverityType.Error) failed = true;
