@@ -150,7 +150,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
 
     public async Task OpenSchemaSetAsync(string path, bool remember = true)
     {
-        var folder = Path.GetFullPath(File.Exists(path) ? Path.GetDirectoryName(path)! : path);
+        var folder = SchemaSetLoader.FolderOf(path);
         var existing = SchemaSets.FirstOrDefault(s => s.Folder == folder);
         if (existing is not null)
         {

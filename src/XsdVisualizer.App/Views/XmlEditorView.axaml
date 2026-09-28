@@ -11,10 +11,19 @@
         <Border Grid.Row="0" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="8,0,0,0" VerticalAlignment="Top">
-                    <Button Content="{x:Static res:Strings.Save}" IsVisible="{Binding IsDocument}"
-                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveCommand}" CommandParameter="{Binding}" />
-                    <Button Content="{x:Static res:Strings.SaveAs}"
-                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveAsCommand}" CommandParameter="{Binding}" />
+                    <Button Classes="accent" IsVisible="{Binding IsDocument}"
+                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveCommand}" CommandParameter="{Binding}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource IconSave}" Width="14" Height="14" />
+                            <TextBlock Text="{x:Static res:Strings.Save}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveAsCommand}" CommandParameter="{Binding}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource IconSave}" Width="14" Height="14" />
+                            <TextBlock Text="{x:Static res:Strings.SaveAs}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="0" Spacing="6">
                     <ComboBox ItemsSource="{Binding SampleItems}" SelectedItem="{Binding SelectedSampleItem}"

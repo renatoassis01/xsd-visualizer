@@ -106,4 +106,15 @@ public class OpeningSchemaSetsTests
         Assert.Equal(folder.PathOf("v11.xsd"), issue.File);
         Assert.Equal(6, issue.Line);
     }
+
+    [Fact]
+    public void A_folder_path_with_a_trailing_separator_keeps_its_name()
+    {
+        using var folder = new SchemaFolder(("a.xsd", SchemaFolder.Xsd("""<xs:element name="a" type="xs:string"/>""")));
+
+        var set = new SchemaSetLoader().Open(folder.Path + Path.DirectorySeparatorChar);
+
+        Assert.Equal(folder.Path, set.Folder);
+        Assert.Equal(Path.GetFileName(folder.Path), set.Name);
+    }
 }

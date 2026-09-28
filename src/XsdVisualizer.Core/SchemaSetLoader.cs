@@ -18,7 +18,7 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
     /// <summary>Abre a pasta indicada, ou a pasta do arquivo .xsd indicado.</summary>
     public SchemaSet Open(string path)
     {
-        var folder = Path.GetFullPath(File.Exists(path) ? Path.GetDirectoryName(path)! : path);
+        var folder = FolderOf(path);
         var files = Directory.GetFiles(folder, "*.xsd").Order(StringComparer.Ordinal).ToList();
         var issues = new List<ValidationIssue>();
         var unreadable = new HashSet<string>(StringComparer.Ordinal);
@@ -40,6 +40,10 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
 
         return new SchemaSet(folder, elements, issues.Distinct().ToList());
     }
+
+    /// <summary>A pasta de um caminho (pasta ou arquivo .xsd), absoluta e sem separador no final.</summary>
+    public static string FolderOf(string path) =>
+        Path.TrimEndingDirectorySeparator(Path.GetFullPath(File.Exists(path) ? Path.GetDirectoryName(path)! : path));
 
     private static List<string> ReferencedFiles(string file, List<ValidationIssue> issues, HashSet<string> unreadable)
     {
