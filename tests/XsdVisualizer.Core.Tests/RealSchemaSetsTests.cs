@@ -24,7 +24,7 @@ public class RealSchemaSetsTests
         var failures = set.GlobalElements
             .SelectMany(e => e.GenerateCoverageSet().Append(e.GenerateMinimal()).Append(e.GenerateMaximal()))
             .Where(s => !s.IsValid)
-            .Select(s => $"{Path.GetFileName(s.Element.SourceFile)} {s.FileName}: {s.Issues.First()}")
+            .Select(s => $"{Path.GetFileName(s.Element!.SourceFile)} {s.FileName}: {s.Issues.First()}")
             .ToList();
 
         Assert.True(failures.Count == 0, $"{failures.Count} Samples inválidos:\n" + string.Join("\n", failures.Take(40)));
