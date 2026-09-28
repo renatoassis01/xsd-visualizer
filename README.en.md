@@ -1,3 +1,5 @@
+<p align="center"><img src="src/XsdVisualizer.App/Assets/app.png" width="128" alt="XSD Visualizer logo"></p>
+
 # XSD Visualizer
 
 [![CI](https://github.com/renatoassis01/xsd-visualizer/actions/workflows/ci.yml/badge.svg)](https://github.com/renatoassis01/xsd-visualizer/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/renatoassis01/xsd-visualizer)](https://github.com/renatoassis01/xsd-visualizer/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -21,7 +23,13 @@ Get the latest version from **[Releases](https://github.com/renatoassis01/xsd-vi
 | macOS (Intel) | `…-macos-x64.dmg` |
 | Linux | `…-linux-x64.AppImage`, `.deb` or `.tar.gz`; ARM: `…-linux-arm64.…` |
 
-**macOS:** the app is not signed with an Apple Developer ID, so the first time macOS says it cannot verify it. Drag the app to Applications and run in the Terminal:
+**macOS with Homebrew** (recommended: it already allows the app to open, and updates with `brew upgrade`):
+
+```bash
+brew install --cask renatoassis01/tap/xsd-visualizer
+```
+
+**macOS from the `.dmg`:** the app is not signed with an Apple Developer ID, so the first time macOS says it cannot verify it. Drag the app to Applications and run in the Terminal:
 
 ```bash
 xattr -dr com.apple.quarantine "/Applications/XSD Visualizer.app"
@@ -239,7 +247,8 @@ Output goes to `dist/<rid>/` (git-ignored): a single self-contained executable o
 Releases come from GitHub Actions:
 
 - **CI** (`.github/workflows/ci.yml`): every push to `main` and every PR builds and tests on Linux, macOS and Windows.
-- **Release** (`.github/workflows/release.yml`): a `v*` tag runs the tests, packages the six platforms (Windows, macOS and Linux, x64 and arm64) and creates the release with the files, `SHA256SUMS.txt` and notes generated from the commits.
+- **Release** (`.github/workflows/release.yml`): a `v*` tag runs the tests, packages the six platforms (Windows, macOS and Linux, x64 and arm64), creates the release with the files, `SHA256SUMS.txt` and notes generated from the commits, and updates the cask in the [Homebrew tap](https://github.com/renatoassis01/homebrew-tap).
+- **Homebrew** (`.github/workflows/homebrew.yml`): builds the cask from `packaging/homebrew/` and the release checksums, and pushes it to the tap with the deploy key in the `HOMEBREW_TAP_DEPLOY_KEY` secret. It also runs by hand (*Run workflow* with the tag). Pre-release tags (`v1.3.0-beta.1`) are not published to the tap.
 
 ```bash
 git tag v1.2.0

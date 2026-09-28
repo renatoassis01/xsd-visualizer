@@ -27,7 +27,7 @@ Os termos em inglês da interface (Schema Set, Global Element, Sample, Coverage 
 
 ## 1. Instalar e abrir
 
-**Versão pronta.** Baixe em [Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest): instalador ou `.zip` no Windows, `.dmg` no macOS e AppImage, `.deb` ou `.tar.gz` no Linux, para x64 e ARM. Não precisa do .NET instalado. Como o app não é assinado, o macOS e o Windows pedem uma liberação na primeira vez; o passo a passo está no [README](../../README.md#baixar-e-instalar).
+**Versão pronta.** Baixe em [Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest): instalador ou `.zip` no Windows, `.dmg` no macOS e AppImage, `.deb` ou `.tar.gz` no Linux, para x64 e ARM. Não precisa do .NET instalado. No macOS, o jeito mais simples é o Homebrew: `brew install --cask renatoassis01/tap/xsd-visualizer`. Como o app não é assinado, o macOS e o Windows pedem uma liberação na primeira vez; o passo a passo está no [README](../../README.md#baixar-e-instalar).
 
 **A partir do código.** Com o .NET SDK 10 instalado:
 

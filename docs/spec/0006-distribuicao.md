@@ -48,7 +48,7 @@ O projeto vai para um repositório público no GitHub (`renatoassis01/xsd-visual
 
 ## Out of Scope
 
-- Homebrew (tap próprio) e winget: entram numa etapa seguinte, a partir dos arquivos do release.
+- winget: entra numa etapa seguinte, a partir dos arquivos do release. O tap do Homebrew (renatoassis01/homebrew-tap) já é atualizado a cada release.
 - Assinatura de código (Apple Developer ID e notarização; certificado para Windows).
 - Versão web (WebAssembly).
 - `.rpm` e Flatpak.

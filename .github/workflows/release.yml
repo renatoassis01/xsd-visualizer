@@ -73,3 +73,14 @@ jobs:
           sed "s/@VERSION@/$version/g" packaging/release-notes.md > notes.md
           gh release create "$GITHUB_REF_NAME" assets/* \
             --title "XSD Visualizer $version" --notes-file notes.md --generate-notes
+
+  homebrew:
+    name: Homebrew tap
+    needs: release
+    # Tags de pré-release (v1.3.0-beta.1) não vão para o tap.
+    if: ${{ !contains(github.ref_name, '-') }}
+    uses: ./.github/workflows/homebrew.yml
+    with:
+      tag: ${{ github.ref_name }}
+    secrets:
+      HOMEBREW_TAP_DEPLOY_KEY: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}

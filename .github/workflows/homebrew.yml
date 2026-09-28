@@ -1,0 +1,44 @@
+name: Homebrew tap
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+    secrets:
+      HOMEBREW_TAP_DEPLOY_KEY:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (e.g. v1.2.0)
+        type: string
+        required: true
+
+jobs:
+  cask:
+    name: Update cask
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: renatoassis01/homebrew-tap
+          ssh-key: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
+          path: homebrew-tap
+      - name: Update and push the cask
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          version="${TAG#v}"
+          gh release download "$TAG" --pattern SHA256SUMS.txt --dir "$RUNNER_TEMP"
+          packaging/update-homebrew-cask.sh "$version" "$RUNNER_TEMP/SHA256SUMS.txt" homebrew-tap/Casks/xsd-visualizer.rb
+          cd homebrew-tap
+          git add Casks/xsd-visualizer.rb
+          if git diff --cached --quiet; then echo "cask already at $version"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "xsd-visualizer $version"
+          git push

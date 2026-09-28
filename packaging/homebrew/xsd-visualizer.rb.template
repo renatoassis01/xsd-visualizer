@@ -1,0 +1,30 @@
+cask "xsd-visualizer" do
+  arch arm: "arm64", intel: "x64"
+
+  version "@VERSION@"
+  sha256 arm:   "@SHA256_ARM64@",
+         intel: "@SHA256_X64@"
+
+  url "https://github.com/renatoassis01/xsd-visualizer/releases/download/v#{version}/XsdVisualizer-#{version}-macos-#{arch}.dmg"
+  name "XSD Visualizer"
+  desc "Explore XSD and WSDL, generate sample XML and SOAP envelopes, compare schemas"
+  homepage "https://github.com/renatoassis01/xsd-visualizer"
+
+  livecheck do
+    url :url
+    strategy :github_latest
+  end
+
+  depends_on macos: :monterey
+
+  app "XSD Visualizer.app"
+
+  # O app não tem assinatura Apple Developer ID: sem isso o macOS bloqueia a primeira abertura.
+  postflight_steps do
+    run "/usr/bin/xattr",
+        args:           ["-dr", "com.apple.quarantine", "{{appdir}}/XSD Visualizer.app"],
+        writable_paths: ["{{appdir}}/XSD Visualizer.app"]
+  end
+
+  zap trash: "~/Library/Application Support/XsdVisualizer"
+end

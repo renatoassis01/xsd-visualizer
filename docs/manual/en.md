@@ -27,7 +27,7 @@ The domain terms used in the interface (Schema Set, Global Element, Sample, Cove
 
 ## 1. Install and launch
 
-**Prebuilt release.** Download from [Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest): installer or `.zip` on Windows, `.dmg` on macOS, and AppImage, `.deb` or `.tar.gz` on Linux, for x64 and ARM. .NET does not need to be installed. Since the app is not signed, macOS and Windows ask you to allow it the first time; the steps are in the [README](../../README.en.md#download-and-install).
+**Prebuilt release.** Download from [Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest): installer or `.zip` on Windows, `.dmg` on macOS, and AppImage, `.deb` or `.tar.gz` on Linux, for x64 and ARM. .NET does not need to be installed. On macOS, the easiest way is Homebrew: `brew install --cask renatoassis01/tap/xsd-visualizer`. Since the app is not signed, macOS and Windows ask you to allow it the first time; the steps are in the [README](../../README.en.md#download-and-install).
 
 **From source.** With the .NET 10 SDK installed:
 
