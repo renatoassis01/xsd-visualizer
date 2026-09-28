@@ -22,6 +22,9 @@ public sealed class GlobalElement
     /// <summary>Arquivo XSD que declara o elemento.</summary>
     public string SourceFile => new Uri(Declaration.SourceUri!).LocalPath;
 
+    /// <summary>Nome do arquivo que declara o elemento (ex.: "enviNFe_v4.00.xsd").</summary>
+    public string FileName => Path.GetFileName(SourceFile);
+
     private SchemaNode? _tree;
     /// <summary>Árvore do elemento; os filhos de cada nó são construídos sob demanda.</summary>
     public SchemaNode Tree => _tree ??= new SchemaTreeBuilder(Unit.Schemas).Build(Declaration);
@@ -62,30 +65,5 @@ public sealed class GlobalElement
         new(this, kind, number, xml, covers, Validate(xml), Validate);
 
     /// <summary>Valida um XML contra a unidade de compilação em que este elemento foi declarado.</summary>
-    public IReadOnlyList<ValidationIssue> Validate(string xml)
-    {
-        var issues = new List<ValidationIssue>();
-        var settings = new XmlReaderSettings
-        {
-            ValidationType = ValidationType.Schema,
-            Schemas = Unit.Schemas,
-            // As flags substituem o padrão: sem ProcessIdentityConstraints, xs:ID/xs:key/xs:unique não são checados.
-            ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings
-                | XmlSchemaValidationFlags.ProcessIdentityConstraints
-                | XmlSchemaValidationFlags.AllowXmlAttributes,
-        };
-        settings.ValidationEventHandler += (_, e) => issues.Add(new ValidationIssue(
-            e.Message, null, e.Exception.LineNumber, e.Exception.LinePosition,
-            e.Severity == XmlSeverityType.Warning ? IssueSeverity.Warning : IssueSeverity.Error));
-        try
-        {
-            using var reader = XmlReader.Create(new StringReader(xml), settings);
-            while (reader.Read()) { }
-        }
-        catch (XmlException e)
-        {
-            issues.Add(new ValidationIssue(e.Message, null, e.LineNumber, e.LinePosition));
-        }
-        return issues;
-    }
+    public IReadOnlyList<ValidationIssue> Validate(string xml) => SchemaValidation.Validate(xml, Unit.Schemas);
 }

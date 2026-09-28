@@ -120,7 +120,7 @@ internal sealed class WsdlReader(string file, XmlResolver resolver, List<Validat
     {
         if (abstractMessage is null || !messages.TryGetValue(Resolve(abstractMessage, (string?)abstractMessage.Attribute("message")), out var message))
         {
-            Issue($"Operation {operation}: mensagem de {(direction == MessageDirection.Request ? "Request" : "Response")} não encontrada.", abstractMessage ?? root);
+            Issue($"Operation {operation}: mensagem de {direction.Label()} não encontrada.", abstractMessage ?? root);
             return null;
         }
         var parts = message.Elements(W + "part").ToList();
@@ -164,8 +164,7 @@ internal sealed class WsdlReader(string file, XmlResolver resolver, List<Validat
     private XmlSchemaSet CompileTypes(XElement root)
     {
         var set = new XmlSchemaSet { XmlResolver = resolver };
-        set.ValidationEventHandler += (_, e) => issues.Add(new ValidationIssue(e.Message, file, e.Exception.LineNumber, e.Exception.LinePosition,
-            e.Severity == XmlSeverityType.Warning ? IssueSeverity.Warning : IssueSeverity.Error));
+        set.ValidationEventHandler += (_, e) => issues.Add(SchemaValidation.Issue(e.Exception, file, e.Severity));
         foreach (var schema in root.Element(W + "types")?.Elements(Xs + "schema") ?? [])
         {
             var copy = new XElement(schema);

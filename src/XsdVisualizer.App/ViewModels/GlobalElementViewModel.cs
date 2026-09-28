@@ -8,11 +8,11 @@ public sealed class GlobalElementViewModel(GlobalElement model, bool showSourceF
 
     /// <summary>Nome; com o arquivo quando o mesmo nome é declarado em mais de um arquivo do Schema Set.</summary>
     public string DisplayName { get; } = showSourceFile
-        ? $"{model.Name}  ({Path.GetFileName(model.SourceFile)})"
+        ? $"{model.Name}  ({model.FileName})"
         : model.Name;
 
     public string Namespace => Model.Namespace;
-    public string SourceFileName => Path.GetFileName(Model.SourceFile);
+    public string SourceFileName => Model.FileName;
 
     /// <summary>Ramos fixados na árvore (caminho do Choice → índice do ramo), usados pelo Maximal Sample.</summary>
     public Dictionary<string, int> Pins { get; } = new();

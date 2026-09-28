@@ -48,7 +48,7 @@ public sealed class Sample
     {
         get
         {
-            var name = Operation is { } op ? $"{op.Name}.{(Direction == MessageDirection.Response ? "response" : "request")}" : Element!.Name;
+            var name = Operation is { } op ? $"{op.Name}.{Direction!.Value.FileSuffix()}" : Element!.Name;
             return Kind switch
             {
                 SampleKind.Maximal => $"{name}.max.xml",

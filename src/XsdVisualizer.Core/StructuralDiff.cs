@@ -10,6 +10,11 @@ public sealed record PropertyChange(string Property, string? Before, string? Aft
     IReadOnlyList<string> AddedValues, IReadOnlyList<string> RemovedValues)
 {
     public bool IsDocumentation => Property == "documentation";
+
+    /// <summary>"propriedade: antes → depois", ou os valores de enumeração que entraram (+) e saíram (−).</summary>
+    public string Describe(Func<string, string>? propertyName = null, string arrow = "→") => Property == "enumeration"
+        ? $"enumeration: {string.Join(", ", AddedValues.Select(v => "+" + v).Concat(RemovedValues.Select(v => "−" + v)))}"
+        : $"{propertyName?.Invoke(Property) ?? Property}: {Before ?? "—"} {arrow} {After ?? "—"}";
 }
 
 /// <summary>Nó da árvore de Changes: um elemento/atributo presente no Before, no After ou nos dois.</summary>

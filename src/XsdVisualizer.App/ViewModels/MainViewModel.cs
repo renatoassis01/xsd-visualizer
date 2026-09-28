@@ -100,8 +100,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         SelectedTab = tab;
     }
 
-    private static string DirectionLabel(MessageDirection direction) =>
-        direction == MessageDirection.Request ? Strings.Request.ToLowerInvariant() : Strings.Response.ToLowerInvariant();
+    private static string DirectionLabel(MessageDirection direction) => DirectionText.Of(direction).ToLowerInvariant();
 
     partial void OnSelectedElementChanged(GlobalElementViewModel? oldValue, GlobalElementViewModel? newValue)
     {

@@ -192,9 +192,8 @@ public sealed class ElementPairViewModel(ElementPair model, bool isManual = fals
     public string Name => IsManual ? $"{Model.Before!.Name} → {Model.After!.Name}" : Model.Name;
     public string Files => Model switch
     {
-        { Before: { } b, After: { } a } when Path.GetFileName(b.SourceFile) != Path.GetFileName(a.SourceFile) =>
-            $"{Path.GetFileName(b.SourceFile)} → {Path.GetFileName(a.SourceFile)}",
-        _ => Path.GetFileName((Model.After ?? Model.Before)!.SourceFile),
+        { Before: { } b, After: { } a } when b.FileName != a.FileName => $"{b.FileName} → {a.FileName}",
+        _ => (Model.After ?? Model.Before)!.FileName,
     };
     public PairStatus Status => Model.Status;
     public string StatusText => Status switch
@@ -252,11 +251,7 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
     };
 
     /// <summary>Linhas "propriedade: antes → depois" (e valores de enumeração que entraram/saíram).</summary>
-    public IReadOnlyList<string> DifferenceLines => Model.Differences.Select(d => d.Property switch
-    {
-        "enumeration" => $"enumeration: {string.Join(", ", d.AddedValues.Select(v => "+" + v).Concat(d.RemovedValues.Select(v => "−" + v)))}",
-        _ => $"{PropertyName(d.Property)}: {d.Before ?? "—"}  →  {d.After ?? "—"}",
-    }).ToList();
+    public IReadOnlyList<string> DifferenceLines => Model.Differences.Select(d => d.Describe(PropertyName, arrow: " → ")).ToList();
 
     private static string PropertyName(string property) => property switch
     {

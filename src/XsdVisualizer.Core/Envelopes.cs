@@ -83,14 +83,14 @@ public sealed partial class Operation
 
         var xml = Encoding.UTF8.GetString(buffer.ToArray());
         if (kind == SampleKind.Coverage)
-            xml = SampleComments.Insert(xml, SampleComments.Coverage($"Coverage Set de {Name} ({Direction(direction)}): Envelope {number} de {total}", covers));
+            xml = SampleComments.Insert(xml, SampleComments.Coverage($"Coverage Set de {Name} ({direction.Label()}): Envelope {number} de {total}", covers));
 
         IReadOnlyList<ValidationIssue> Validate(string text)
         {
             var issues = ValidateEnvelope(text, direction, payload).Issues.ToList();
             if (payload is null)
                 issues.Insert(0, new ValidationIssue(
-                    $"Defina o Payload Binding da {Direction(direction)} de {Name}: o WSDL não diz qual XML vai no Body.", null, 0, 0));
+                    $"Defina o Payload Binding da {direction.Label()} de {Name}: o WSDL não diz qual XML vai no Body.", null, 0, 0));
             return issues;
         }
         return new Sample(payload?.Element, kind, number, xml, covers, Validate(xml), Validate, this, direction, readablePayload);
@@ -111,7 +111,7 @@ public sealed partial class Operation
         }
         catch (XmlException e)
         {
-            return new([new ValidationIssue(e.Message, null, e.LineNumber, e.LinePosition)], null);
+            return new([SchemaValidation.Issue(e, null)], null);
         }
 
         var root = document.Root!;
@@ -124,13 +124,13 @@ public sealed partial class Operation
         if (schemas is null)
             issues.Add(Issue("Não foi possível combinar os schemas do SOAP, do WSDL e do Payload.", root));
         else
-            issues.AddRange(ValidateWith(xml, schemas));
+            issues.AddRange(SchemaValidation.Validate(xml, schemas));
 
         var body = root.Element(XName.Get("Body", envelopeNs));
         var wrapper = body?.Elements().FirstOrDefault();
         if (wrapper is null || wrapper.Name != XName.Get(message.BodyElementName, message.BodyElementNamespace))
         {
-            issues.Add(Issue($"O Body deveria conter {message.BodyElementName} ({Direction(direction)} de {Name}).", (XObject?)wrapper ?? body ?? root));
+            issues.Add(Issue($"O Body deveria conter {message.BodyElementName} ({direction.Label()} de {Name}).", (XObject?)wrapper ?? body ?? root));
             return new(issues, null);
         }
 
@@ -179,31 +179,6 @@ public sealed partial class Operation
         return _combinedSchemas[(envelopeNs, payload)] = set;
     }
 
-    private static List<ValidationIssue> ValidateWith(string xml, XmlSchemaSet schemas)
-    {
-        var issues = new List<ValidationIssue>();
-        var settings = new XmlReaderSettings
-        {
-            ValidationType = ValidationType.Schema,
-            Schemas = schemas,
-            ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings
-                | XmlSchemaValidationFlags.ProcessIdentityConstraints
-                | XmlSchemaValidationFlags.AllowXmlAttributes,
-        };
-        settings.ValidationEventHandler += (_, e) => issues.Add(new ValidationIssue(e.Message, null, e.Exception.LineNumber,
-            e.Exception.LinePosition, e.Severity == XmlSeverityType.Warning ? IssueSeverity.Warning : IssueSeverity.Error));
-        try
-        {
-            using var reader = XmlReader.Create(new StringReader(xml), settings);
-            while (reader.Read()) { }
-        }
-        catch (XmlException e)
-        {
-            issues.Add(new ValidationIssue(e.Message, null, e.LineNumber, e.LinePosition));
-        }
-        return issues;
-    }
-
     /// <summary>Escreve um elemento do WSDL (header, ou Body sem Payload Binding) gerado como Maximal.</summary>
     private void WriteGenerated(XmlWriter writer, XmlSchemaElement element)
     {
@@ -227,8 +202,6 @@ public sealed partial class Operation
         using var reader = new StreamReader(gzip, Encoding.UTF8);
         return reader.ReadToEnd();
     }
-
-    private static string Direction(MessageDirection direction) => direction == MessageDirection.Request ? "Request" : "Response";
 
     private static ValidationIssue Issue(string message, XObject at) =>
         at is IXmlLineInfo line && line.HasLineInfo()

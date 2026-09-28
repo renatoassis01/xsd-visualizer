@@ -15,6 +15,6 @@ public interface IPayloadBindings
 /// <summary>Um Global Element oferecido como Payload: nome, Schema Set e arquivo.</summary>
 public sealed record GlobalElementChoice(GlobalElement Element)
 {
-    public string Display => $"{Element.Name}   [{Element.SchemaSet.Name} / {Path.GetFileName(Element.SourceFile)}]";
+    public string Display => $"{Element.Name}   [{Element.SchemaSet.Name} / {Element.FileName}]";
     public override string ToString() => Display;
 }

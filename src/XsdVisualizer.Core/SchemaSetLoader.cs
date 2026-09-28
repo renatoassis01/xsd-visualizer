@@ -87,7 +87,7 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
         schemas.ValidationEventHandler += (_, e) =>
         {
             if (e.Severity == XmlSeverityType.Error) failed = true;
-            issues.Add(ToIssue(e.Exception, file, e.Severity));
+            issues.Add(SchemaValidation.Issue(e.Exception, SourceFile(e.Exception.SourceUri) ?? file, e.Severity));
         };
         try
         {
@@ -102,7 +102,7 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
         }
         catch (XmlSchemaException e)
         {
-            issues.Add(ToIssue(e, file, XmlSeverityType.Error));
+            issues.Add(SchemaValidation.Issue(e, SourceFile(e.SourceUri) ?? file, XmlSeverityType.Error));
             return null;
         }
         return failed ? null : new CompilationUnit(file, schemas);
@@ -111,10 +111,6 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
     private SchemaResolver Resolver(string file, List<ValidationIssue> issues) =>
         new(_downloader, _cacheDirectory, uri => issues.Add(new ValidationIssue(
             $"Não foi possível obter o schema remoto {uri} (sem conexão e sem cópia em cache).", file, 0, 0)));
-
-    private static ValidationIssue ToIssue(XmlSchemaException e, string fallbackFile, XmlSeverityType severity) =>
-        new(e.Message, SourceFile(e.SourceUri) ?? fallbackFile, e.LineNumber, e.LinePosition,
-            severity == XmlSeverityType.Warning ? IssueSeverity.Warning : IssueSeverity.Error);
 
     private static string? SourceFile(string? uri) =>
         string.IsNullOrEmpty(uri) ? null : new Uri(uri).LocalPath;

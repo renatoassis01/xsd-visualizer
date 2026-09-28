@@ -7,6 +7,15 @@ public enum SoapVersion { Soap11, Soap12 }
 
 public enum MessageDirection { Request, Response }
 
+public static class MessageDirectionExtensions
+{
+    /// <summary>"Request" ou "Response", como no glossário.</summary>
+    public static string Label(this MessageDirection direction) => direction == MessageDirection.Request ? "Request" : "Response";
+
+    /// <summary>"request" ou "response", como nos nomes de arquivo dos Envelopes.</summary>
+    public static string FileSuffix(this MessageDirection direction) => direction.Label().ToLowerInvariant();
+}
+
 /// <summary>Um wsdl:service de um WSDL do Schema Set.</summary>
 public sealed class Service
 {
@@ -21,6 +30,7 @@ public sealed class Service
 
     public string Name { get; }
     public string SourceFile { get; }
+    public string FileName => Path.GetFileName(SourceFile);
     public SchemaSet SchemaSet { get; internal set; } = null!;
     public IReadOnlyList<Endpoint> Endpoints { get; }
     public IReadOnlyList<Operation> Operations { get; }

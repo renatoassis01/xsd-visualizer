@@ -15,7 +15,7 @@ public sealed class ServiceViewModel(Service model, IPayloadBindings store) : Vi
 {
     public Service Model { get; } = model;
     public string Name => Model.Name;
-    public string SourceFileName => Path.GetFileName(Model.SourceFile);
+    public string SourceFileName => Model.FileName;
     public IReadOnlyList<OperationViewModel> Operations { get; } = model.Operations.Select(o => new OperationViewModel(o, store)).ToList();
 }
 

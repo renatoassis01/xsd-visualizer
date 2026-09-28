@@ -13,7 +13,7 @@ public sealed record SampleItem(Sample Sample, string Display);
 public sealed record OperationChoice(OperationCandidate Candidate)
 {
     public string Display =>
-        $"{Candidate.Operation.Service.Name} / {Candidate.Operation.Name} ({(Candidate.Direction == MessageDirection.Request ? Strings.Request : Strings.Response)})   [{Path.GetFileName(Candidate.Operation.Service.SourceFile)}]";
+        $"{Candidate.Operation.Service.Name} / {Candidate.Operation.Name} ({DirectionText.Of(Candidate.Direction)})   [{Candidate.Operation.Service.FileName}]";
     public override string ToString() => Display;
 }
 
