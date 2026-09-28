@@ -245,6 +245,10 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
     /// <summary>Quantas mudanças há dentro; um grupo que entrou ou saiu é uma mudança só, sem contador.</summary>
     public string CountText => Count > 0 && Kind is not (ChangeKind.Added or ChangeKind.Removed) ? string.Format(Strings.ChangesCount, Count) : "";
     public string? TypeName => (Model.After ?? Model.Before)?.TypeName;
+
+    /// <summary>Documentação do campo (a do After; se saiu, a do Before).</summary>
+    public string? Documentation => (Model.After ?? Model.Before)?.Documentation;
+    public bool HasDocumentation => !string.IsNullOrWhiteSpace(Documentation);
     public string KindText => ChangeKindText.Of(Kind);
 
     /// <summary>Linhas "propriedade: antes → depois" (e valores de enumeração que entraram/saíram).</summary>

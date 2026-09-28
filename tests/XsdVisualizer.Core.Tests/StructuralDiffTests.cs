@@ -117,4 +117,24 @@ public class StructuralDiffTests
         var ibscbs = pair.Tree.Children.Single(c => c.Label == "IBSCBS");
         Assert.Equal(["CST Added", "vBC Added"], ibscbs.Children.Select(c => $"{c.Label} {c.Kind}"));
     }
+
+    [Fact]
+    public void An_element_that_gains_a_type_is_one_modification_of_its_type()
+    {
+        using var before = new SchemaFolder(("t.xsd", SchemaFolder.Xsd("""
+            <xs:complexType name="TIS"><xs:sequence><xs:element name="vIS" type="xs:decimal"/></xs:sequence></xs:complexType>
+            <xs:element name="total"><xs:complexType><xs:sequence><xs:element name="vNFTot" minOccurs="0"/></xs:sequence></xs:complexType></xs:element>
+            """)));
+        using var after = new SchemaFolder(("t.xsd", SchemaFolder.Xsd("""
+            <xs:complexType name="TIS"><xs:sequence><xs:element name="vIS" type="xs:decimal"/></xs:sequence></xs:complexType>
+            <xs:element name="total"><xs:complexType><xs:sequence><xs:element name="vNFTot" type="xs:decimal" minOccurs="0"/></xs:sequence></xs:complexType></xs:element>
+            """)));
+
+        var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single(p => p.Name == "total");
+
+        var change = pair.Changes().First();
+        Assert.Equal(("total/vNFTot", ChangeKind.Modified), (change.Path, change.Kind));
+        Assert.Contains(change.Differences, d => d.Property == "type" && d.Before == "xs:anyType" && d.After == "xs:decimal");
+        Assert.DoesNotContain(pair.Changes(), c => c.Label.Contains('['));
+    }
 }

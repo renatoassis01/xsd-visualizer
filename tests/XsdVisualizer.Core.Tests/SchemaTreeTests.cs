@@ -117,4 +117,20 @@ public class SchemaTreeTests
         Assert.Equal(("any", "0..1", "##other"), (any.Label, any.Cardinality, any.WildcardNamespace));
         Assert.Equal(("@any", "##any"), (anyAttribute.Label, anyAttribute.WildcardNamespace));
     }
+
+    [Fact]
+    public void An_element_without_a_type_is_any_type_and_not_a_choice_between_every_complex_type()
+    {
+        using var folder = new SchemaFolder(("total.xsd", SchemaFolder.Xsd("""
+            <xs:complexType name="TIS"><xs:sequence><xs:element name="vIS" type="xs:decimal"/></xs:sequence></xs:complexType>
+            <xs:complexType name="TCIBS"><xs:sequence><xs:element name="vCBS" type="xs:decimal"/></xs:sequence></xs:complexType>
+            <xs:element name="total">
+              <xs:complexType><xs:sequence><xs:element name="vNFTot" minOccurs="0"/></xs:sequence></xs:complexType>
+            </xs:element>
+            """)));
+
+        var vNFTot = Open(folder, "total").Tree.Children.Single().Children.Single();
+
+        Assert.Equal((NodeKind.Element, "xs:anyType"), (vNFTot.Kind, vNFTot.TypeName));
+    }
 }

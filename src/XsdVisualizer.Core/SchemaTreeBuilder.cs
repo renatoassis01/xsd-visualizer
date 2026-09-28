@@ -70,7 +70,10 @@ internal sealed class SchemaTreeBuilder(XmlSchemaSet schemas)
 
     private List<XmlSchemaType> DerivedTypes(XmlSchemaType? baseType)
     {
-        if (baseType is not XmlSchemaComplexType || baseType.QualifiedName.IsEmpty) return [];
+        // Tipos embutidos do XSD (xs:anyType, de um elemento declarado sem tipo) não geram alternativas:
+        // todo tipo complexo deriva de xs:anyType, e isso não é polimorfismo pretendido pelo schema.
+        if (baseType is not XmlSchemaComplexType || baseType.QualifiedName.IsEmpty
+            || baseType.QualifiedName.Namespace == XmlSchema.Namespace) return [];
         return schemas.GlobalTypes.Values.OfType<XmlSchemaComplexType>()
             .Where(t => t != baseType && !t.IsAbstract && DerivesFrom(t, baseType))
             .OrderBy(DeclarationOrder)

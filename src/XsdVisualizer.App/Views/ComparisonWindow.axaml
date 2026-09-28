@@ -143,7 +143,10 @@
                         <TextBlock Text="{Binding Model.Path}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding KindText}" FontWeight="SemiBold"
                                    Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}" Classes.modified="{Binding IsModified}" />
-                        <ItemsControl ItemsSource="{Binding DifferenceLines}">
+                        <TextBlock Text="{x:Static res:Strings.Documentation}" FontWeight="SemiBold" Margin="0,6,0,0"
+                                   IsVisible="{Binding HasDocumentation}" />
+                        <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" IsVisible="{Binding HasDocumentation}" />
+                        <ItemsControl ItemsSource="{Binding DifferenceLines}" Margin="0,6,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
                                     <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}" FontSize="12" />
