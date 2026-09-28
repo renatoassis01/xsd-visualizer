@@ -111,4 +111,122 @@ public class SampleGenerationTests
         Assert.Equal(pedido.GenerateMaximal().Xml, pedido.GenerateMaximal().Xml);
         Assert.Equal(pedido.GenerateMaximal().Xml, Open(folder, "pedido").GenerateMaximal().Xml);
     }
+
+    private static SchemaFolder Pessoa() => new(("pessoa.xsd", SchemaFolder.Xsd("""
+        <xs:element name="pessoa">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:choice>
+                <xs:element name="CPF" type="xs:string"/>
+                <xs:element name="CNPJ" type="xs:string"/>
+                <xs:sequence><xs:element name="idEstrangeiro" type="xs:string"/><xs:element name="pais" type="xs:string"/></xs:sequence>
+              </xs:choice>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        """)));
+
+    [Fact]
+    public void The_maximal_sample_uses_the_first_branch_unless_another_is_pinned()
+    {
+        using var folder = Pessoa();
+        var pessoa = Open(folder, "pessoa");
+        var choice = pessoa.Tree.Children.Single().Children.Single();
+
+        var padrao = pessoa.GenerateMaximal();
+        var fixado = pessoa.GenerateMaximal(new Dictionary<string, int> { [choice.Path] = 2 });
+
+        Assert.True(padrao.IsValid && fixado.IsValid);
+        Assert.Equal(["CPF"], XDocument.Parse(padrao.Xml).Root!.Elements().Select(e => e.Name.LocalName));
+        Assert.Equal(["idEstrangeiro", "pais"], XDocument.Parse(fixado.Xml).Root!.Elements().Select(e => e.Name.LocalName));
+    }
+
+    [Fact]
+    public void Recursion_is_expanded_once_and_then_only_the_minimum()
+    {
+        using var folder = new SchemaFolder(("pasta.xsd", SchemaFolder.Xsd("""
+            <xs:complexType name="TPasta">
+              <xs:sequence><xs:element name="pasta" type="TPasta" minOccurs="0"/></xs:sequence>
+              <xs:attribute name="nome" type="xs:string"/>
+            </xs:complexType>
+            <xs:element name="raiz" type="TPasta"/>
+            """)));
+
+        var sample = Open(folder, "raiz").GenerateMaximal();
+
+        Assert.True(sample.IsValid);
+        var raiz = XDocument.Parse(sample.Xml).Root!;
+        var filha = Assert.Single(raiz.Elements());
+        Assert.Empty(filha.Elements());
+        Assert.Null(filha.Attribute("nome"));
+    }
+
+    [Fact]
+    public void Substitution_groups_and_derived_types_generate_valid_alternatives_and_wildcards_are_omitted()
+    {
+        using var folder = new SchemaFolder(("desenho.xsd", SchemaFolder.Xsd("""
+            <xs:element name="forma" type="xs:string" abstract="true"/>
+            <xs:element name="circulo" type="xs:string" substitutionGroup="forma"/>
+            <xs:element name="quadrado" type="xs:string" substitutionGroup="forma"/>
+            <xs:complexType name="TPagamento" abstract="true"><xs:sequence><xs:element name="valor" type="xs:decimal"/></xs:sequence></xs:complexType>
+            <xs:complexType name="TPix"><xs:complexContent><xs:extension base="TPagamento"><xs:sequence><xs:element name="chave" type="xs:string"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+            <xs:complexType name="TCartao"><xs:complexContent><xs:extension base="TPagamento"><xs:sequence><xs:element name="bandeira" type="xs:string"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+            <xs:element name="desenho">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element ref="forma"/>
+                  <xs:element name="pagamento" type="TPagamento"/>
+                  <xs:any namespace="##other" processContents="lax" minOccurs="0"/>
+                </xs:sequence>
+                <xs:anyAttribute namespace="##any"/>
+              </xs:complexType>
+            </xs:element>
+            """, "urn:desenho")));
+        var desenho = Open(folder, "desenho");
+        var sequence = desenho.Tree.Children.Single(c => c.Kind == NodeKind.Sequence);
+
+        var sample = desenho.GenerateMaximal(new Dictionary<string, int> { [sequence.Children[0].Path] = 1, [sequence.Children[1].Path] = 1 });
+
+        Assert.True(sample.IsValid, string.Join("\n", sample.Issues) + "\n" + sample.Xml);
+        var root = XDocument.Parse(sample.Xml).Root!;
+        XNamespace ns = "urn:desenho";
+        Assert.Equal([ns + "quadrado", ns + "pagamento"], root.Elements().Select(e => e.Name));
+        Assert.Equal(ns + "TCartao", root.Element(ns + "pagamento")!.GetXsiType());
+        Assert.DoesNotContain(root.Attributes(), a => !a.IsNamespaceDeclaration);
+    }
+
+    [Fact]
+    public void An_unsatisfiable_schema_still_produces_a_sample_marked_invalid()
+    {
+        using var folder = new SchemaFolder(("impossivel.xsd", SchemaFolder.Xsd($"""
+            <xs:element name="impossivel">
+              <xs:complexType>
+                <xs:sequence>
+                  {Restricted("codigo", """base="xs:string"><xs:pattern value="[0-9]{3}"/><xs:length value="5"/>""")}
+                  <xs:any namespace="##other" processContents="strict"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            """)));
+
+        var sample = Open(folder, "impossivel").GenerateMaximal();
+
+        Assert.False(sample.IsValid);
+        Assert.Contains(sample.Issues, i => i.Message.Contains("codigo"));
+        Assert.NotEmpty(XDocument.Parse(sample.Xml).Root!.Elements("codigo"));
+    }
+}
+
+internal static class XElementExtensions
+{
+    private static readonly XNamespace Xsi = "http://www.w3.org/2001/XMLSchema-instance";
+
+    public static XName? GetXsiType(this XElement element)
+    {
+        var value = (string?)element.Attribute(Xsi + "type");
+        if (value is null) return null;
+        var parts = value.Split(':');
+        var ns = parts.Length == 2 ? element.GetNamespaceOfPrefix(parts[0]) : element.GetDefaultNamespace();
+        return ns! + parts[^1];
+    }
 }

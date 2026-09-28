@@ -31,6 +31,8 @@ internal sealed class ValueGenerator
         return fallback ?? name;
     }
 
+    public static IReadOnlyList<string> EnumerationsOf(XmlSchemaSimpleType type) => Constraints.Of(type).Enumerations;
+
     public bool IsValid(XmlSchemaSimpleType type, string value)
     {
         try

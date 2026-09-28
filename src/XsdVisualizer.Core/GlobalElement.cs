@@ -34,6 +34,45 @@ public sealed class GlobalElement
     public Sample GenerateMinimal() =>
         Finish(SampleKind.Minimal, 0, new SampleGenerator(GenerationMode.Minimal, new PinnedChoices(null)).Generate(Tree), []);
 
+    /// <summary>
+    /// Menor conjunto (guloso) de Samples em que cada ramo de choice, opcional e valor de enumeração
+    /// aparece ao menos uma vez. Cada Sample traz no topo um comentário com o que cobre.
+    /// </summary>
+    public IReadOnlyList<Sample> GenerateCoverageSet()
+    {
+        const int limit = 1000;
+        var choices = new CoverageChoices(Tree);
+        var generated = new List<(string Xml, IReadOnlyList<string> Covers)>();
+        do
+        {
+            var xml = new SampleGenerator(GenerationMode.Maximal, choices).Generate(Tree);
+            var covers = choices.NextSample();
+            if (generated.Count > 0 && covers.Count == 0) break;
+            generated.Add((xml, covers));
+        } while (choices.HasUncovered && generated.Count < limit);
+
+        return generated
+            .Select((g, i) => Finish(SampleKind.Coverage, i + 1, WithComment(g.Xml, CoverageComment(i + 1, generated.Count, g.Covers)), g.Covers))
+            .ToList();
+    }
+
+    private string CoverageComment(int number, int total, IReadOnlyList<string> covers)
+    {
+        var lines = new List<string> { $" Coverage Set de {Name}: Sample {number} de {total}" };
+        if (covers.Count > 0)
+        {
+            lines.Add(" cobre:");
+            lines.AddRange(covers.Select(c => "   " + c));
+        }
+        return string.Join("\n", lines).Replace("--", "- -") + "\n";
+    }
+
+    private static string WithComment(string xml, string comment)
+    {
+        var endOfDeclaration = xml.IndexOf("?>", StringComparison.Ordinal) + 2;
+        return $"{xml[..endOfDeclaration]}\n<!--{comment}-->{xml[endOfDeclaration..]}";
+    }
+
     private Sample Finish(SampleKind kind, int number, string xml, IReadOnlyList<string> covers) =>
         new(this, kind, number, xml, covers, Validate(xml));
 
