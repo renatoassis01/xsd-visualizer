@@ -1,0 +1,8 @@
+# Mesmos finais de linha em todos os sistemas, para os testes e as saídas geradas não mudarem no Windows.
+* text=auto eol=lf
+# Schemas de terceiros ficam byte a byte como publicados.
+tests/Fixtures/** -text
+src/XsdVisualizer.Core/W3C/** -text
+*.png binary
+*.ico binary
+*.icns binary

@@ -27,14 +27,7 @@ Os termos em inglês da interface (Schema Set, Global Element, Sample, Coverage 
 
 ## 1. Instalar e abrir
 
-**Executável pronto.** Rode `./publish.sh` (veja o [README](../../README.md#publicar-executáveis)) e use o arquivo de `dist/<plataforma>/`: é um executável único que não precisa do .NET instalado.
-
-| Plataforma | Executável |
-|---|---|
-| Windows | `dist\win-x64\XsdVisualizer.exe` |
-| macOS (Apple Silicon) | `dist/osx-arm64/XsdVisualizer` |
-| macOS (Intel) | `dist/osx-x64/XsdVisualizer` |
-| Linux | `dist/linux-x64/XsdVisualizer` |
+**Versão pronta.** Baixe em [Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest): instalador ou `.zip` no Windows, `.dmg` no macOS e AppImage, `.deb` ou `.tar.gz` no Linux, para x64 e ARM. Não precisa do .NET instalado. Como o app não é assinado, o macOS e o Windows pedem uma liberação na primeira vez; o passo a passo está no [README](../../README.md#baixar-e-instalar).
 
 **A partir do código.** Com o .NET SDK 10 instalado:
 

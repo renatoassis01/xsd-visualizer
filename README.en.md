@@ -1,5 +1,7 @@
 # XSD Visualizer
 
+[![CI](https://github.com/renatoassis01/xsd-visualizer/actions/workflows/ci.yml/badge.svg)](https://github.com/renatoassis01/xsd-visualizer/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/renatoassis01/xsd-visualizer)](https://github.com/renatoassis01/xsd-visualizer/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 🇧🇷 [Versão em português](README.md)
 
 A cross-platform desktop app (Windows, macOS, Linux) for exploring sets of XSD and WSDL files, generating valid sample XML and SOAP envelopes, validating existing XML and envelopes, and comparing two versions of the same set of schemas. It was created to keep up with the Brazilian tax authority's (SEFAZ) electronic invoice schemas (NF-e, NFGas, NFCom…), but it is generic: it works with any XSD 1.0.
@@ -7,6 +9,29 @@ A cross-platform desktop app (Windows, macOS, Linux) for exploring sets of XSD a
 📖 **[User guide](docs/manual/en.md)**: how to use each screen, with screenshots. · [Manual do usuário (português)](docs/manual/pt-BR.md)
 
 ![Main window](docs/images/en/main.png)
+
+## Download and install
+
+Get the latest version from **[Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest)**. The builds are self-contained: .NET does not need to be installed.
+
+| System | File |
+|---|---|
+| Windows | `…-windows-x64-setup.exe` (installer) or `…-windows-x64.zip` (portable); ARM: `…-windows-arm64-…` |
+| macOS (Apple Silicon) | `…-macos-arm64.dmg` |
+| macOS (Intel) | `…-macos-x64.dmg` |
+| Linux | `…-linux-x64.AppImage`, `.deb` or `.tar.gz`; ARM: `…-linux-arm64.…` |
+
+**macOS:** the app is not signed with an Apple Developer ID, so the first time macOS says it cannot verify it. Drag the app to Applications and run in the Terminal:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/XSD Visualizer.app"
+```
+
+Or try to open it once and go to *System Settings → Privacy & Security → Open Anyway*.
+
+**Windows:** SmartScreen may show "Windows protected your PC" because the installer is not signed. Click *More info → Run anyway*.
+
+**Linux:** `chmod +x XsdVisualizer-*.AppImage` and run it, or install the package with `sudo apt install ./XsdVisualizer-*.deb` (the command is `xsd-visualizer`).
 
 ## What it does
 
@@ -65,7 +90,9 @@ xsd-visualizer/
 │   ├── XsdVisualizer.Core.Tests/   Core tests through the public facade
 │   ├── XsdVisualizer.App.Tests/    theme catalog tests
 │   └── Fixtures/                   real SEFAZ packages (XSDs and WSDLs)
-└── publish.sh                      self-contained executables per platform
+├── packaging/                      packaging: .app/.dmg, Windows installer, AppImage/.deb
+├── .github/workflows/              CI (tests on 3 systems) and tag-driven release
+└── publish.sh                      self-contained executables per platform (local)
 ```
 
 ## Architecture
@@ -139,7 +166,7 @@ How the internals work:
 - [ADR-0002](docs/adr/0002-apenas-xsd-1-0.md): XSD 1.0 only.
 - [ADR-0003](docs/adr/0003-compilacao-por-arquivo-raiz.md): compile per root file.
 - [ADR-0004](docs/adr/0004-apenas-wsdl-1-1-document-literal.md): WSDL 1.1 document/literal only.
-- Specs: [v1](docs/spec/0001-xsd-visualizer-v1.md), [WSDL](docs/spec/0002-wsdl.md), [Comparison](docs/spec/0003-comparacao.md), [Themes](docs/spec/0004-temas.md) and [Refactoring](docs/spec/0005-refatoracao.md).
+- Specs: [v1](docs/spec/0001-xsd-visualizer-v1.md), [WSDL](docs/spec/0002-wsdl.md), [Comparison](docs/spec/0003-comparacao.md), [Themes](docs/spec/0004-temas.md), [Refactoring](docs/spec/0005-refatoracao.md) and [Distribution](docs/spec/0006-distribuicao.md).
 
 ## Building, running and testing
 
@@ -206,3 +233,21 @@ How the tests are designed:
 ```
 
 Output goes to `dist/<rid>/` (git-ignored): a single self-contained executable of about 100 MB that runs without .NET installed. On macOS, run `./dist/osx-arm64/XsdVisualizer`; on Windows, `dist\win-x64\XsdVisualizer.exe`.
+
+### Releasing a version
+
+Releases come from GitHub Actions:
+
+- **CI** (`.github/workflows/ci.yml`): every push to `main` and every PR builds and tests on Linux, macOS and Windows.
+- **Release** (`.github/workflows/release.yml`): a `v*` tag runs the tests, packages the six platforms (Windows, macOS and Linux, x64 and arm64) and creates the release with the files, `SHA256SUMS.txt` and notes generated from the commits.
+
+```bash
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+The version comes from the tag (it becomes the assembly version, shown in About). The scripts in `packaging/` also run by hand: `packaging/package-macos.sh osx-arm64 1.2.0` on macOS, `packaging/package-linux.sh linux-x64 1.2.0` on Linux and `packaging/package-windows.sh win-x64 1.2.0` in Git Bash on Windows (with Inno Setup). Output goes to `dist/release/`.
+
+## License
+
+[MIT](LICENSE). The XSDs and WSDLs in `tests/Fixtures` are public SEFAZ documents, included only as test data.

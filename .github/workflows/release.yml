@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  package:
+    name: Package (${{ matrix.rid }})
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, rid: osx-arm64, script: package-macos.sh }
+          - { os: macos-latest, rid: osx-x64, script: package-macos.sh }
+          - { os: windows-latest, rid: win-x64, script: package-windows.sh }
+          - { os: windows-latest, rid: win-arm64, script: package-windows.sh }
+          - { os: ubuntu-24.04, rid: linux-x64, script: package-linux.sh }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64, script: package-linux.sh }
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install Inno Setup
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ]; then
+            choco install innosetup --yes --no-progress
+          fi
+      - name: Install packaging tools
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install --yes file
+      - name: Package
+        shell: bash
+        run: packaging/${{ matrix.script }} ${{ matrix.rid }} "${GITHUB_REF_NAME#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: dist/release/*
+          if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+      - name: Checksums
+        working-directory: assets
+        run: sha256sum * > SHA256SUMS.txt
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          sed "s/@VERSION@/$version/g" packaging/release-notes.md > notes.md
+          gh release create "$GITHUB_REF_NAME" assets/* \
+            --title "XSD Visualizer $version" --notes-file notes.md --generate-notes

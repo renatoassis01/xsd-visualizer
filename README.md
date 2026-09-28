@@ -1,5 +1,7 @@
 # XSD Visualizer
 
+[![CI](https://github.com/renatoassis01/xsd-visualizer/actions/workflows/ci.yml/badge.svg)](https://github.com/renatoassis01/xsd-visualizer/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/renatoassis01/xsd-visualizer)](https://github.com/renatoassis01/xsd-visualizer/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 🇺🇸 [English version](README.en.md)
 
 Aplicativo desktop multiplataforma (Windows, macOS, Linux) para explorar conjuntos de XSD e WSDL, gerar XMLs e envelopes SOAP de exemplo válidos, validar XMLs e envelopes existentes e comparar duas versões de um mesmo conjunto de schemas. Nasceu para acompanhar os novos schemas da SEFAZ (NF-e, NFGas, NFCom…), mas é genérico: funciona com qualquer XSD 1.0.
@@ -7,6 +9,29 @@ Aplicativo desktop multiplataforma (Windows, macOS, Linux) para explorar conjunt
 📖 **[Manual do usuário](docs/manual/pt-BR.md)**: como usar cada tela, com capturas. · [User guide (English)](docs/manual/en.md)
 
 ![Janela principal](docs/images/pt-BR/main.png)
+
+## Baixar e instalar
+
+Baixe a versão mais recente em **[Releases](https://github.com/renatoassis01/xsd-visualizer/releases/latest)**. Os executáveis são self-contained: não precisam do .NET instalado.
+
+| Sistema | Arquivo |
+|---|---|
+| Windows | `…-windows-x64-setup.exe` (instalador) ou `…-windows-x64.zip` (portátil); ARM: `…-windows-arm64-…` |
+| macOS (Apple Silicon) | `…-macos-arm64.dmg` |
+| macOS (Intel) | `…-macos-x64.dmg` |
+| Linux | `…-linux-x64.AppImage`, `.deb` ou `.tar.gz`; ARM: `…-linux-arm64.…` |
+
+**macOS:** o app não é assinado com um Apple Developer ID, então na primeira vez o macOS diz que não consegue verificá-lo. Arraste o app para Aplicativos e rode no Terminal:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/XSD Visualizer.app"
+```
+
+Ou tente abrir uma vez e vá em *Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim*.
+
+**Windows:** o SmartScreen pode mostrar "O Windows protegeu o computador", porque o instalador não é assinado. Clique em *Mais informações → Executar assim mesmo*.
+
+**Linux:** `chmod +x XsdVisualizer-*.AppImage` e execute, ou instale o pacote com `sudo apt install ./XsdVisualizer-*.deb` (o comando fica `xsd-visualizer`).
 
 ## O que ele faz
 
@@ -63,7 +88,9 @@ xsd-visualizer/
 │   ├── XsdVisualizer.Core.Tests/   testes do Core pela fachada pública
 │   ├── XsdVisualizer.App.Tests/    testes do catálogo de temas
 │   └── Fixtures/                   pacotes reais da SEFAZ (XSDs e WSDLs)
-└── publish.sh                      executáveis self-contained por plataforma
+├── packaging/                      empacotamento: .app/.dmg, instalador Windows, AppImage/.deb
+├── .github/workflows/              CI (testes nos 3 sistemas) e release por tag
+└── publish.sh                      executáveis self-contained por plataforma (local)
 ```
 
 ## Arquitetura
@@ -137,7 +164,7 @@ Como as peças internas funcionam:
 - [ADR-0002](docs/adr/0002-apenas-xsd-1-0.md): apenas XSD 1.0.
 - [ADR-0003](docs/adr/0003-compilacao-por-arquivo-raiz.md): compilação por arquivo raiz.
 - [ADR-0004](docs/adr/0004-apenas-wsdl-1-1-document-literal.md): apenas WSDL 1.1 document/literal.
-- Specs: [v1](docs/spec/0001-xsd-visualizer-v1.md), [WSDL](docs/spec/0002-wsdl.md), [Comparação](docs/spec/0003-comparacao.md), [Temas](docs/spec/0004-temas.md) e [Refatoração](docs/spec/0005-refatoracao.md).
+- Specs: [v1](docs/spec/0001-xsd-visualizer-v1.md), [WSDL](docs/spec/0002-wsdl.md), [Comparação](docs/spec/0003-comparacao.md), [Temas](docs/spec/0004-temas.md), [Refatoração](docs/spec/0005-refatoracao.md) e [Distribuição](docs/spec/0006-distribuicao.md).
 
 ## Build, execução e testes
 
@@ -204,3 +231,21 @@ Como os testes são pensados:
 ```
 
 A saída vai para `dist/<rid>/` (ignorado pelo git): um executável único self-contained, com cerca de 100 MB, que roda sem o .NET instalado. No macOS, rode `./dist/osx-arm64/XsdVisualizer`; no Windows, `dist\win-x64\XsdVisualizer.exe`.
+
+### Publicar uma versão
+
+Os releases saem do GitHub Actions:
+
+- **CI** (`.github/workflows/ci.yml`): todo push na `main` e todo PR rodam build + testes em Linux, macOS e Windows.
+- **Release** (`.github/workflows/release.yml`): uma tag `v*` roda os testes, empacota as seis plataformas (Windows, macOS e Linux, x64 e arm64) e cria o release com os arquivos, `SHA256SUMS.txt` e notas geradas a partir dos commits.
+
+```bash
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+A versão vem da tag (vira a versão do assembly, mostrada no Sobre). Os scripts em `packaging/` também rodam à mão: `packaging/package-macos.sh osx-arm64 1.2.0` no macOS, `packaging/package-linux.sh linux-x64 1.2.0` no Linux e `packaging/package-windows.sh win-x64 1.2.0` no Git Bash do Windows (com Inno Setup). A saída vai para `dist/release/`.
+
+## Licença
+
+[MIT](LICENSE). Os XSDs e WSDLs em `tests/Fixtures` são documentos públicos da SEFAZ, incluídos só como dados de teste.

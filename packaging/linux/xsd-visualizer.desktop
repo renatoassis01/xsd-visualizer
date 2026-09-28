@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=XSD Visualizer
+Comment=Explore XSD and WSDL, generate sample XML and SOAP envelopes, validate and compare schemas
+Exec=xsd-visualizer %F
+Icon=xsd-visualizer
+Terminal=false
+Categories=Development;
+MimeType=application/xml;text/xml;
