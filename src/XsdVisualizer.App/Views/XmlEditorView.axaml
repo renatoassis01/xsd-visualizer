@@ -99,7 +99,7 @@
                             <DockPanel>
                             <Border DockPanel.Dock="Left" IsVisible="{Binding InPayload}" CornerRadius="4" Padding="5,0" Margin="0,0,6,0"
                                     VerticalAlignment="Top" Background="{DynamicResource SystemControlHighlightAccentBrush}">
-                                <TextBlock Text="{x:Static res:Strings.PayloadTag}" FontSize="11" FontWeight="SemiBold" Foreground="White" />
+                                <TextBlock Text="{x:Static res:Strings.PayloadTag}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource OnAccentText}" />
                             </Border>
                             <TextBlock TextWrapping="Wrap" FontSize="12">
                                 <Run Text="{Binding Line, StringFormat='{}{0}:'}" FontWeight="SemiBold" />

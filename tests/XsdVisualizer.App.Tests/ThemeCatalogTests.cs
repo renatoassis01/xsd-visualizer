@@ -87,6 +87,32 @@ public class ThemeCatalogTests
         Assert.True(failures.Count == 0, $"{choice}/{(dark ? "dark" : "light")}: " + string.Join("; ", failures));
     }
 
+    [Theory]
+    [MemberData(nameof(Palettes))]
+    public void Colors_stay_readable_where_they_are_also_drawn(ThemeChoice choice, bool dark)
+    {
+        var c = ThemeCatalog.Get(choice).ColorsFor(dark);
+        var pairs = new List<(string What, string Fg, string Bg)> { ("texto secundário/editor (números de linha)", c.TextMuted, c.Editor) };
+        foreach (var line in new[] { c.DiffAddedLine, c.DiffRemovedLine, c.DiffModifiedLine })
+            foreach (var syntax in new[] { c.SyntaxTag, c.SyntaxAttribute, c.SyntaxValue, c.SyntaxComment, c.SyntaxDeclaration })
+                pairs.Add(("sintaxe/linha do diff", syntax, line));
+
+        var failures = pairs.Where(p => Contrast(p.Fg, p.Bg) < 3).Select(p => $"{p.What}: {p.Fg}/{p.Bg} {Contrast(p.Fg, p.Bg):0.00}").ToList();
+
+        Assert.True(failures.Count == 0, $"{choice}/{(dark ? "dark" : "light")}: " + string.Join("; ", failures));
+    }
+
+    [Theory]
+    [MemberData(nameof(Palettes))]
+    public void Text_on_the_accent_color_is_readable(ThemeChoice choice, bool dark)
+    {
+        var theme = ThemeCatalog.Get(choice);
+        if (theme.UsesSystemAccent) return; // a cor de destaque vem do sistema operacional, não do catálogo
+        var c = theme.ColorsFor(dark);
+
+        Assert.True(Contrast(c.OnAccent, c.Accent) >= 4.5, $"{choice}: {c.OnAccent} sobre {c.Accent} = {Contrast(c.OnAccent, c.Accent):0.00}");
+    }
+
     [Fact]
     public void Each_named_theme_mode_matches_its_background()
     {

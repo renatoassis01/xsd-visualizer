@@ -56,6 +56,7 @@ public static class ThemeApplier
         Set("DiffRemovedText", c.DiffRemoved);
         Set("DiffModifiedText", c.DiffModified);
         Set("WarningText", c.IssueWarning);
+        Set("OnAccentText", c.OnAccent);
         Set("ErrorText", c.IssueError);
         Changed?.Invoke(c);
     }

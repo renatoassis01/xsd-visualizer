@@ -9,7 +9,7 @@
     <StackPanel Margin="28" Spacing="10" HorizontalAlignment="Center">
         <Border Width="64" Height="64" CornerRadius="16" HorizontalAlignment="Center"
                 Background="{DynamicResource SystemControlHighlightAccentBrush}">
-            <PathIcon Data="{StaticResource IconLogo}" Width="34" Height="34" Foreground="White" />
+            <PathIcon Data="{StaticResource IconLogo}" Width="34" Height="34" Foreground="{DynamicResource OnAccentText}" />
         </Border>
         <TextBlock Text="{x:Static res:Strings.AppTitle}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" />
         <TextBlock x:Name="Version" Opacity="0.6" HorizontalAlignment="Center" />

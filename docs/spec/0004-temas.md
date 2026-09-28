@@ -35,14 +35,14 @@ Em Configurações → Tema, uma lista única com Igual ao sistema, Claro, Escur
 
 - **Catálogo de temas:** cada tema é um dado puro — nome, modo (claro/escuro), se usa a cor de destaque do sistema, e as cores de todos os papéis: fundos (janela, painel, editor, seleção, hover), texto (principal, secundário), borda, destaque, link, sintaxe do XML (tag, atributo, valor, comentário, declaração, entidade, CDATA), diff (entrou, saiu, mudou, alinhamento) e sublinhado (erro, aviso). O catálogo não depende do Avalonia.
 - **Cores oficiais:** GitHub (paleta Primer, claro e escuro), Dracula (draculatheme.com), Gruvbox Light (paleta do morhetz), Andromeda (EliverLara). A sintaxe do XML segue o que cada tema usa para HTML/XML no VS Code.
-- **Aplicação:** o tema define a variante do Fluent (claro/escuro, que também ajusta a barra de título) e sobrescreve a paleta do Fluent e os recursos do app com as cores do catálogo; Igual ao sistema, Claro e Escuro não sobrescrevem nada além da sintaxe e do diff. Editor, diff e sublinhado passam a ler as cores do tema ativo em vez de cores fixas. Trocar o tema reaplica tudo e redesenha os editores abertos.
+- **Aplicação:** o tema define a variante do Fluent (claro/escuro, que também ajusta a barra de título) e sobrescreve a paleta do Fluent e os recursos do app com as cores do catálogo; Igual ao sistema, Claro e Escuro não sobrescrevem a paleta do Fluent nem a cor de destaque; só definem as cores próprias do app (fundo e texto do editor, sintaxe, diff, avisos e texto sobre o destaque). Editor, diff e sublinhado passam a ler as cores do tema ativo em vez de cores fixas. Trocar o tema reaplica tudo e redesenha os editores abertos.
 - **Configurações:** a lista de tema ganha a amostra de cores por item. A escolha fica salva na sessão; os valores salvos antigos (Sistema/Claro/Escuro) continuam válidos.
 
 ## Testing Decisions
 
 - Seam novo e único: o catálogo de temas, num projeto de teste do App. Testa comportamento observável dos dados, não a interface.
 - Completude: todo tema define todos os papéis de cor.
-- Contraste (WCAG): texto principal sobre fundos ≥ 4,5:1; texto secundário, sintaxe, link, diff e sublinhado ≥ 3:1 sobre o fundo em que aparecem.
+- Contraste (WCAG): texto principal sobre fundos (inclusive linhas do diff) ≥ 4,5:1; texto secundário, sintaxe (também sobre as linhas do diff), link, diff e sublinhado ≥ 3:1 sobre o fundo em que aparecem; texto sobre a cor de destaque ≥ 4,5:1 nos temas nomeados.
 - Modo: cada tema declara claro ou escuro coerente com o seu fundo.
 - Aplicar o tema na interface não tem teste automatizado; conferência por capturas headless de cada tema.
 
