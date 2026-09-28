@@ -1,18 +1,48 @@
 # XSD Visualizer
 
-Aplicativo desktop para explorar conjuntos de XSD quaisquer (não só SEFAZ), gerar exemplos XML válidos a partir deles e validar XMLs existentes contra eles.
+Aplicativo desktop para explorar conjuntos de XSD quaisquer (não só SEFAZ) e os WSDLs que os usam, gerar exemplos XML válidos (inclusive envelopes SOAP) e validar XMLs existentes contra eles.
 
 ## Language
 
 ### Schemas
 
 **Schema Set** (conjunto de schemas):
-Todos os XSDs de uma pasta, com seus `include`/`import` resolvidos. Arrastar um `.xsd` solto abre o Schema Set da pasta dele.
+Todos os XSDs e WSDLs de uma pasta, com seus `include`/`import` resolvidos. Arrastar um `.xsd` ou `.wsdl` solto abre o Schema Set da pasta dele.
 _Avoid_: pacote, PL, pacote de liberação (termos só da SEFAZ), schema (quando se refere à pasta inteira)
 
 **Global Element** (elemento global):
 Declaração de elemento de topo de um Schema Set; é o que pode ser raiz de um Document ou de um Sample. É identificado pelo nome e pelo arquivo que o declara: o mesmo nome pode aparecer em arquivos diferentes com definições diferentes.
 _Avoid_: root, raiz, leiaute
+
+### Serviços (WSDL)
+
+**Service** (serviço):
+Um `wsdl:service` de um WSDL do Schema Set, com seus Endpoints e Operations.
+_Avoid_: web service, WS, WSDL (quando se refere ao serviço, não ao arquivo)
+
+**Endpoint**:
+Um `wsdl:port` de um Service: endereço + versão do SOAP (1.1 ou 1.2) + `soapAction` das Operations.
+_Avoid_: port, porta, binding, URL
+
+**Operation** (operação):
+Uma operação de um Service, com uma Request e uma Response.
+_Avoid_: método, ação, chamada
+
+**Request / Response**:
+As duas mensagens de uma Operation: a que vai para o serviço e a que volta dele.
+_Avoid_: entrada/saída, input/output, retorno
+
+**Payload**:
+O XML de negócio que viaja dentro do Body de uma Request ou Response (ex.: `enviNFe`), às vezes compactado em gzip+base64 dentro de uma string.
+_Avoid_: conteúdo, corpo, dados, XML de negócio
+
+**Payload Binding**:
+Ligação, feita pelo usuário, entre a Request ou Response de uma Operation e o Global Element do seu Payload, com a indicação de se o Payload vai compactado. Existe porque os WSDLs costumam declarar o Body como conteúdo livre (`xs:any`) ou string.
+_Avoid_: mapeamento, vínculo da operação
+
+**Envelope**:
+O envelope SOAP completo (Envelope, Header, Body) de uma Request ou Response. Gerado pelo app, é um Sample; trazido pelo usuário, é um Document.
+_Avoid_: requisição SOAP, mensagem SOAP, request XML
 
 ### XML
 
