@@ -103,9 +103,17 @@
             </DockPanel>
         </Border>
 
-        <Grid ColumnDefinitions="300,4,420,4,*">
+        <!-- Larguras mínimas: o GridSplitter para nelas, e nada transborda para a coluna vizinha. -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" MinWidth="200" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition Width="420" MinWidth="400" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition Width="*" MinWidth="360" />
+            </Grid.ColumnDefinitions>
             <!-- Schema Sets e Global Elements -->
-            <DockPanel Grid.Column="0" Margin="8">
+            <DockPanel Grid.Column="0" Margin="8" ClipToBounds="True">
                 <TextBlock DockPanel.Dock="Top" Classes="caption" Text="{x:Static res:Strings.SchemaSets}" />
                 <TreeView ItemsSource="{Binding SchemaSets}" SelectedItem="{Binding SelectedSchemaItem}">
                     <TreeView.DataTemplates>
@@ -150,7 +158,7 @@
             <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
 
             <!-- Árvore do Global Element -->
-            <Grid Grid.Column="2" Margin="8" RowDefinitions="Auto,Auto,Auto,*,4,Auto">
+            <Grid Grid.Column="2" Margin="8" RowDefinitions="Auto,Auto,Auto,*,4,Auto" ClipToBounds="True">
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,8">
                     <TextBlock Text="{x:Static res:Strings.Generate}" VerticalAlignment="Center" Opacity="0.7" />
                     <Border Classes="segmented">
@@ -243,7 +251,7 @@
             <GridSplitter Grid.Column="3" ResizeDirection="Columns" />
 
             <!-- Editor -->
-            <Panel Grid.Column="4">
+            <Panel Grid.Column="4" ClipToBounds="True">
                 <TextBlock Text="{x:Static res:Strings.DropHint}" Opacity="0.5" FontSize="16"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            IsVisible="{Binding !Tabs.Count}" />
