@@ -36,11 +36,8 @@ public sealed partial class EditorTabViewModel : ViewModelBase
 
     public static EditorTabViewModel ForSamples(string title, IReadOnlyList<Sample> samples)
     {
-        var tab = new EditorTabViewModel(title, "")
-        {
-            SampleItems = samples.Select(s => new SampleItem(s, SampleDisplay(s, samples.Count))).ToList(),
-        };
-        tab.SelectedSampleItem = tab.SampleItems[0];
+        var tab = new EditorTabViewModel(title, "");
+        tab.ReplaceSamples(samples);
         return tab;
     }
 
@@ -55,8 +52,21 @@ public sealed partial class EditorTabViewModel : ViewModelBase
     [ObservableProperty] public partial string IssuesSummary { get; set; } = "";
 
     // ---- Samples ----
-    public IReadOnlyList<SampleItem> SampleItems { get; private init; } = [];
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSeveralSamples))]
+    public partial IReadOnlyList<SampleItem> SampleItems { get; private set; } = [];
     public bool HasSeveralSamples => SampleItems.Count > 1;
+
+    /// <summary>Um só Maximal Sample de <paramref name="element"/> (a aba que é regerada quando uma alternativa é fixada).</summary>
+    public bool IsMaximalOf(GlobalElement element) =>
+        SampleItems is [{ Sample: { Kind: SampleKind.Maximal } sample }] && sample.Element == element;
+
+    /// <summary>Troca os Samples da aba (ex.: Maximal regerado), mantendo a aba aberta.</summary>
+    public void ReplaceSamples(IReadOnlyList<Sample> samples)
+    {
+        SampleItems = samples.Select(s => new SampleItem(s, SampleDisplay(s, samples.Count))).ToList();
+        SelectedSampleItem = SampleItems[0];
+    }
 
     [ObservableProperty] public partial SampleItem? SelectedSampleItem { get; set; }
     public IReadOnlyList<string> Covers => SelectedSampleItem?.Sample.Covers ?? [];

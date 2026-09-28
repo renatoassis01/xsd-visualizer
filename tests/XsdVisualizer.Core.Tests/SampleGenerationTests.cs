@@ -286,6 +286,25 @@ public class SampleGenerationTests
 
         Assert.True(sample.IsValid, string.Join("\n", sample.Issues) + "\n" + sample.Xml);
     }
+
+    [Fact]
+    public void Types_that_also_accept_empty_get_a_filled_value()
+    {
+        using var folder = new SchemaFolder(("dest.xsd", SchemaFolder.Xsd($"""
+            <xs:element name="dest">
+              <xs:complexType>
+                <xs:sequence>
+                  {Restricted("CNPJ", """base="xs:string"><xs:whiteSpace value="preserve"/><xs:pattern value="[0-9]{0}|[A-Z0-9]{12}[0-9]{2}"/>""")}
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            """)));
+
+        var sample = Open(folder, "dest").GenerateMaximal();
+
+        Assert.True(sample.IsValid, string.Join("\n", sample.Issues));
+        Assert.Equal(14, XDocument.Parse(sample.Xml).Root!.Element("CNPJ")!.Value.Length);
+    }
 }
 
 internal static class XElementExtensions

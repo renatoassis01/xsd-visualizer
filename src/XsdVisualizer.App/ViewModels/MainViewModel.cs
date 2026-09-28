@@ -50,8 +50,16 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
 
     partial void OnSelectedElementChanged(GlobalElementViewModel? oldValue, GlobalElementViewModel? newValue)
     {
-        if (oldValue is not null) oldValue.NodeSelected -= OnNodeSelected;
-        if (newValue is not null) newValue.NodeSelected += OnNodeSelected;
+        if (oldValue is not null)
+        {
+            oldValue.NodeSelected -= OnNodeSelected;
+            oldValue.PinsChanged -= OnPinsChanged;
+        }
+        if (newValue is not null)
+        {
+            newValue.NodeSelected += OnNodeSelected;
+            newValue.PinsChanged += OnPinsChanged;
+        }
         TreeRoots = newValue is null ? [] : [new SchemaNodeViewModel(newValue.Model.Tree, newValue, null) { IsExpanded = true }];
         SelectedNode = null;
         if (TreeRoots.FirstOrDefault() is { } root) root.IsSelected = true;
@@ -67,6 +75,24 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     {
         if (SelectedNode is { } previous && previous != node) previous.IsSelected = false;
         SelectedNode = node;
+    }
+
+    /// <summary>Fixar uma alternativa regera o Maximal na hora: atualiza a aba de Maximal do elemento ou abre uma.</summary>
+    private async void OnPinsChanged(GlobalElementViewModel element)
+    {
+        var pins = new Dictionary<string, int>(element.Pins);
+        var sample = await Task.Run(() => element.Model.GenerateMaximal(pins));
+        if (Tabs.FirstOrDefault(t => t.IsMaximalOf(element.Model)) is { } tab)
+        {
+            tab.ReplaceSamples([sample]);
+            SelectedTab = tab;
+        }
+        else
+        {
+            tab = EditorTabViewModel.ForSamples($"{element.Model.Name} · max", [sample]);
+            Tabs.Add(tab);
+            SelectedTab = tab;
+        }
     }
 
     // ---- Pesquisa na árvore ----

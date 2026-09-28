@@ -92,8 +92,14 @@ internal sealed class ValueGenerator
 
         if (constraints.Patterns.Count > 0)
         {
+            // Padrões que também aceitam vazio (ex.: "[0-9]{0}|[0-9]{14}"): vazio só se nada mais servir.
+            var empty = false;
             foreach (var candidate in PatternCandidates(constraints, name, variant))
-                yield return candidate;
+            {
+                if (candidate.Length == 0) empty = true;
+                else yield return candidate;
+            }
+            if (empty) yield return "";
             yield break;
         }
 

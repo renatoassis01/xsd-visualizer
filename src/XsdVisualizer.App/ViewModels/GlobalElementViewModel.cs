@@ -21,4 +21,9 @@ public sealed class GlobalElementViewModel(GlobalElement model, bool showSourceF
     public event Action<SchemaNodeViewModel>? NodeSelected;
 
     internal void OnNodeSelected(SchemaNodeViewModel node) => NodeSelected?.Invoke(node);
+
+    /// <summary>Disparado quando uma alternativa é fixada na árvore.</summary>
+    public event Action<GlobalElementViewModel>? PinsChanged;
+
+    internal void OnPinsChanged() => PinsChanged?.Invoke(this);
 }

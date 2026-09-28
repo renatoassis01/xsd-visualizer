@@ -57,6 +57,7 @@ public sealed partial class SchemaNodeViewModel : ViewModelBase
             if (value < 0 || PinnedBranch == value) return;
             _owner.Pins[Node.Path] = value;
             OnPropertyChanged();
+            _owner.OnPinsChanged();
         }
     }
 
