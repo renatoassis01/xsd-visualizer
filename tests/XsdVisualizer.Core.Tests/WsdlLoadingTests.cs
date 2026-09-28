@@ -28,6 +28,18 @@ public class WsdlLoadingTests
     }
 
     [Fact]
+    public void A_wsdl_saved_with_the_xsd_extension_is_read_as_a_wsdl()
+    {
+        using var folder = new SchemaFolder(("Pedidos.xsd", WsdlFixture.Wsdl()));
+
+        var set = new SchemaSetLoader().Open(folder.PathOf("Pedidos.xsd"));
+
+        Assert.Empty(set.LoadIssues);
+        Assert.Empty(set.GlobalElements);
+        Assert.Equal(["enviar", "enviarZip"], Assert.Single(set.Services).Operations.Select(o => o.Name));
+    }
+
+    [Fact]
     public void Wrapper_elements_of_a_wsdl_are_not_listed_as_global_elements()
     {
         using var folder = WsdlFixture.Folder();

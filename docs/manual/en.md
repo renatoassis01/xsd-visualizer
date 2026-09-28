@@ -156,7 +156,14 @@ The `_servicos` folder only exists when the Schema Set has WSDLs, and it only in
 
 ## 9. Services (WSDL)
 
-The `.wsdl` files in a Schema Set's folder appear in the **Services** group, with their Services and Operations. The app supports WSDL 1.1 `document/literal` over SOAP 1.1 and 1.2. It builds and validates envelopes, but it does **not call** the services.
+The WSDLs in a Schema Set's folder appear in the **Services** group, with their Services and Operations. The app recognizes a WSDL by its content, so a WSDL saved as `.xsd` works too.
+
+**Step by step.** The WSDL only describes the envelope; the business XML comes from the XSD package. So:
+
+1. Open (or drop) the WSDL. It is fine if it is alone in its folder.
+2. Also open the service's folder of XSDs (for example, the NFGas schema package).
+3. Select the Operation under **Services** and, in **Payload**, choose the Global Element that goes in the Body (for example, `consSitNFGas` for a query).
+4. Click **Minimal**, **Maximal** or **Coverage Set**. The app supports WSDL 1.1 `document/literal` over SOAP 1.1 and 1.2. It builds and validates envelopes, but it does **not call** the services.
 
 ![A WSDL Operation](../images/en/wsdl.png)
 
@@ -244,5 +251,6 @@ The ADRs and specs are written in Portuguese.
 | *"Não foi possível obter o schema remoto …"* (remote schema unavailable) | The imported schema is neither embedded nor cached, and there is no connection. Go online once so it is downloaded into the cache, or put the file in the Schema Set folder. |
 | A Global Element appears twice | It is declared in two files in the folder (for example, different versions). The file name next to it tells them apart. |
 | XML opened without validation | No open Schema Set declares its root. Open the right schema folder, then open the XML again. |
+| Empty Payload list on an Operation | Only the WSDL is open. Also open the service's folder of XSDs. |
 | Envelope Payload not validated | Set the Operation's Payload Binding (section 9). |
 | Sample marked invalid | The schema has a rule the generator could not satisfy (for example, an impossible `pattern`). The Validation Issues below the editor say which one. |

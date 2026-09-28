@@ -316,8 +316,16 @@
                             <CheckBox Grid.Row="5" Grid.Column="1" Content="{x:Static res:Strings.Compressed}"
                                       IsChecked="{Binding Compressed}" IsVisible="{Binding CanCompress}" />
                         </Grid>
-                        <TextBlock Text="{x:Static res:Strings.PayloadHint}" TextWrapping="Wrap" FontSize="12" Opacity="0.7"
-                                   IsVisible="{Binding !HasPayload}" />
+                        <TextBlock Text="{x:Static res:Strings.PayloadHint}" TextWrapping="Wrap" FontSize="12" Opacity="0.7">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="!HasPayload" />
+                                    <Binding Path="HasPayloadChoices" />
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+                        <TextBlock Text="{x:Static res:Strings.NoPayloadChoices}" TextWrapping="Wrap" FontSize="12" Margin="0,6,0,0"
+                                   Foreground="{DynamicResource WarningText}" IsVisible="{Binding !HasPayloadChoices}" />
                     </StackPanel>
                     <TreeView Classes="schema" ItemsSource="{Binding PayloadTree}" Margin="0,8,0,0" />
                 </DockPanel>

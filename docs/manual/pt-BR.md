@@ -156,7 +156,14 @@ A pasta `_servicos` só aparece se o Schema Set tiver WSDLs, e só inclui as Ope
 
 ## 9. Serviços (WSDL)
 
-Os `.wsdl` da pasta de um Schema Set aparecem no grupo **Serviços**, com seus Services e Operations. O app suporta WSDL 1.1 `document/literal` com SOAP 1.1 e 1.2. Ele monta e valida envelopes, mas **não chama** os serviços.
+Os WSDLs da pasta de um Schema Set aparecem no grupo **Serviços**, com seus Services e Operations. O app reconhece um WSDL pelo conteúdo, então um WSDL salvo como `.xsd` também funciona.
+
+**Passo a passo.** O WSDL só descreve o envelope; o XML de negócio vem do pacote de XSDs. Por isso:
+
+1. Abra (ou arraste) o WSDL. Se ele estiver sozinho numa pasta, tudo bem.
+2. Abra também a pasta de XSDs do serviço (por exemplo, o pacote de schemas da NFGas).
+3. Selecione a Operation em **Serviços** e, em **Payload**, escolha o Global Element que vai no Body (por exemplo, `consSitNFGas` para uma consulta).
+4. Clique em **Minimal**, **Maximal** ou **Coverage Set**. O app suporta WSDL 1.1 `document/literal` com SOAP 1.1 e 1.2. Ele monta e valida envelopes, mas **não chama** os serviços.
 
 ![Operation de um WSDL](../images/pt-BR/wsdl.png)
 
@@ -242,5 +249,6 @@ A variável de ambiente `XSDVISUALIZER_SESSION` aponta para outro arquivo de ses
 | *"Não foi possível obter o schema remoto …"* | O schema importado não está embutido nem em cache, e não há conexão. Conecte-se uma vez para que ele seja baixado e guardado no cache, ou coloque o arquivo na pasta do Schema Set. |
 | Um Global Element aparece duas vezes | Ele é declarado em dois arquivos da pasta (por exemplo, versões diferentes). O nome do arquivo ao lado diferencia os dois. |
 | XML aberto sem validação | A raiz não é declarada por nenhum Schema Set aberto. Abra a pasta de schemas certa e abra o XML de novo. |
+| Lista de Payload vazia numa Operation | Só o WSDL está aberto. Abra também a pasta de XSDs do serviço. |
 | Envelope sem validação do Payload | Defina o Payload Binding da Operation (seção 9). |
 | Sample marcado como inválido | O schema tem alguma regra que o gerador não conseguiu satisfazer (por exemplo, um `pattern` impossível). As Validation Issues embaixo do editor dizem qual é. |

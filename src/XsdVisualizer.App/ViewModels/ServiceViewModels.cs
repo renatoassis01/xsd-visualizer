@@ -84,6 +84,8 @@ public sealed partial class OperationViewModel : ViewModelBase
     public bool CanCompress => Message.BodyIsString;
 
     public IReadOnlyList<GlobalElementChoice> PayloadChoices => _store.PayloadChoices;
+    /// <summary>Sem nenhum XSD aberto não há o que escolher: o WSDL sozinho não traz o XML de negócio.</summary>
+    public bool HasPayloadChoices => PayloadChoices.Count > 0;
 
     [ObservableProperty] public partial GlobalElementChoice? SelectedPayload { get; set; }
     [ObservableProperty] public partial bool Compressed { get; set; }
@@ -114,6 +116,7 @@ public sealed partial class OperationViewModel : ViewModelBase
     public void RefreshChoices()
     {
         OnPropertyChanged(nameof(PayloadChoices));
+        OnPropertyChanged(nameof(HasPayloadChoices));
         LoadDirection();
     }
 

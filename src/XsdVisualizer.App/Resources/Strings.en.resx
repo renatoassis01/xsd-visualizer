@@ -140,4 +140,7 @@
   <data name="Definition" xml:space="preserve">
     <value>Field definition</value>
   </data>
+  <data name="NoPayloadChoices" xml:space="preserve">
+    <value>No open Schema Set has Global Elements to use as the Payload. The WSDL only describes the envelope: also open the service's folder of XSDs (Open folder… or drop it) and choose here the Global Element that goes in the Body.</value>
+  </data>
 </root>

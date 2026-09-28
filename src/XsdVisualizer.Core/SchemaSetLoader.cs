@@ -19,7 +19,11 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
     public SchemaSet Open(string path)
     {
         var folder = FolderOf(path);
-        var files = Directory.GetFiles(folder, "*.xsd").Order(StringComparer.Ordinal).ToList();
+        // O que é WSDL e o que é XSD vem do elemento raiz: um WSDL salvo como .xsd (ou o contrário) é comum.
+        var candidates = Directory.GetFiles(folder, "*.xsd").Concat(Directory.GetFiles(folder, "*.wsdl"))
+            .Order(StringComparer.Ordinal).ToList();
+        var wsdls = candidates.Where(IsWsdl).ToList();
+        var files = candidates.Except(wsdls).ToList();
         var issues = new List<ValidationIssue>();
         var unreadable = new HashSet<string>(StringComparer.Ordinal);
         var referenced = files.SelectMany(f => ReferencedFiles(f, issues, unreadable)).ToHashSet(StringComparer.Ordinal);
@@ -38,11 +42,26 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
             .OrderBy(e => e.Name, StringComparer.Ordinal).ThenBy(e => e.SourceFile, StringComparer.Ordinal)
             .ToList();
 
-        var services = Directory.GetFiles(folder, "*.wsdl").Order(StringComparer.Ordinal)
+        var services = wsdls
             .SelectMany(f => new WsdlReader(f, Resolver(f, issues), issues).Read())
             .ToList();
 
         return new SchemaSet(folder, elements, issues.Distinct().ToList(), services);
+    }
+
+    /// <summary>Se o elemento raiz é de WSDL; sem conseguir ler, vale a extensão.</summary>
+    private static bool IsWsdl(string file)
+    {
+        try
+        {
+            using var reader = XmlReader.Create(file, new XmlReaderSettings { DtdProcessing = DtdProcessing.Ignore });
+            reader.MoveToContent();
+            return reader.NamespaceURI == Soap.Wsdl11 || reader.NamespaceURI == Soap.Wsdl20;
+        }
+        catch (Exception e) when (e is XmlException or IOException or UnauthorizedAccessException)
+        {
+            return file.EndsWith(".wsdl", StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     /// <summary>A pasta de um caminho (pasta ou arquivo .xsd), absoluta e sem separador no final.</summary>
