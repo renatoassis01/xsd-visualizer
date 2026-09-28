@@ -60,7 +60,7 @@
   <data name="Ready" xml:space="preserve"><value>Ready.</value></data>
   <data name="About" xml:space="preserve"><value>About XSD Visualizer</value></data>
   <data name="AboutShort" xml:space="preserve"><value>About</value></data>
-  <data name="AboutDescription" xml:space="preserve"><value>Explore XSD sets, generate valid Samples (Maximal, Minimal and Coverage Set) and validate existing XML against them.</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>Explore XSD and WSDL sets, generate valid Samples and SOAP envelopes (Minimal, Maximal and Coverage Set) and validate existing XML and envelopes against them.</value></data>
   <data name="AboutVersion" xml:space="preserve"><value>Version {0}</value></data>
   <data name="AboutBuiltWith" xml:space="preserve"><value>Built with .NET, Avalonia and AvaloniaEdit.</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>

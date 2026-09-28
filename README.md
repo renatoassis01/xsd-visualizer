@@ -1,6 +1,6 @@
 # XSD Visualizer
 
-Aplicativo desktop multiplataforma (Windows, macOS, Linux) para explorar conjuntos de XSD, gerar XMLs de exemplo válidos a partir deles e validar XMLs existentes. Nasceu para acompanhar os novos schemas da SEFAZ (NF-e, NFGas, NFAg…), mas é genérico: funciona com qualquer XSD 1.0.
+Aplicativo desktop multiplataforma (Windows, macOS, Linux) para explorar conjuntos de XSD e WSDL, gerar XMLs e envelopes SOAP de exemplo válidos a partir deles e validar XMLs e envelopes existentes. Nasceu para acompanhar os novos schemas da SEFAZ (NF-e, NFGas, NFAg…), mas é genérico: funciona com qualquer XSD 1.0.
 
 ## O que ele faz
 
@@ -12,9 +12,10 @@ Aplicativo desktop multiplataforma (Windows, macOS, Linux) para explorar conjunt
   - **Coverage Set**: o menor conjunto de Samples em que cada ramo de choice, opcional e valor de enumeração aparece ao menos uma vez, com um comentário no topo dizendo o que cada um cobre.
   - **Gerar todos**: grava tudo em `<saída>/<Schema Set>/<Global Element>/<nome>.{max,min,cov-NN}.xml`.
 - **Valida Documents**: arraste um XML; ele é vinculado (Binding) ao Global Element certo e validado num editor com destaque de sintaxe, revalidação enquanto você digita e Validation Issues sublinhadas.
+- **Serviços (WSDL)**: os `.wsdl` da pasta aparecem como Services → Operations. Para cada Operation você escolhe o Endpoint (SOAP 1.1/1.2) e faz o **Payload Binding** (qual Global Element vai no Body e se vai compactado em gzip+base64), e os mesmos botões geram **Envelopes** SOAP completos. Um envelope capturado de um log é vinculado à Operation e validado em camadas: envelope SOAP, Body do WSDL e Payload. Só WSDL 1.1 document/literal (ADR-0004); o app não chama os serviços.
 - **Sessão**: reabre os Schema Sets da última vez, mantém recentes e recarrega sozinho quando um XSD muda em disco.
 
-O vocabulário (Schema Set, Global Element, Sample, Coverage Set, Document, Binding, Validation Issue) está definido em [`CONTEXT.md`](CONTEXT.md) e é usado igual no código e na interface.
+O vocabulário (Schema Set, Global Element, Sample, Coverage Set, Document, Binding, Validation Issue, Service, Operation, Payload, Payload Binding, Envelope) está definido em [`CONTEXT.md`](CONTEXT.md) e é usado igual no código e na interface.
 
 ## Tecnologias
 
@@ -85,7 +86,9 @@ A fachada pública é pequena:
 | `Sample` | XML gerado + tipo, número, o que cobre e suas Validation Issues. |
 | `DocumentBinding` | Encontra os Global Elements candidatos para a raiz de um XML. |
 | `SampleExporter` | "Gerar todos" de um Schema Set. |
-| `ValidationIssue` | Mensagem + arquivo, linha, coluna e severidade. |
+| `ValidationIssue` | Mensagem + arquivo, linha, coluna e severidade (e se aponta para o Payload descompactado de um Envelope). |
+| `Service` / `Endpoint` / `Operation` | O que foi lido dos WSDLs do Schema Set. `Operation.GenerateEnvelopes(...)` e `Operation.ValidateEnvelope(...)`. |
+| `PayloadBinding` | Global Element do Payload de uma Request/Response + se vai compactado. |
 
 Como as peças internas funcionam:
 
@@ -101,6 +104,7 @@ Como as peças internas funcionam:
   - Cada candidato é conferido por `XmlSchemaDatatype.ParseValue`, que aplica todos os facets da cadeia de tipos.
   - No fim, o Sample inteiro é validado. Se algo não for satisfazível, ele sai marcado como inválido, nunca descartado.
 - **Validação**: `GlobalElement.Validate` usa o `XmlSchemaSet` da unidade que declarou o elemento.
+- **WSDL** (`WsdlReader`, `Envelopes`): cada WSDL 1.1 vira Services/Endpoints/Operations; os schemas de `wsdl:types` são compilados à parte (com os prefixos herdados do `wsdl:definitions`). Envelopes são montados com `XmlWriter` em volta do Payload gerado pelo Global Element vinculado; a validação de um Envelope junta numa passada os XSDs oficiais do SOAP (embutidos), os do WSDL e os do Payload, para que as posições apontem para o Envelope. Payload compactado é descompactado e validado à parte.
 
 ### App (`XsdVisualizer.App`)
 
@@ -121,7 +125,8 @@ Como as peças internas funcionam:
 - [ADR-0001](docs/adr/0001-coverage-set-em-vez-de-produto-cartesiano.md): Coverage Set em vez de produto cartesiano.
 - [ADR-0002](docs/adr/0002-apenas-xsd-1-0.md): apenas XSD 1.0.
 - [ADR-0003](docs/adr/0003-compilacao-por-arquivo-raiz.md): compilação por arquivo raiz.
-- [Spec da v1](docs/spec/0001-xsd-visualizer-v1.md): user stories, decisões de implementação e o que ficou fora.
+- [ADR-0004](docs/adr/0004-apenas-wsdl-1-1-document-literal.md): apenas WSDL 1.1 document/literal.
+- [Spec da v1](docs/spec/0001-xsd-visualizer-v1.md) e [spec do WSDL](docs/spec/0002-wsdl.md): user stories, decisões de implementação e o que ficou fora.
 
 ## Build, execução e testes
 
