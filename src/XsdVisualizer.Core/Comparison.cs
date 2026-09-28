@@ -1,7 +1,5 @@
 namespace XsdVisualizer.Core;
 
-public enum PairStatus { Added, Removed, Modified, Unchanged }
-
 /// <summary>Confronto entre dois Schema Sets: o Before (referência) e o After (avaliado contra ele).</summary>
 public sealed class Comparison
 {
@@ -66,8 +64,8 @@ public sealed class Comparison
             foreach (var pair in list) md.AppendLine($"- {pair.Name} ({side(pair).FileName})");
             md.AppendLine();
         }
-        Section("Global Elements que entraram", Pairs.Where(p => p.Status == PairStatus.Added), p => p.After!);
-        Section("Global Elements que saíram", Pairs.Where(p => p.Status == PairStatus.Removed), p => p.Before!);
+        Section("Global Elements que entraram", Pairs.Where(p => p.Status == ChangeKind.Added), p => p.After!);
+        Section("Global Elements que saíram", Pairs.Where(p => p.Status == ChangeKind.Removed), p => p.Before!);
 
         var changed = Pairs.Where(p => p.Before is not null && p.After is not null && p.Changes(includeDocumentation).Count > 0).ToList();
         if (changed.Count > 0)
@@ -113,11 +111,13 @@ public sealed class ElementPair
     public GlobalElement? After { get; }
     public string Name => (After ?? Before)!.Name;
 
-    public PairStatus Status =>
-        Before is null ? PairStatus.Added
-        : After is null ? PairStatus.Removed
-        : Tree.Kind == ChangeKind.Modified || Tree.ChangeCount > 0 ? PairStatus.Modified
-        : PairStatus.Unchanged;
+    /// <summary>Added/Removed sem um dos lados; Modified com qualquer Change além de documentação; DocumentationOnly se só a documentação mudou.</summary>
+    public ChangeKind Status =>
+        Before is null ? ChangeKind.Added
+        : After is null ? ChangeKind.Removed
+        : Tree.Kind == ChangeKind.Modified || Tree.ChangeCount > 0 ? ChangeKind.Modified
+        : Tree.Kind == ChangeKind.DocumentationOnly || Tree.DocumentationChangeCount > 0 ? ChangeKind.DocumentationOnly
+        : ChangeKind.Unchanged;
 
     /// <summary>Árvore de Changes: a união das duas árvores, pareadas pelo caminho de nomes.</summary>
     public ChangeNode Tree => _tree ??= StructuralDiff.Build(Before?.Tree, After?.Tree);

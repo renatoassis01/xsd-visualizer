@@ -121,10 +121,6 @@
   <data name="CopySummary" xml:space="preserve"><value>Copy summary</value></data>
   <data name="SummaryCopied" xml:space="preserve"><value>Summary copied to the clipboard.</value></data>
   <data name="PairWith" xml:space="preserve"><value>Pair with…</value></data>
-  <data name="StatusAdded" xml:space="preserve"><value>added</value></data>
-  <data name="StatusRemoved" xml:space="preserve"><value>removed</value></data>
-  <data name="StatusModified" xml:space="preserve"><value>changed</value></data>
-  <data name="StatusUnchanged" xml:space="preserve"><value>unchanged</value></data>
   <data name="KindAdded" xml:space="preserve"><value>Added</value></data>
   <data name="KindRemoved" xml:space="preserve"><value>Removed</value></data>
   <data name="KindModified" xml:space="preserve"><value>Modified</value></data>

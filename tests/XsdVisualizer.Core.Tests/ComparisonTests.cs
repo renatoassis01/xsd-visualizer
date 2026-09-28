@@ -41,7 +41,7 @@ public class ComparisonTests
 
         var pair = ElementPair.Manual(f.Before.GlobalElements.Single(e => e.Name == "legado"), f.After.GlobalElements.Single(e => e.Name == "novo"));
 
-        Assert.Equal(PairStatus.Unchanged, pair.Status);
+        Assert.Equal(ChangeKind.Unchanged, pair.Status);
     }
 
     [Fact]
@@ -61,6 +61,20 @@ public class ComparisonTests
         Assert.DoesNotContain("pedido/obs", markdown);
         Assert.DoesNotContain("igual", markdown);
         Assert.Contains("pedido/obs", Comparison.Compare(f.Before, f.After).ToMarkdown(includeDocumentation: true));
+    }
+
+    [Fact]
+    public void A_pair_whose_only_change_is_documentation_has_that_status()
+    {
+        static string Xsd(string doc) => SchemaFolder.Xsd($"""
+            <xs:element name="obs" type="xs:string"><xs:annotation><xs:documentation>{doc}</xs:documentation></xs:annotation></xs:element>
+            """);
+        using var before = new SchemaFolder(("o.xsd", Xsd("Observacao")));
+        using var after = new SchemaFolder(("o.xsd", Xsd("Observação")));
+
+        var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single();
+
+        Assert.Equal(ChangeKind.DocumentationOnly, pair.Status);
     }
 
     private static string File(GlobalElement? e) => e is null ? "" : Path.GetFileName(e.SourceFile);

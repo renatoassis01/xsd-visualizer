@@ -13,7 +13,7 @@ public class RealComparisonTests
 
         var nfe = comparison.Pairs.Single(p => p.Name == "NFe" && p.After?.SourceFile.EndsWith("nfe_v4.00.xsd") == true);
 
-        Assert.Equal(PairStatus.Modified, nfe.Status);
+        Assert.Equal(ChangeKind.Modified, nfe.Status);
         Assert.Contains(nfe.Changes(), c => c.Kind == ChangeKind.Added && c.Label == "IBSCBS");
         var diff = nfe.DiffSamples(SampleKind.Maximal);
         Assert.Contains(diff.After, l => l.Kind == DiffLineKind.Added && l.Text.Contains("<IBSCBS>"));
@@ -27,6 +27,6 @@ public class RealComparisonTests
             new SchemaSetLoader().Open(RealSchemaSetsTests.Fixture("PL_010_V1.30")),
             new SchemaSetLoader().Open(RealSchemaSetsTests.Fixture("PL_010_V1.30")));
 
-        Assert.All(comparison.Pairs, p => Assert.Equal(PairStatus.Unchanged, p.Status));
+        Assert.All(comparison.Pairs, p => Assert.Equal(ChangeKind.Unchanged, p.Status));
     }
 }

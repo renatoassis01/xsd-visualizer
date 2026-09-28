@@ -121,10 +121,6 @@
   <data name="CopySummary" xml:space="preserve"><value>Copiar resumo</value></data>
   <data name="SummaryCopied" xml:space="preserve"><value>Resumo copiado para a área de transferência.</value></data>
   <data name="PairWith" xml:space="preserve"><value>Parear com…</value></data>
-  <data name="StatusAdded" xml:space="preserve"><value>entrou</value></data>
-  <data name="StatusRemoved" xml:space="preserve"><value>saiu</value></data>
-  <data name="StatusModified" xml:space="preserve"><value>alterado</value></data>
-  <data name="StatusUnchanged" xml:space="preserve"><value>igual</value></data>
   <data name="KindAdded" xml:space="preserve"><value>Entrou</value></data>
   <data name="KindRemoved" xml:space="preserve"><value>Saiu</value></data>
   <data name="KindModified" xml:space="preserve"><value>Mudou</value></data>

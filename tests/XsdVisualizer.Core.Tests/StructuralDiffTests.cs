@@ -65,7 +65,7 @@ public class StructuralDiffTests
 
         var comparison = Comparison.Compare(f.Before, new SchemaSetLoader().Open(f.BeforeFolder.Path));
 
-        Assert.All(comparison.Pairs, p => Assert.Equal(PairStatus.Unchanged, p.Status));
+        Assert.All(comparison.Pairs, p => Assert.Equal(ChangeKind.Unchanged, p.Status));
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class StructuralDiffTests
 
         var comparison = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path));
 
-        Assert.All(comparison.Pairs, p => Assert.Equal(PairStatus.Unchanged, p.Status));
+        Assert.All(comparison.Pairs, p => Assert.Equal(ChangeKind.Unchanged, p.Status));
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class StructuralDiffTests
 
         var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single();
 
-        Assert.Equal(PairStatus.Modified, pair.Status);
+        Assert.Equal(ChangeKind.Modified, pair.Status);
         Assert.Equal("pattern [0-9]{8} → [0-9]{5}-[0-9]{3}", Assert.Single(pair.Changes()).Differences.Select(d => $"{d.Property} {d.Before} → {d.After}").Single());
     }
 

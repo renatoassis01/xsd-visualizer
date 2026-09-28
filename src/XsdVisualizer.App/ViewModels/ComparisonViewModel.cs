@@ -40,7 +40,7 @@ public sealed partial class ComparisonViewModel : ViewModelBase
         });
         Model = model;
         _allPairs.AddRange(model.Pairs
-            .OrderBy(p => p.Status switch { PairStatus.Modified => 0, PairStatus.Added => 1, PairStatus.Removed => 2, _ => 3 })
+            .OrderBy(p => p.Status switch { ChangeKind.Modified => 0, ChangeKind.Added => 1, ChangeKind.Removed => 2, ChangeKind.DocumentationOnly => 3, _ => 4 })
             .ThenBy(p => p.Name, StringComparer.Ordinal)
             .Select(p => new ElementPairViewModel(p)));
         IsBusy = false;
@@ -60,7 +60,10 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     {
         var selected = SelectedPair;
         Pairs.Clear();
-        foreach (var pair in _allPairs.Where(p => !OnlyChangedPairs || p.Model.Status != PairStatus.Unchanged || p == selected))
+        // "Só com mudanças" esconde os iguais e, com as mudanças de documentação desligadas, os que só mudaram nela.
+        foreach (var pair in _allPairs.Where(p => !OnlyChangedPairs || p == selected
+                     || p.Model.Status is not (ChangeKind.Unchanged or ChangeKind.DocumentationOnly)
+                     || (ShowDocumentation && p.Model.Status == ChangeKind.DocumentationOnly)))
             Pairs.Add(pair);
     }
 
@@ -103,7 +106,11 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     public event Action<string>? RevealPathRequested;
 
     partial void OnOnlyChangesChanged(bool value) => RebuildTree();
-    partial void OnShowDocumentationChanged(bool value) => RebuildTree();
+    partial void OnShowDocumentationChanged(bool value)
+    {
+        RefreshPairs();
+        RebuildTree();
+    }
 
     partial void OnSelectedChangeChanged(ChangeNodeViewModel? value)
     {
@@ -195,14 +202,10 @@ public sealed class ElementPairViewModel(ElementPair model, bool isManual = fals
         { Before: { } b, After: { } a } when b.FileName != a.FileName => $"{b.FileName} → {a.FileName}",
         _ => (Model.After ?? Model.Before)!.FileName,
     };
-    public PairStatus Status => Model.Status;
-    public string StatusText => Status switch
-    {
-        PairStatus.Added => Strings.StatusAdded,
-        PairStatus.Removed => Strings.StatusRemoved,
-        PairStatus.Modified => string.Format(Strings.ChangesCount, Model.Tree.ChangeCount),
-        _ => Strings.StatusUnchanged,
-    };
+    public ChangeKind Status => Model.Status;
+    public string StatusText => Status == ChangeKind.Modified
+        ? string.Format(Strings.ChangesCount, Model.Tree.ChangeCount)
+        : ChangeKindText.Of(Status);
 }
 
 public sealed partial class ChangeNodeViewModel : ViewModelBase
@@ -241,14 +244,7 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
     /// <summary>Quantas mudanças há dentro; um grupo que entrou ou saiu é uma mudança só, sem contador.</summary>
     public string CountText => Count > 0 && Kind is not (ChangeKind.Added or ChangeKind.Removed) ? string.Format(Strings.ChangesCount, Count) : "";
     public string? TypeName => (Model.After ?? Model.Before)?.TypeName;
-    public string KindText => Kind switch
-    {
-        ChangeKind.Added => Strings.KindAdded,
-        ChangeKind.Removed => Strings.KindRemoved,
-        ChangeKind.Modified => Strings.KindModified,
-        ChangeKind.DocumentationOnly => Strings.KindDocumentation,
-        _ => Strings.KindUnchanged,
-    };
+    public string KindText => ChangeKindText.Of(Kind);
 
     /// <summary>Linhas "propriedade: antes → depois" (e valores de enumeração que entraram/saíram).</summary>
     public IReadOnlyList<string> DifferenceLines => Model.Differences.Select(d => d.Describe(PropertyName, arrow: " → ")).ToList();
