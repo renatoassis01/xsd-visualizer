@@ -2,14 +2,19 @@ namespace XsdVisualizer.Core;
 
 public enum SampleKind { Maximal, Minimal, Coverage }
 
-/// <summary>XML gerado pelo app: a partir de um Global Element, ou um Envelope de uma Operation.</summary>
+/// <summary>
+/// A parte de um Sample que é Envelope: de qual Request/Response, com qual Payload Binding e,
+/// quando o Payload vai compactado, o Payload legível.
+/// </summary>
+public sealed record SampleEnvelope(OperationMessage Message, PayloadBinding? PayloadBinding, string? DecompressedPayload);
+
+/// <summary>XML gerado pelo app a partir de um Global Element; quando é um Envelope, traz também a parte <see cref="Envelope"/>.</summary>
 public sealed class Sample
 {
     private readonly Func<string, IReadOnlyList<ValidationIssue>> _validate;
 
     internal Sample(GlobalElement? element, SampleKind kind, int number, string xml, IReadOnlyList<string> covers,
-        IReadOnlyList<ValidationIssue> issues, Func<string, IReadOnlyList<ValidationIssue>> validate,
-        Operation? operation = null, MessageDirection? direction = null, string? payload = null)
+        IReadOnlyList<ValidationIssue> issues, Func<string, IReadOnlyList<ValidationIssue>> validate, SampleEnvelope? envelope = null)
     {
         Element = element;
         Kind = kind;
@@ -18,12 +23,10 @@ public sealed class Sample
         Covers = covers;
         Issues = issues;
         _validate = validate;
-        Operation = operation;
-        Direction = direction;
-        Payload = payload;
+        Envelope = envelope;
     }
 
-    /// <summary>O Global Element gerado; num Envelope, o do Payload (null sem Payload Binding).</summary>
+    /// <summary>O Global Element que gerou o conteúdo; num Envelope, o do Payload (null sem Payload Binding).</summary>
     public GlobalElement? Element { get; }
     public SampleKind Kind { get; }
     /// <summary>Posição (1..n) dentro do Coverage Set; 0 para Maximal e Minimal.</summary>
@@ -34,12 +37,8 @@ public sealed class Sample
     public IReadOnlyList<ValidationIssue> Issues { get; }
     public bool IsValid => Issues.All(i => i.Severity != IssueSeverity.Error);
 
-    /// <summary>Operation de que este Sample é o Envelope (null para Samples de Global Element).</summary>
-    public Operation? Operation { get; }
-    public MessageDirection? Direction { get; }
-    public bool IsEnvelope => Operation is not null;
-    /// <summary>Payload legível, quando no Envelope ele vai compactado.</summary>
-    public string? Payload { get; }
+    /// <summary>Presente quando este Sample é um Envelope.</summary>
+    public SampleEnvelope? Envelope { get; }
 
     /// <summary>Valida outro texto (ex.: o Sample editado) do mesmo jeito que este Sample foi validado.</summary>
     public IReadOnlyList<ValidationIssue> Validate(string xml) => _validate(xml);
@@ -48,7 +47,7 @@ public sealed class Sample
     {
         get
         {
-            var name = Operation is { } op ? $"{op.Name}.{Direction!.Value.FileSuffix()}" : Element!.Name;
+            var name = Envelope is { Message: var m } ? $"{m.Operation.Name}.{m.Direction.FileSuffix()}" : Element!.Name;
             return Kind switch
             {
                 SampleKind.Maximal => $"{name}.max.xml",

@@ -93,7 +93,8 @@ public sealed partial class Operation
                     $"Defina o Payload Binding da {direction.Label()} de {Name}: o WSDL não diz qual XML vai no Body.", null, 0, 0));
             return issues;
         }
-        return new Sample(payload?.Element, kind, number, xml, covers, Validate(xml), Validate, this, direction, readablePayload);
+        return new Sample(payload?.Element, kind, number, xml, covers, Validate(xml), Validate,
+            new SampleEnvelope(message, payload, readablePayload));
     }
 
     /// <summary>

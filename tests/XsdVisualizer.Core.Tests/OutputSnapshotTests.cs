@@ -56,7 +56,7 @@ public class OutputSnapshotTests
                 yield return ($"{id}/{endpoint.Name}/lote.response.min", response.Xml + Issues(response.Issues));
             }
             var compressed = zip.Request.GenerateEnvelopes(SampleKind.Minimal, payload: enviNFe with { Compressed = true })[0];
-            yield return ($"{id}/zip.request.min", compressed.Xml + compressed.Payload);
+            yield return ($"{id}/zip.request.min", compressed.Xml + compressed.Envelope!.DecompressedPayload);
             var unbound = lote.Request.GenerateEnvelopes(SampleKind.Maximal)[0];
             yield return ($"{id}/lote.request.unbound", unbound.Xml + Issues(unbound.Issues));
             var invalid = lote.Request.ValidateEnvelope(unbound.Xml.Replace("<nfeDadosMsg", "<nfeResultMsg").Replace("</nfeDadosMsg>", "</nfeResultMsg>"),

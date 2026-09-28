@@ -36,7 +36,7 @@ public class EnvelopeGenerationTests
         var pedido = root.Element(Soap12 + "Body")!.Element(Tns + "dadosMsg")!.Element(Loja + "pedido");
         Assert.NotNull(pedido);
         Assert.Equal("enviar.request.max.xml", envelope.FileName);
-        Assert.Same(enviar, envelope.Operation);
+        Assert.Same(enviar.Request, envelope.Envelope!.Message);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class EnvelopeGenerationTests
         using var gzip = new GZipStream(new MemoryStream(Convert.FromBase64String(text)), CompressionMode.Decompress);
         var decompressed = XDocument.Parse(new StreamReader(gzip, Encoding.UTF8).ReadToEnd()).Root!;
         Assert.Equal(Loja + "pedido", decompressed.Name);
-        Assert.Equal(decompressed.ToString(), XDocument.Parse(envelope.Payload!).Root!.ToString());
+        Assert.Equal(decompressed.ToString(), XDocument.Parse(envelope.Envelope!.DecompressedPayload!).Root!.ToString());
     }
 
     [Fact]

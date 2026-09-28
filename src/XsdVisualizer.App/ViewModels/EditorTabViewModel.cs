@@ -86,7 +86,7 @@ public sealed partial class EditorTabViewModel : ViewModelBase
 
     /// <summary>Um só Envelope Maximal dessa Operation e direção (regerado quando um ramo do Payload é fixado).</summary>
     public bool IsMaximalEnvelopeOf(OperationMessage message) =>
-        SampleItems is [{ Sample: { Kind: SampleKind.Maximal } sample }] && sample.Operation == message.Operation && sample.Direction == message.Direction;
+        SampleItems is [{ Sample: { Kind: SampleKind.Maximal, Envelope.Message: var m } }] && m == message;
 
     /// <summary>Troca os Samples da aba (ex.: Maximal regerado), mantendo a aba aberta.</summary>
     public void ReplaceSamples(IReadOnlyList<Sample> samples)
@@ -116,7 +116,7 @@ public sealed partial class EditorTabViewModel : ViewModelBase
     public partial string? DecompressedPayload { get; private set; }
 
     /// <summary>O Payload legível desta aba: do Envelope gerado, ou descompactado do Envelope trazido.</summary>
-    public string? PayloadText => SelectedSampleItem?.Sample.Payload ?? DecompressedPayload;
+    public string? PayloadText => SelectedSampleItem?.Sample.Envelope?.DecompressedPayload ?? DecompressedPayload;
     public GlobalElement? PayloadElement => IsDocument ? CurrentPayloadBinding?.Element : SelectedSampleItem?.Sample.Element;
     public bool HasPayloadToOpen => PayloadText is not null;
 

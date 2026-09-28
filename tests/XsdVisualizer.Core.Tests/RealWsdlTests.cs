@@ -39,7 +39,7 @@ public class RealWsdlTests
             .ToList();
 
         Assert.All(envelopes, e => Assert.True(e.IsValid, $"{e.FileName}: {string.Join("\n", e.Issues.Take(5))}"));
-        Assert.NotNull(envelopes[2].Payload);
+        Assert.NotNull(envelopes[2].Envelope!.DecompressedPayload);
     }
 
     [Fact]
