@@ -127,9 +127,9 @@ public sealed class ElementPair
     /// as diferenças vêm do schema, não do gerador. Um lado que falta é comparado com nada.
     /// </summary>
     /// <param name="focus">
-    /// Mudança a trazer para o XML: no Maximal, cada lado escolhe, em cada choice, o ramo que leva até ela (ou até o
-    /// ancestral mais próximo que exista naquele lado). Sem isso, o Maximal usa o primeiro ramo e mudanças em outros
-    /// ramos não aparecem.
+    /// Mudança a trazer para o XML: cada lado escolhe, em cada choice, o ramo que leva até ela (ou até o ancestral
+    /// mais próximo que exista naquele lado), e no Minimal os opcionais desse caminho entram. Sem isso, o exemplo usa
+    /// o primeiro ramo (e, no Minimal, omite opcionais) e mudanças fora dele não aparecem.
     /// </param>
     public SampleDiff DiffSamples(SampleKind kind, ChangeNode? focus = null)
     {
@@ -137,9 +137,10 @@ public sealed class ElementPair
         string Generate(GlobalElement? element, Func<ChangeNode, SchemaNode?> side)
         {
             if (element is null) return "";
-            if (kind == SampleKind.Minimal) return element.GenerateMinimal().Xml;
             var target = path.Select(side).LastOrDefault(n => n is not null);
-            return element.GenerateMaximal(PinsTo(target)).Xml;
+            return kind == SampleKind.Minimal
+                ? element.GenerateMinimal(through: target).Xml
+                : element.GenerateMaximal(SchemaNodePath.PinsTo(target)).Xml;
         }
         return SampleDiffer.Diff(Generate(Before, n => n.Before), Generate(After, n => n.After));
     }
@@ -157,17 +158,6 @@ public sealed class ElementPair
         }
         Find(Tree);
         return path;
-    }
-
-    /// <summary>Em cada choice acima do nó, o ramo que leva até ele.</summary>
-    private static Dictionary<string, int> PinsTo(SchemaNode? node)
-    {
-        var pins = new Dictionary<string, int>();
-        for (var n = node; n?.Parent is { } parent; n = parent)
-            if (parent.Kind == NodeKind.Choice)
-                for (var i = 0; i < parent.Children.Count; i++)
-                    if (ReferenceEquals(parent.Children[i], n)) pins[parent.Path] = i;
-        return pins;
     }
 
     /// <summary>Todas as Changes (sem os nós iguais), em ordem de árvore.</summary>

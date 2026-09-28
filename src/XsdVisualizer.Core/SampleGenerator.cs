@@ -26,8 +26,12 @@ internal sealed class SampleGenerator
     private readonly ValueGenerator _values = new();
     private XmlWriter _writer = null!;
 
-    public SampleGenerator(GenerationMode mode, IGenerationChoices choices)
+    /// <summary>Nós que entram mesmo no modo mínimo (o caminho até um nó em foco).</summary>
+    private readonly IReadOnlySet<SchemaNode> _include;
+
+    public SampleGenerator(GenerationMode mode, IGenerationChoices choices, IReadOnlySet<SchemaNode>? include = null)
     {
+        _include = include ?? new HashSet<SchemaNode>();
         _mode = mode;
         _choices = choices;
     }
@@ -71,7 +75,7 @@ internal sealed class SampleGenerator
         foreach (var child in element.Children)
         {
             if (child.Kind != NodeKind.Attribute) continue;
-            if (child.MinOccurs == 0 && mode == GenerationMode.Minimal) continue;
+            if (child.MinOccurs == 0 && mode == GenerationMode.Minimal && !_include.Contains(child)) continue;
             _writer.WriteAttributeString(child.Name, child.Namespace, Value(child));
         }
 
@@ -88,7 +92,7 @@ internal sealed class SampleGenerator
     private void WriteParticle(SchemaNode node, GenerationMode mode, int depth)
     {
         var count = mode == GenerationMode.Minimal
-            ? node.MinOccurs
+            ? _include.Contains(node) ? Math.Max(1, node.MinOccurs) : node.MinOccurs
             : Math.Max(node.MinOccurs, Math.Min(node.MaxOccurs ?? 2, 2));
 
         for (var i = 0; i < count; i++)

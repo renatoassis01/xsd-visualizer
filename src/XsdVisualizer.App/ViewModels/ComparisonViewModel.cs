@@ -117,7 +117,7 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     {
         if (value is null) return;
         // A mudança está num ramo que o XML atual não mostra (ex.: segundo ramo de um choice): regera com foco nela.
-        if (!UseMinimal && !InDiff(value.Model)) _ = LoadDiffAsync(value.Model);
+        if (!InDiff(value.Model)) _ = LoadDiffAsync(value.Model);
         else RevealPathRequested?.Invoke(value.Model.Path);
     }
 

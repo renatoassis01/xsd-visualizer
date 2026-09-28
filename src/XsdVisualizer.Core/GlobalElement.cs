@@ -33,8 +33,13 @@ public sealed class GlobalElement
         Finish(SampleKind.Maximal, 0, new SampleGenerator(GenerationMode.Maximal, new PinnedChoices(pins)).Generate(Tree), []);
 
     /// <summary>Sample só com o que o Schema Set exige.</summary>
-    public Sample GenerateMinimal() =>
-        Finish(SampleKind.Minimal, 0, new SampleGenerator(GenerationMode.Minimal, new PinnedChoices(null)).Generate(Tree), []);
+    /// <param name="through">
+    /// Nó desta árvore a incluir mesmo sendo opcional: o caminho até ele entra (uma vez) e cada choice no caminho usa
+    /// o ramo que leva até ele; o resto continua mínimo.
+    /// </param>
+    public Sample GenerateMinimal(SchemaNode? through = null) =>
+        Finish(SampleKind.Minimal, 0, new SampleGenerator(GenerationMode.Minimal,
+            new PinnedChoices(SchemaNodePath.PinsTo(through)), SchemaNodePath.AncestorsAndSelf(through)).Generate(Tree), []);
 
     /// <summary>
     /// Menor conjunto (guloso) de Samples em que cada ramo de choice, opcional e valor de enumeração

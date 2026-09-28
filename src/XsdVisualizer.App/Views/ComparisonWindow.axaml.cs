@@ -79,8 +79,12 @@ public partial class ComparisonWindow : Window
         }
         if (index < 0) return;
         _beforeLines.Highlighted = _afterLines.Highlighted = index;
-        AfterEditor.ScrollTo(index + 1, 1);
-        BeforeEditor.ScrollTo(index + 1, 1);
+        // O ScrollTo do editor põe a linha pedida no topo: pede algumas linhas antes, para a linha destacada
+        // aparecer com contexto acima em vez de colada na borda.
+        const int context = 12;
+        var anchor = Math.Max(1, index + 1 - context);
+        AfterEditor.ScrollTo(anchor, 1);
+        BeforeEditor.ScrollTo(anchor, 1);
         BeforeEditor.TextArea.TextView.InvalidateLayer(_beforeLines.Layer);
         AfterEditor.TextArea.TextView.InvalidateLayer(_afterLines.Layer);
     }

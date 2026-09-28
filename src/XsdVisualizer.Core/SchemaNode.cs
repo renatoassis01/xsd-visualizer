@@ -64,3 +64,25 @@ public sealed class SchemaNode
     internal XmlSchemaContentProcessing WildcardProcessing { get; init; }
     internal string? TargetNamespace { get; init; }
 }
+
+internal static class SchemaNodePath
+{
+    /// <summary>Em cada choice acima do nó, o ramo que leva até ele.</summary>
+    public static Dictionary<string, int> PinsTo(SchemaNode? node)
+    {
+        var pins = new Dictionary<string, int>();
+        for (var n = node; n?.Parent is { } parent; n = parent)
+            if (parent.Kind == NodeKind.Choice)
+                for (var i = 0; i < parent.Children.Count; i++)
+                    if (ReferenceEquals(parent.Children[i], n)) pins[parent.Path] = i;
+        return pins;
+    }
+
+    /// <summary>O nó e todos os seus ancestrais (compositores inclusive).</summary>
+    public static HashSet<SchemaNode> AncestorsAndSelf(SchemaNode? node)
+    {
+        var nodes = new HashSet<SchemaNode>();
+        for (var n = node; n is not null; n = n.Parent) nodes.Add(n);
+        return nodes;
+    }
+}

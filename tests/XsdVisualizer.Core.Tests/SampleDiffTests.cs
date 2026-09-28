@@ -69,4 +69,38 @@ public class SampleDiffTests
         Assert.Contains(focused.Before, l => l.Kind == DiffLineKind.Removed && l.Path == "IBSCBS/gIBSCBSMono/qBCMono");
         Assert.Contains(focused.After, l => l.Text.Contains("<gIBSCBSMono>"));
     }
+
+    [Fact]
+    public void The_minimal_diff_includes_the_path_to_a_focused_change_and_nothing_else_optional()
+    {
+        static string Xsd(string monofasia) => SchemaFolder.Xsd($"""
+            <xs:element name="imposto">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="vTotTrib" type="xs:decimal" minOccurs="0"/>
+                  <xs:element name="IBSCBS" minOccurs="0">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:element name="gIBSCBS" type="xs:string"/>
+                        <xs:element name="gIBSCBSMono"><xs:complexType><xs:sequence>{monofasia}</xs:sequence></xs:complexType></xs:element>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            """);
+        using var before = new SchemaFolder(("n.xsd", Xsd("""<xs:element name="qBCMono" type="xs:decimal" minOccurs="0"/><xs:element name="vIBSMono" type="xs:decimal"/>""")));
+        using var after = new SchemaFolder(("n.xsd", Xsd("""<xs:element name="vIBSMono" type="xs:decimal"/>""")));
+        var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single();
+        var qBCMono = pair.Changes().Single(c => c.Label == "qBCMono");
+
+        var unfocused = pair.DiffSamples(SampleKind.Minimal);
+        var focused = pair.DiffSamples(SampleKind.Minimal, focus: qBCMono);
+
+        Assert.DoesNotContain(unfocused.Before, l => l.Text.Contains("IBSCBS"));
+        Assert.Contains(focused.Before, l => l.Kind == DiffLineKind.Removed && l.Path == "imposto/IBSCBS/gIBSCBSMono/qBCMono");
+        Assert.Contains(focused.After, l => l.Text.Contains("<gIBSCBSMono>"));
+        Assert.DoesNotContain(focused.Before.Concat(focused.After), l => l.Text.Contains("vTotTrib")); // o resto continua mínimo
+    }
 }
