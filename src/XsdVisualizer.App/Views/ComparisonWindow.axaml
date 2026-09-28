@@ -48,18 +48,20 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="18">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
+                <!-- DockPanel (e não StackPanel) para o status ocupar só o espaço que sobra e não passar por baixo dos botões -->
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="8" Margin="0,0,18,0">
                         <PathIcon Data="{StaticResource IconCompare}" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
                         <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="0,0,18,0">
                         <RadioButton Content="{x:Static res:Strings.Minimal}" IsChecked="{Binding UseMinimal}" GroupName="kind" />
                         <RadioButton Content="{x:Static res:Strings.Maximal}" IsChecked="{Binding !UseMinimal}" GroupName="kind" />
                     </StackPanel>
-                    <TextBlock Text="{Binding Status}" Opacity="0.7" VerticalAlignment="Center" />
-                    <ProgressBar IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
-                </StackPanel>
+                    <ProgressBar DockPanel.Dock="Left" IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" Margin="0,0,18,0" />
+                    <TextBlock Text="{Binding Status}" ToolTip.Tip="{Binding Status}" Opacity="0.7" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Margin="0,0,12,0" />
+                </DockPanel>
             </DockPanel>
         </Border>
 
