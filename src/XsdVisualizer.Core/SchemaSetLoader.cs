@@ -38,7 +38,11 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
             .OrderBy(e => e.Name, StringComparer.Ordinal).ThenBy(e => e.SourceFile, StringComparer.Ordinal)
             .ToList();
 
-        return new SchemaSet(folder, elements, issues.Distinct().ToList());
+        var services = Directory.GetFiles(folder, "*.wsdl").Order(StringComparer.Ordinal)
+            .SelectMany(f => new WsdlReader(f, Resolver(f, issues), issues).Read())
+            .ToList();
+
+        return new SchemaSet(folder, elements, issues.Distinct().ToList(), services);
     }
 
     /// <summary>A pasta de um caminho (pasta ou arquivo .xsd), absoluta e sem separador no final.</summary>
@@ -78,9 +82,8 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
     private static CompilationUnit? Compile(string file, List<ValidationIssue> issues, ISchemaDownloader downloader, string cacheDirectory)
     {
         var failed = false;
-        var resolver = new SchemaResolver(downloader, cacheDirectory, uri => issues.Add(new ValidationIssue(
-            $"Não foi possível obter o schema remoto {uri} (sem conexão e sem cópia em cache).", file, 0, 0)));
-        var schemas = new XmlSchemaSet { XmlResolver = resolver };
+        var schemas = new XmlSchemaSet { XmlResolver = new SchemaResolver(downloader, cacheDirectory, uri => issues.Add(new ValidationIssue(
+            $"Não foi possível obter o schema remoto {uri} (sem conexão e sem cópia em cache).", file, 0, 0))) };
         schemas.ValidationEventHandler += (_, e) =>
         {
             if (e.Severity == XmlSeverityType.Error) failed = true;
@@ -104,6 +107,10 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
         }
         return failed ? null : new CompilationUnit(file, schemas);
     }
+
+    private SchemaResolver Resolver(string file, List<ValidationIssue> issues) =>
+        new(_downloader, _cacheDirectory, uri => issues.Add(new ValidationIssue(
+            $"Não foi possível obter o schema remoto {uri} (sem conexão e sem cópia em cache).", file, 0, 0)));
 
     private static ValidationIssue ToIssue(XmlSchemaException e, string fallbackFile, XmlSeverityType severity) =>
         new(e.Message, SourceFile(e.SourceUri) ?? fallbackFile, e.LineNumber, e.LinePosition,
