@@ -35,7 +35,7 @@
   <data name="Path" xml:space="preserve"><value>Path</value></data>
   <data name="Recursive" xml:space="preserve"><value>Recursive: expand on demand.</value></data>
   <data name="Wildcard" xml:space="preserve"><value>Accepts any content from namespace {0}.</value></data>
-  <data name="Branch" xml:space="preserve"><value>Branch pinned for the Maximal Sample</value></data>
+  <data name="Branch" xml:space="preserve"><value>Which alternative to use when generating the Maximal</value></data>
   <data name="Binding" xml:space="preserve"><value>Validating against</value></data>
   <data name="NoCandidate" xml:space="preserve"><value>No open Schema Set declares &lt;{0}&gt;: showing without validation.</value></data>
   <data name="Malformed" xml:space="preserve"><value>Malformed XML: showing without validation.</value></data>
@@ -64,9 +64,9 @@
   <data name="AboutVersion" xml:space="preserve"><value>Version {0}</value></data>
   <data name="AboutBuiltWith" xml:space="preserve"><value>Built with .NET, Avalonia and AvaloniaEdit.</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
-  <data name="MaximalTip" xml:space="preserve"><value>Every optional; in each choice, the branch pinned in the tree</value></data>
-  <data name="MinimalTip" xml:space="preserve"><value>Only what the Schema Set requires</value></data>
-  <data name="CoverageTip" xml:space="preserve"><value>Every choice branch, optional and enumeration value appears at least once</value></data>
+  <data name="MaximalTip" xml:space="preserve"><value>Generates an XML with every possible field, optional ones included. Where the schema offers alternatives (e.g. CPF or CNPJ), it uses the first one, or the one you pick in the selector next to the item in the tree.</value></data>
+  <data name="MinimalTip" xml:space="preserve"><value>Generates an XML with only what is required: optional fields are left out and repeated items appear the minimum number of times.</value></data>
+  <data name="CoverageTip" xml:space="preserve"><value>Generates several XMLs that, together, show every possibility of the schema: each alternative (e.g. CPF and CNPJ) and each allowed value of closed lists (e.g. state codes) appears in at least one of them.</value></data>
   <data name="Generate" xml:space="preserve"><value>Generate</value></data>
   <data name="Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsMenu" xml:space="preserve"><value>Settings…</value></data>

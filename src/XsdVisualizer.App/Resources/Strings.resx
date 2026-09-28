@@ -35,7 +35,7 @@
   <data name="Path" xml:space="preserve"><value>Caminho</value></data>
   <data name="Recursive" xml:space="preserve"><value>Recursivo: expanda sob demanda.</value></data>
   <data name="Wildcard" xml:space="preserve"><value>Aceita qualquer conteúdo do namespace {0}.</value></data>
-  <data name="Branch" xml:space="preserve"><value>Ramo fixado para o Maximal</value></data>
+  <data name="Branch" xml:space="preserve"><value>Qual alternativa usar ao gerar o Maximal</value></data>
   <data name="Binding" xml:space="preserve"><value>Validando contra</value></data>
   <data name="NoCandidate" xml:space="preserve"><value>Nenhum Schema Set aberto declara &lt;{0}&gt;: exibindo sem validação.</value></data>
   <data name="Malformed" xml:space="preserve"><value>XML malformado: exibindo sem validação.</value></data>
@@ -64,9 +64,9 @@
   <data name="AboutVersion" xml:space="preserve"><value>Versão {0}</value></data>
   <data name="AboutBuiltWith" xml:space="preserve"><value>Feito com .NET, Avalonia e AvaloniaEdit.</value></data>
   <data name="Close" xml:space="preserve"><value>Fechar</value></data>
-  <data name="MaximalTip" xml:space="preserve"><value>Todos os opcionais; em cada choice, o ramo fixado na árvore</value></data>
-  <data name="MinimalTip" xml:space="preserve"><value>Só o que o Schema Set exige</value></data>
-  <data name="CoverageTip" xml:space="preserve"><value>Cada ramo de choice, opcional e valor de enumeração aparece ao menos uma vez</value></data>
+  <data name="MaximalTip" xml:space="preserve"><value>Gera um XML com todos os campos possíveis, inclusive os opcionais. Onde o schema oferece alternativas (ex.: CPF ou CNPJ), usa a primeira, ou a que você escolher no seletor ao lado do item na árvore.</value></data>
+  <data name="MinimalTip" xml:space="preserve"><value>Gera um XML só com o obrigatório: campos opcionais ficam de fora e o que se repete aparece o mínimo de vezes.</value></data>
+  <data name="CoverageTip" xml:space="preserve"><value>Gera vários XMLs que, juntos, mostram todas as possibilidades do schema: cada alternativa (ex.: CPF e CNPJ) e cada valor permitido de listas fechadas (ex.: UF) aparece em pelo menos um deles.</value></data>
   <data name="Generate" xml:space="preserve"><value>Gerar</value></data>
   <data name="Settings" xml:space="preserve"><value>Configurações</value></data>
   <data name="SettingsMenu" xml:space="preserve"><value>Configurações…</value></data>
