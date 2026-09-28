@@ -141,7 +141,7 @@
             <!-- Schema Sets e Global Elements -->
             <DockPanel Grid.Column="0" Margin="8" ClipToBounds="True">
                 <TextBlock DockPanel.Dock="Top" Classes="caption" Text="{x:Static res:Strings.SchemaSets}" />
-                <TreeView ItemsSource="{Binding SchemaSets}" SelectedItem="{Binding SelectedSchemaItem}">
+                <TreeView ItemsSource="{Binding SchemaSets}" SelectedItem="{Binding Tree.SelectedSchemaItem}">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="vm:SchemaSetViewModel" ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal" Spacing="6" ToolTip.Tip="{Binding Folder}">
@@ -229,27 +229,27 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <TextBox Grid.Row="1" Classes="search" PlaceholderText="{x:Static res:Strings.SearchTree}" Text="{Binding SearchText}"
-                         IsEnabled="{Binding HasSelectedElement}" IsVisible="{Binding ShowElementPanel}">
+                <TextBox Grid.Row="1" Classes="search" PlaceholderText="{x:Static res:Strings.SearchTree}" Text="{Binding Tree.SearchText}"
+                         IsEnabled="{Binding Tree.HasSelectedElement}" IsVisible="{Binding Tree.ShowElementPanel}">
                     <TextBox.KeyBindings>
-                        <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                        <KeyBinding Gesture="Escape" Command="{Binding Tree.ClearSearchCommand}" />
                     </TextBox.KeyBindings>
                     <TextBox.InnerLeftContent>
                         <PathIcon Classes="searchIcon" Data="{StaticResource IconSearch}" />
                     </TextBox.InnerLeftContent>
                     <TextBox.InnerRightContent>
-                        <Button Classes="icon" Margin="0,0,4,0" Command="{Binding ClearSearchCommand}"
-                                ToolTip.Tip="{x:Static res:Strings.ClearSearch}" IsVisible="{Binding HasSearchText}">
+                        <Button Classes="icon" Margin="0,0,4,0" Command="{Binding Tree.ClearSearchCommand}"
+                                ToolTip.Tip="{x:Static res:Strings.ClearSearch}" IsVisible="{Binding Tree.HasSearchText}">
                             <PathIcon Data="{StaticResource IconClose}" Width="10" Height="10" />
                         </Button>
                     </TextBox.InnerRightContent>
                 </TextBox>
-                <StackPanel Grid.Row="2" Margin="0,6,0,0" Spacing="4" IsVisible="{Binding HasSearchText}">
-                    <TextBlock Text="{Binding SearchSummary}" FontSize="11" Opacity="0.6" Margin="4,0" />
+                <StackPanel Grid.Row="2" Margin="0,6,0,0" Spacing="4" IsVisible="{Binding Tree.HasSearchText}">
+                    <TextBlock Text="{Binding Tree.SearchSummary}" FontSize="11" Opacity="0.6" Margin="4,0" />
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                            ClipToBounds="True" IsVisible="{Binding SearchResults.Count}">
-                        <ListBox Classes="results" MaxHeight="200" ItemsSource="{Binding SearchResults}"
-                                 SelectedItem="{Binding SelectedSearchResult}" Background="Transparent">
+                            ClipToBounds="True" IsVisible="{Binding Tree.SearchResults.Count}">
+                        <ListBox Classes="results" MaxHeight="200" ItemsSource="{Binding Tree.SearchResults}"
+                                 SelectedItem="{Binding Tree.SelectedSearchResult}" Background="Transparent">
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:SearchResultViewModel">
                                     <StackPanel>
@@ -262,15 +262,15 @@
                         </ListBox>
                     </Border>
                 </StackPanel>
-                <Panel Grid.Row="3" Margin="0,6,0,0" IsVisible="{Binding ShowElementPanel}">
+                <Panel Grid.Row="3" Margin="0,6,0,0" IsVisible="{Binding Tree.ShowElementPanel}">
                     <TextBlock Text="{x:Static res:Strings.SelectElementHint}" Opacity="0.6"
-                               IsVisible="{Binding !HasSelectedElement}" />
-                    <TreeView Classes="schema" ItemsSource="{Binding TreeRoots}" />
+                               IsVisible="{Binding !Tree.HasSelectedElement}" />
+                    <TreeView Classes="schema" ItemsSource="{Binding Tree.TreeRoots}" />
                 </Panel>
 
                 <!-- Operation selecionada: Endpoint, Request/Response, Payload Binding e árvore do Payload -->
-                <Panel Grid.Row="1" Grid.RowSpan="3" IsVisible="{Binding HasSelectedOperation}">
-                <DockPanel DataContext="{Binding SelectedOperation}" x:DataType="vm:OperationViewModel">
+                <Panel Grid.Row="1" Grid.RowSpan="3" IsVisible="{Binding Tree.HasSelectedOperation}">
+                <DockPanel DataContext="{Binding Tree.SelectedOperation}" x:DataType="vm:OperationViewModel">
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <PathIcon Data="{StaticResource IconOperation}" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
@@ -323,7 +323,7 @@
                 </DockPanel>
                 </Panel>
                 <GridSplitter Grid.Row="4" ResizeDirection="Rows" />
-                <ScrollViewer Grid.Row="5" MaxHeight="280" DataContext="{Binding SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
+                <ScrollViewer Grid.Row="5" MaxHeight="280" DataContext="{Binding Tree.SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
                               IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <StackPanel>
                         <TextBlock Classes="caption" Text="{Binding Label}" FontSize="15" />

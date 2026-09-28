@@ -8,9 +8,12 @@ using XsdVisualizer.Core;
 
 namespace XsdVisualizer.App.ViewModels;
 
-public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayloadBindings
+/// <summary>
+/// Orquestra o app: Schema Sets abertos (e o monitoramento das pastas), abas, geração, exportação, salvamento
+/// e comparação. A árvore/pesquisa fica em <see cref="Tree"/>; Payload Bindings em <see cref="Bindings"/>.
+/// </summary>
+public sealed partial class MainViewModel : ViewModelBase, IDisposable
 {
-    private const int MaxSearchResults = 300;
     private readonly SessionStore _session;
     private readonly SchemaSetLoader _loader = new();
     private readonly Dictionary<string, SchemaFolderWatcher> _watchers = new(StringComparer.Ordinal);
@@ -20,6 +23,11 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
     public MainViewModel(SessionStore session)
     {
         _session = session;
+        Bindings = new PayloadBindingStore(session, () => SchemaSets.Select(s => s.Model));
+        Bindings.BindingsChanged += RefreshBindings;
+        Tree.SelectionChanged += NotifyGenerate;
+        Tree.ElementPinsChanged += OnElementPinsChanged;
+        Tree.EnvelopePinsChanged += OnEnvelopePinsChanged;
         var saved = session.Current;
         Recent = new(SessionStore.Normalize(saved.Recent));
         foreach (var folder in SessionStore.Normalize(saved.OpenSchemaSets).Where(Directory.Exists))
@@ -36,51 +44,11 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
     [ObservableProperty] public partial string Status { get; set; } = Strings.Ready;
     [ObservableProperty] public partial bool IsBusy { get; set; }
 
-    // ---- Global Element selecionado e árvore ----
-    [ObservableProperty] public partial object? SelectedSchemaItem { get; set; }
-    [ObservableProperty] public partial GlobalElementViewModel? SelectedElement { get; set; }
-    [ObservableProperty] public partial IReadOnlyList<SchemaNodeViewModel> TreeRoots { get; set; } = [];
-    [ObservableProperty] public partial SchemaNodeViewModel? SelectedNode { get; set; }
-    public bool HasSelectedElement => SelectedElement is not null;
+    /// <summary>Seleção, árvore e pesquisa (coluna do meio).</summary>
+    public SchemaTreeViewModel Tree { get; } = new();
 
-    partial void OnSelectedSchemaItemChanged(object? value)
-    {
-        switch (value)
-        {
-            case GlobalElementViewModel element:
-                SelectedOperation = null;
-                SelectedElement = element;
-                break;
-            case OperationViewModel operation:
-                SelectedElement = null;
-                SelectedOperation = operation;
-                break;
-        }
-    }
-
-    // ---- Operation selecionada (WSDL) ----
-    [ObservableProperty] public partial OperationViewModel? SelectedOperation { get; set; }
-    public bool HasSelectedOperation => SelectedOperation is not null;
-    public bool ShowElementPanel => SelectedOperation is null;
-
-    partial void OnSelectedOperationChanged(OperationViewModel? oldValue, OperationViewModel? newValue)
-    {
-        if (oldValue is not null)
-        {
-            oldValue.PinsChanged -= OnEnvelopePinsChanged;
-            oldValue.NodeSelected -= OnNodeSelected;
-        }
-        SelectedNode = null;
-        if (newValue is not null)
-        {
-            newValue.PinsChanged += OnEnvelopePinsChanged;
-            newValue.NodeSelected += OnNodeSelected;
-            newValue.RefreshChoices();
-        }
-        OnPropertyChanged(nameof(HasSelectedOperation));
-        OnPropertyChanged(nameof(ShowElementPanel));
-        NotifyGenerate();
-    }
+    /// <summary>Payload Bindings e Endpoints (sessão).</summary>
+    public PayloadBindingStore Bindings { get; }
 
     /// <summary>Fixar um ramo na árvore do Payload regera o Envelope Maximal (aba atualizada no lugar).</summary>
     private async void OnEnvelopePinsChanged(OperationViewModel operation)
@@ -89,6 +57,14 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         var pins = new Dictionary<string, int>(operation.PayloadOwner?.Pins ?? new());
         var sample = (await Task.Run(() => message.GenerateEnvelopes(SampleKind.Maximal, endpoint, binding, pins)))[0];
         ShowSamples(t => t.IsMaximalEnvelopeOf(message), $"{operation.Name} · {DirectionLabel(message.Direction)} · max", [sample]);
+    }
+
+    /// <summary>Fixar uma alternativa regera o Maximal na hora: atualiza a aba de Maximal do elemento ou abre uma.</summary>
+    private async void OnElementPinsChanged(GlobalElementViewModel element)
+    {
+        var pins = new Dictionary<string, int>(element.Pins);
+        var sample = await Task.Run(() => element.Model.GenerateMaximal(pins));
+        ShowSamples(t => t.IsMaximalOf(element.Model), $"{element.Model.Name} · max", [sample]);
     }
 
     private void ShowSamples(Func<EditorTabViewModel, bool> existing, string title, IReadOnlyList<Sample> samples)
@@ -102,110 +78,11 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
 
     private static string DirectionLabel(MessageDirection direction) => DirectionText.Of(direction).ToLowerInvariant();
 
-    partial void OnSelectedElementChanged(GlobalElementViewModel? oldValue, GlobalElementViewModel? newValue)
-    {
-        if (oldValue is not null)
-        {
-            oldValue.NodeSelected -= OnNodeSelected;
-            oldValue.PinsChanged -= OnPinsChanged;
-        }
-        if (newValue is not null)
-        {
-            newValue.NodeSelected += OnNodeSelected;
-            newValue.PinsChanged += OnPinsChanged;
-        }
-        TreeRoots = newValue is null ? [] : [new SchemaNodeViewModel(newValue.Model.Tree, newValue, null) { IsExpanded = true }];
-        SelectedNode = null;
-        if (TreeRoots.FirstOrDefault() is { } root) root.IsSelected = true;
-        SearchText = "";
-        OnPropertyChanged(nameof(HasSelectedElement));
-        NotifyGenerate();
-    }
-
     private void NotifyGenerate()
     {
         GenerateMaximalCommand.NotifyCanExecuteChanged();
         GenerateMinimalCommand.NotifyCanExecuteChanged();
         GenerateCoverageSetCommand.NotifyCanExecuteChanged();
-    }
-
-    /// <summary>A seleção vem de IsSelected nos nós (o SelectedItem do TreeView perde nós ainda não renderizados).</summary>
-    private void OnNodeSelected(SchemaNodeViewModel node)
-    {
-        if (SelectedNode is { } previous && previous != node) previous.IsSelected = false;
-        SelectedNode = node;
-    }
-
-    /// <summary>Fixar uma alternativa regera o Maximal na hora: atualiza a aba de Maximal do elemento ou abre uma.</summary>
-    private async void OnPinsChanged(GlobalElementViewModel element)
-    {
-        var pins = new Dictionary<string, int>(element.Pins);
-        var sample = await Task.Run(() => element.Model.GenerateMaximal(pins));
-        ShowSamples(t => t.IsMaximalOf(element.Model), $"{element.Model.Name} · max", [sample]);
-    }
-
-    // ---- Pesquisa na árvore ----
-    [ObservableProperty] public partial string SearchText { get; set; } = "";
-    [ObservableProperty] public partial IReadOnlyList<SearchResultViewModel> SearchResults { get; set; } = [];
-    [ObservableProperty] public partial SearchResultViewModel? SelectedSearchResult { get; set; }
-
-    partial void OnSearchTextChanged(string value)
-    {
-        SearchResults = Search(value);
-        OnPropertyChanged(nameof(SearchSummary));
-        OnPropertyChanged(nameof(HasSearchText));
-    }
-
-    public bool HasSearchText => !string.IsNullOrWhiteSpace(SearchText);
-
-    public string SearchSummary => SearchResults.Count == 0
-        ? Strings.NoSearchResults
-        : string.Format(Strings.SearchResults, SearchResults.Count);
-
-    [RelayCommand]
-    private void ClearSearch() => SearchText = "";
-
-    partial void OnSelectedSearchResultChanged(SearchResultViewModel? value)
-    {
-        if (value is not null) Reveal(value.Node);
-    }
-
-    private IReadOnlyList<SearchResultViewModel> Search(string text)
-    {
-        if (SelectedElement is null || string.IsNullOrWhiteSpace(text)) return [];
-        var results = new List<SearchResultViewModel>();
-        var pending = new Stack<(SchemaNode Node, string Display)>();
-        var root = SelectedElement.Model.Tree;
-        pending.Push((root, root.Label));
-        while (pending.Count > 0 && results.Count < MaxSearchResults)
-        {
-            var (node, display) = pending.Pop();
-            if (Matches(node, text)) results.Add(new SearchResultViewModel(node, display));
-            if (node.IsRecursive) continue;
-            foreach (var child in node.Children.Reverse())
-                pending.Push((child, child.Kind is NodeKind.Element or NodeKind.Attribute ? $"{display}/{child.Label}" : display));
-        }
-        return results;
-    }
-
-    private static bool Matches(SchemaNode node, string text) =>
-        node.Kind is NodeKind.Element or NodeKind.Attribute or NodeKind.Choice &&
-        (node.Label.Contains(text, StringComparison.OrdinalIgnoreCase) ||
-         (node.Documentation?.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false));
-
-    /// <summary>Expande os ancestrais de um nó na árvore e o seleciona.</summary>
-    private void Reveal(SchemaNode target)
-    {
-        var chain = new List<SchemaNode>();
-        for (var n = target; n is not null; n = n.Parent) chain.Insert(0, n);
-        var current = TreeRoots.FirstOrDefault(r => r.Node.Path == chain[0].Path);
-        foreach (var node in chain.Skip(1))
-        {
-            if (current is null) return;
-            current.IsExpanded = true;
-            current = current.Children.FirstOrDefault(c => c.Node.Path == node.Path);
-        }
-        current?.IsSelected = true;
     }
 
     // ---- Abrir ----
@@ -242,7 +119,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         var existing = SchemaSets.FirstOrDefault(s => s.Folder == folder);
         if (existing is not null)
         {
-            SelectedSchemaItem = existing;
+            Tree.SelectedSchemaItem = existing;
             return;
         }
         // A mesma pasta pode ser pedida de novo enquanto ainda carrega (sessão + linha de comando, duplo drop).
@@ -262,7 +139,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         await RunBusy(string.Format(Strings.Loading, Path.GetFileName(folder)), async () =>
         {
             var set = await Task.Run(() => _loader.Open(folder));
-            var vm = new SchemaSetViewModel(set, this);
+            var vm = new SchemaSetViewModel(set, Bindings);
             SchemaSets.Add(vm);
             SchemaSetsChanged();
             Watch(folder);
@@ -280,7 +157,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
             var text = await File.ReadAllTextAsync(file);
             // Schema Sets ainda carregando (ex.: vindos na mesma linha de comando) entram no Binding.
             await Task.WhenAll(_opening.Values.ToList());
-            var tab = EditorTabViewModel.ForDocument(file, text, SchemaSets.Select(s => s.Model), Get);
+            var tab = EditorTabViewModel.ForDocument(file, text, SchemaSets.Select(s => s.Model), Bindings.Get);
             Tabs.Add(tab);
             SelectedTab = tab;
             Status = Strings.Ready;
@@ -292,8 +169,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
     {
         SchemaSets.Remove(set);
         if (_watchers.Remove(set.Folder, out var watcher)) watcher.Dispose();
-        if (SelectedElement is not null && set.GlobalElements.Contains(SelectedElement)) SelectedElement = null;
-        if (SelectedOperation is not null && set.Operations.Contains(SelectedOperation)) SelectedOperation = null;
+        Tree.Forget(set);
         SchemaSetsChanged();
         SaveSession();
         RefreshBindings();
@@ -308,13 +184,12 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
     {
         var index = SchemaSets.ToList().FindIndex(s => s.Folder == folder);
         if (index < 0) return;
-        var selectedName = SelectedElement is { } e && SchemaSets[index].GlobalElements.Contains(e) ? (e.Model.Name, e.Model.SourceFile) : default;
+        var previous = SchemaSets[index];
         var set = await Task.Run(() => _loader.Open(folder));
-        var vm = new SchemaSetViewModel(set, this);
+        var vm = new SchemaSetViewModel(set, Bindings);
         SchemaSets[index] = vm;
         SchemaSetsChanged();
-        if (selectedName != default)
-            SelectedElement = vm.GlobalElements.FirstOrDefault(g => (g.Model.Name, g.Model.SourceFile) == selectedName);
+        Tree.Reselect(previous, vm);
         RefreshBindings();
         Status = string.Format(Strings.Reloaded, set.Name);
     }
@@ -326,50 +201,8 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
 
     private void SaveSession() => _session.SaveSchemaSets(SchemaSets.Select(s => s.Folder), Recent);
 
-    // ---- Payload Bindings (IPayloadBindings) ----
-    public IReadOnlyList<GlobalElementChoice> PayloadChoices { get; private set; } = [];
-
     /// <summary>Schema Sets mudaram: a lista de Global Elements para Payload e os vínculos salvos são refeitos.</summary>
-    private void SchemaSetsChanged()
-    {
-        PayloadChoices = SchemaSets.SelectMany(s => s.Model.GlobalElements).Select(e => new GlobalElementChoice(e)).ToList();
-        foreach (var operation in SchemaSets.SelectMany(s => s.Operations)) operation.RefreshChoices();
-    }
-
-    public PayloadBinding? Get(OperationMessage message)
-    {
-        if (!_session.Current.PayloadBindings.TryGetValue(SessionKeys.Of(message), out var saved)) return null;
-        var element = SchemaSets.SelectMany(s => s.Model.GlobalElements).FirstOrDefault(e =>
-            e.Name == saved.ElementName && e.Namespace == saved.ElementNamespace && e.SourceFile == saved.ElementSourceFile);
-        return element is null ? null : new PayloadBinding(element, saved.Compressed);
-    }
-
-    public void Set(OperationMessage message, GlobalElement? element, bool compressed)
-    {
-        var key = SessionKeys.Of(message);
-        if (element is null) _session.Current.PayloadBindings.Remove(key);
-        else _session.Current.PayloadBindings[key] = new SavedPayloadBinding
-        {
-            ElementName = element.Name,
-            ElementNamespace = element.Namespace,
-            ElementSourceFile = element.SourceFile,
-            Compressed = compressed,
-        };
-        _session.Save();
-        RefreshBindings();
-    }
-
-    private Endpoint? ChosenEndpoint(Operation operation) =>
-        GetEndpoint(operation) is { } name ? operation.Endpoints.FirstOrDefault(e => e.Name == name) : null;
-
-    public string? GetEndpoint(Operation operation) =>
-        _session.Current.Endpoints.GetValueOrDefault(SessionKeys.Of(operation));
-
-    public void SetEndpoint(Operation operation, Endpoint endpoint)
-    {
-        _session.Current.Endpoints[SessionKeys.Of(operation)] = endpoint.Name;
-        _session.Save();
-    }
+    private void SchemaSetsChanged() => Bindings.Refresh(SchemaSets.SelectMany(s => s.Operations));
 
     [RelayCommand]
     private void OpenPayload(EditorTabViewModel tab)
@@ -404,20 +237,20 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
     }
 
     // ---- Gerar ----
-    private bool CanGenerate() => (SelectedElement is not null || SelectedOperation is not null) && !IsBusy;
+    private bool CanGenerate() => (Tree.SelectedElement is not null || Tree.SelectedOperation is not null) && !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanGenerate))]
-    private Task GenerateMaximal() => SelectedOperation is { } op
+    private Task GenerateMaximal() => Tree.SelectedOperation is { } op
         ? GenerateEnvelopesAsync(op, SampleKind.Maximal, "max")
         : GenerateAsync(e => [e.Model.GenerateMaximal(new Dictionary<string, int>(e.Pins))], "max");
 
     [RelayCommand(CanExecute = nameof(CanGenerate))]
-    private Task GenerateMinimal() => SelectedOperation is { } op
+    private Task GenerateMinimal() => Tree.SelectedOperation is { } op
         ? GenerateEnvelopesAsync(op, SampleKind.Minimal, "min")
         : GenerateAsync(e => [e.Model.GenerateMinimal()], "min");
 
     [RelayCommand(CanExecute = nameof(CanGenerate))]
-    private Task GenerateCoverageSet() => SelectedOperation is { } op
+    private Task GenerateCoverageSet() => Tree.SelectedOperation is { } op
         ? GenerateEnvelopesAsync(op, SampleKind.Coverage, Strings.CoverageSet)
         : GenerateAsync(e => e.Model.GenerateCoverageSet(), Strings.CoverageSet);
 
@@ -440,7 +273,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
 
     private async Task GenerateAsync(Func<GlobalElementViewModel, IReadOnlyList<Sample>> generate, string suffix)
     {
-        var element = SelectedElement!;
+        var element = Tree.SelectedElement!;
         await RunBusy(string.Format(Strings.Generating, element.Model.Name), async () =>
         {
             var samples = await Task.Run(() => generate(element));
@@ -461,7 +294,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         {
             var progress = new Progress<GlobalElement>(e => Status = string.Format(Strings.Exporting, e.Name));
             var result = await Task.Run(() => SampleExporter.ExportAll(set.Model, output, progress, cancellation,
-                payloadBindings: Get, endpoints: ChosenEndpoint), cancellation);
+                payloadBindings: Bindings.Get, endpoints: Bindings.ChosenEndpoint), cancellation);
             Status = string.Format(Strings.ExportDone, result.Written, result.Invalid, Path.Combine(output, set.Name));
         });
     }
