@@ -16,9 +16,10 @@ public sealed partial class Operation
     /// <summary>
     /// Envelopes da Request ou Response: o Payload varia conforme <paramref name="kind"/> (gerado pelo Global Element
     /// do <paramref name="payload"/>); o envelope por fora, os headers e o Body seguem o WSDL e o <paramref name="endpoint"/>.
+    /// <paramref name="pins"/>: ramos fixados na árvore do Payload, usados pelo Maximal.
     /// </summary>
     public IReadOnlyList<Sample> GenerateEnvelopes(MessageDirection direction, SampleKind kind,
-        Endpoint? endpoint = null, PayloadBinding? payload = null)
+        Endpoint? endpoint = null, PayloadBinding? payload = null, IReadOnlyDictionary<string, int>? pins = null)
     {
         endpoint ??= DefaultEndpoint;
         var message = Message(direction);
@@ -28,7 +29,7 @@ public sealed partial class Operation
         var payloads = kind switch
         {
             SampleKind.Minimal => [payload.Element.GenerateMinimal()],
-            SampleKind.Maximal => [payload.Element.GenerateMaximal()],
+            SampleKind.Maximal => [payload.Element.GenerateMaximal(pins)],
             _ => payload.Element.GenerateCoverageSet(),
         };
         return payloads

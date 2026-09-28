@@ -9,8 +9,10 @@ public static class SampleExporter
     /// Layout: <c>&lt;saída&gt;/&lt;Schema Set&gt;/&lt;Global Element&gt;/&lt;Global Element&gt;.{max,min,cov-NN}.xml</c>.
     /// Quando o mesmo nome é declarado em mais de um arquivo, a pasta leva o arquivo: "evento (evento-a)".
     /// </summary>
+    /// <param name="payloadBindings">Payload Binding de cada Request/Response; Operations sem ele ficam de fora.
+    /// Os Envelopes vão para <c>&lt;Schema Set&gt;/_servicos/&lt;Service&gt;/&lt;operation&gt;.{request,response}.{max,min,cov-NN}.xml</c>.</param>
     public static ExportResult ExportAll(SchemaSet set, string outputFolder, IProgress<GlobalElement>? progress = null,
-        CancellationToken cancellation = default)
+        CancellationToken cancellation = default, Func<Operation, MessageDirection, PayloadBinding?>? payloadBindings = null)
     {
         var duplicated = set.GlobalElements.GroupBy(e => e.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
         int written = 0, invalid = 0;
@@ -30,6 +32,24 @@ public static class SampleExporter
                 if (!sample.IsValid) invalid++;
             }
         }
+        foreach (var service in set.Services)
+            foreach (var operation in service.Operations)
+                foreach (var direction in new[] { MessageDirection.Request, MessageDirection.Response })
+                {
+                    cancellation.ThrowIfCancellationRequested();
+                    if (payloadBindings?.Invoke(operation, direction) is not { } payload) continue;
+                    var folder = Path.Combine(outputFolder, set.Name, "_servicos", service.Name);
+                    Directory.CreateDirectory(folder);
+                    var envelopes = operation.GenerateEnvelopes(direction, SampleKind.Maximal, payload: payload)
+                        .Concat(operation.GenerateEnvelopes(direction, SampleKind.Minimal, payload: payload))
+                        .Concat(operation.GenerateEnvelopes(direction, SampleKind.Coverage, payload: payload));
+                    foreach (var envelope in envelopes)
+                    {
+                        File.WriteAllText(Path.Combine(folder, envelope.FileName), envelope.Xml);
+                        written++;
+                        if (!envelope.IsValid) invalid++;
+                    }
+                }
         return new ExportResult(written, invalid);
     }
 }

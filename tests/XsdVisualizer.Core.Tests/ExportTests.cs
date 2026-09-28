@@ -30,4 +30,22 @@ public class ExportTests
                 .Order(StringComparer.Ordinal));
         Assert.Equal((10, 0), (result.Written, result.Invalid));
     }
+
+    [Fact]
+    public void Exporting_includes_envelopes_of_operations_with_a_payload_binding()
+    {
+        using var folder = WsdlFixture.Folder();
+        using var output = new SchemaFolder();
+        var set = new SchemaSetLoader().Open(folder.Path);
+        var pedido = new PayloadBinding(set.GlobalElements.Single(e => e.Name == "pedido"), false);
+
+        var result = SampleExporter.ExportAll(set, output.Path,
+            payloadBindings: (operation, direction) => operation.Name == "enviar" && direction == MessageDirection.Request ? pedido : null);
+
+        var services = Path.Combine(output.Path, set.Name, "_servicos", "Pedidos");
+        Assert.Equal(
+            ["enviar.request.cov-01.xml", "enviar.request.cov-02.xml", "enviar.request.max.xml", "enviar.request.min.xml"],
+            Directory.GetFiles(services).Select(Path.GetFileName).Order(StringComparer.Ordinal));
+        Assert.Equal(0, result.Invalid);
+    }
 }

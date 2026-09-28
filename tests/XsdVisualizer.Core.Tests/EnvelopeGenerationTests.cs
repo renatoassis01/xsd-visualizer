@@ -111,4 +111,19 @@ public class EnvelopeGenerationTests
 
         Assert.Equal(Generate(), Generate());
     }
+
+    [Fact]
+    public void The_maximal_envelope_honors_branches_pinned_in_the_payload_tree()
+    {
+        using var folder = WsdlFixture.Folder();
+        var (set, enviar, _) = Open(folder);
+        var pedido = Payload(set, "pedido");
+        var choice = pedido.Element.Tree.Children.Single().Children.Single(c => c.Kind == NodeKind.Choice);
+
+        var envelope = enviar.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal, payload: pedido,
+            pins: new Dictionary<string, int> { [choice.Path] = 1 })[0];
+
+        Assert.Contains("<CNPJ>", envelope.Xml);
+        Assert.DoesNotContain("<CPF>", envelope.Xml);
+    }
 }
