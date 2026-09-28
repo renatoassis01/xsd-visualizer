@@ -149,7 +149,7 @@
                                           Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,0,0" />
                                 <StackPanel MaxWidth="160">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding LoadIssuesSummary}" Foreground="OrangeRed" FontSize="11"
+                                    <TextBlock Text="{Binding LoadIssuesSummary}" Foreground="{DynamicResource WarningText}" FontSize="11"
                                                IsVisible="{Binding HasLoadIssues}">
                                         <ToolTip.Tip>
                                             <ItemsControl ItemsSource="{Binding LoadIssues}" MaxWidth="700" />
@@ -328,7 +328,7 @@
                     <StackPanel>
                         <TextBlock Classes="caption" Text="{Binding Label}" FontSize="15" />
                         <TextBlock Text="{Binding Node.Path}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" Foreground="DarkOrange"
+                        <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" Foreground="{DynamicResource WarningText}"
                                    IsVisible="{Binding Notes, Converter={x:Static ObjectConverters.IsNotNull}}" />
                         <TextBlock Classes="caption" Text="{x:Static res:Strings.Type}" />
                         <SelectableTextBlock Text="{Binding TypeName}" />

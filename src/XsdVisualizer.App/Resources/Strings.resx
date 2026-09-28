@@ -138,4 +138,6 @@
   <data name="EnumerationRemoved" xml:space="preserve"><value>Valores que saíram</value></data>
   <data name="Pairs" xml:space="preserve"><value>Global Elements</value></data>
   <data name="Changes" xml:space="preserve"><value>Mudanças</value></data>
+  <data name="ThemeGitHubLight" xml:space="preserve"><value>GitHub Claro</value></data>
+  <data name="ThemeGitHubDark" xml:space="preserve"><value>GitHub Escuro</value></data>
 </root>

@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using XsdVisualizer.App.Resources;
+using XsdVisualizer.App.Themes;
 using XsdVisualizer.App.ViewModels;
 using XsdVisualizer.Core;
 
@@ -16,9 +17,9 @@ public partial class XmlEditorView : UserControl
     public XmlEditorView()
     {
         InitializeComponent();
-        XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
+        XmlHighlighting.Apply(ThemeApplier.Colors);
         Editor.SyntaxHighlighting = XmlHighlighting.Definition;
-        Editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(Application.Current?.ActualThemeVariant);
+        Editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(ThemeApplier.Colors);
         Editor.TextArea.TextView.BackgroundRenderers.Add(_underlines);
         IssueList.SelectionChanged += (_, _) =>
         {
@@ -29,19 +30,19 @@ public partial class XmlEditorView : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        if (Application.Current is { } app) app.ActualThemeVariantChanged += OnThemeChanged;
+        ThemeApplier.Changed += OnThemeChanged;
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
-        if (Application.Current is { } app) app.ActualThemeVariantChanged -= OnThemeChanged;
+        ThemeApplier.Changed -= OnThemeChanged;
     }
 
-    private void OnThemeChanged(object? sender, EventArgs e)
+    private void OnThemeChanged(ThemeColors colors)
     {
-        XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
-        Editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(Application.Current?.ActualThemeVariant);
+        XmlHighlighting.Apply(colors);
+        Editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(colors);
         Editor.TextArea.TextView.Redraw();
     }
 

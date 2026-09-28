@@ -21,6 +21,8 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // "Igual ao sistema": quando o sistema troca claro/escuro, editor e diffs acompanham.
+        ActualThemeVariantChanged += (_, _) => Themes.ThemeApplier.ApplyResources(this);
         ApplyLanguage(_session.Current.Language);
         ApplyTheme(_session.Current.Theme);
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -79,12 +81,7 @@ public partial class App : Application
         if (settingsWindow is not null) ShowSettings();
     }
 
-    private void ApplyTheme(ThemeChoice theme) => RequestedThemeVariant = theme switch
-    {
-        ThemeChoice.Light => ThemeVariant.Light,
-        ThemeChoice.Dark => ThemeVariant.Dark,
-        _ => ThemeVariant.Default, // segue o sistema, inclusive quando ele muda
-    };
+    private void ApplyTheme(ThemeChoice theme) => Themes.ThemeApplier.Apply(this, Themes.ThemeCatalog.Get(theme));
 
     /// <summary>"system" usa português se o sistema estiver em português; senão, inglês.</summary>
     private static void ApplyLanguage(string language)

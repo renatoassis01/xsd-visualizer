@@ -169,9 +169,11 @@
                     </TextBlock>
                 </Border>
                 <ae:TextEditor Grid.Row="1" Grid.Column="0" x:Name="BeforeEditor" IsReadOnly="True" ShowLineNumbers="False"
+                               Background="{DynamicResource EditorBackground}" Foreground="{DynamicResource EditorForeground}"
                                FontFamily="{DynamicResource MonospaceFont}" FontSize="12" HorizontalScrollBarVisibility="Auto" />
                 <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
                 <ae:TextEditor Grid.Row="1" Grid.Column="2" x:Name="AfterEditor" IsReadOnly="True" ShowLineNumbers="False"
+                               Background="{DynamicResource EditorBackground}" Foreground="{DynamicResource EditorForeground}"
                                FontFamily="{DynamicResource MonospaceFont}" FontSize="12" HorizontalScrollBarVisibility="Auto" />
             </Grid>
         </Grid>

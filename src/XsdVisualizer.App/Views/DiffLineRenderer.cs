@@ -9,18 +9,21 @@ namespace XsdVisualizer.App.Views;
 internal sealed class DiffLineRenderer : IBackgroundRenderer
 {
     public IReadOnlyList<DiffLine> Lines { get; set; } = [];
-    public bool Dark { get; set; }
     public int? Highlighted { get; set; }
     public KnownLayer Layer => KnownLayer.Background;
 
-    private IBrush? Fill(DiffLineKind kind) => kind switch
+    private static IBrush? Fill(DiffLineKind kind)
     {
-        DiffLineKind.Added => new SolidColorBrush(Color.Parse(Dark ? "#1E4D2E" : "#DDF4E4")),
-        DiffLineKind.Removed => new SolidColorBrush(Color.Parse(Dark ? "#5A2424" : "#FBE3E1")),
-        DiffLineKind.Modified => new SolidColorBrush(Color.Parse(Dark ? "#5A4A14" : "#FEF3D0")),
-        DiffLineKind.Imaginary => new SolidColorBrush(Color.Parse(Dark ? "#1C1C1C" : "#F3F3F3")),
-        _ => null,
-    };
+        var c = Themes.ThemeApplier.Colors;
+        return kind switch
+        {
+            DiffLineKind.Added => Themes.ThemeApplier.Brush(c.DiffAddedLine),
+            DiffLineKind.Removed => Themes.ThemeApplier.Brush(c.DiffRemovedLine),
+            DiffLineKind.Modified => Themes.ThemeApplier.Brush(c.DiffModifiedLine),
+            DiffLineKind.Imaginary => Themes.ThemeApplier.Brush(c.DiffBlankLine),
+            _ => null,
+        };
+    }
 
     public void Draw(TextView textView, DrawingContext context)
     {
@@ -33,7 +36,7 @@ internal sealed class DiffLineRenderer : IBackgroundRenderer
             var rect = new Rect(0, y, textView.Bounds.Width, visual.Height);
             if (Fill(Lines[index].Kind) is { } brush) context.FillRectangle(brush, rect);
             if (Highlighted == index)
-                context.DrawRectangle(null, new Pen(new SolidColorBrush(Color.Parse(Dark ? "#8AB4F8" : "#0B57D0")), 1.5), rect.Deflate(0.75));
+                context.DrawRectangle(null, new Pen(Themes.ThemeApplier.Brush(Themes.ThemeApplier.Colors.Accent), 1.5), rect.Deflate(0.75));
         }
     }
 }

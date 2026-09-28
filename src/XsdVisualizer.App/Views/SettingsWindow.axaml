@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="using:XsdVisualizer.App.Resources"
+        xmlns:themes="using:XsdVisualizer.App.Themes"
         x:Class="XsdVisualizer.App.Views.SettingsWindow"
         Title="{x:Static res:Strings.Settings}"
         Width="420" SizeToContent="Height" CanResize="False"
@@ -10,7 +11,25 @@
         <TextBlock Text="{x:Static res:Strings.Settings}" FontSize="20" FontWeight="SemiBold" />
         <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto" RowSpacing="12">
             <TextBlock Grid.Row="0" Text="{x:Static res:Strings.Theme}" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ThemeBox" HorizontalAlignment="Stretch" />
+            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ThemeBox" HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="themes:ThemeOption">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <!-- Amostra: fundo do editor, destaque e três cores de sintaxe -->
+                            <Border Background="{Binding Background}" BorderBrush="{Binding Border}" BorderThickness="1"
+                                    CornerRadius="4" Padding="5,3" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="3">
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Accent}" />
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Tag}" />
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Attribute}" />
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Value}" />
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <TextBlock Grid.Row="1" Text="{x:Static res:Strings.Language}" VerticalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" x:Name="LanguageBox" HorizontalAlignment="Stretch" />
         </Grid>

@@ -23,7 +23,7 @@ public partial class ComparisonWindow : Window
         InitializeComponent();
         foreach (var (editor, renderer) in new[] { (BeforeEditor, _beforeLines), (AfterEditor, _afterLines) })
         {
-            XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
+            XmlHighlighting.Apply(Themes.ThemeApplier.Colors);
             editor.SyntaxHighlighting = XmlHighlighting.Definition;
             editor.TextArea.TextView.BackgroundRenderers.Add(renderer);
         }
@@ -31,12 +31,9 @@ public partial class ComparisonWindow : Window
         BeforeEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(BeforeEditor, AfterEditor);
         AfterEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(AfterEditor, BeforeEditor);
         ApplyTheme();
-        if (Application.Current is { } app)
-        {
-            EventHandler onTheme = (_, _) => ApplyTheme();
-            app.ActualThemeVariantChanged += onTheme;
-            Closed += (_, _) => app.ActualThemeVariantChanged -= onTheme;
-        }
+        Action<Themes.ThemeColors> onTheme = _ => ApplyTheme();
+        Themes.ThemeApplier.Changed += onTheme;
+        Closed += (_, _) => Themes.ThemeApplier.Changed -= onTheme;
     }
 
     private ComparisonViewModel? Vm => DataContext as ComparisonViewModel;
@@ -98,14 +95,13 @@ public partial class ComparisonWindow : Window
 
     private void ApplyTheme()
     {
-        var dark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
-        _beforeLines.Dark = _afterLines.Dark = dark;
-        Resources["DiffAddedText"] = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(dark ? "#81C995" : "#1E7B34"));
-        Resources["DiffRemovedText"] = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(dark ? "#F28B82" : "#C5221F"));
-        Resources["DiffModifiedText"] = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(dark ? "#FDD663" : "#B06000"));
-        XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
-        BeforeEditor.TextArea.TextView.Redraw();
-        AfterEditor.TextArea.TextView.Redraw();
+        var c = Themes.ThemeApplier.Colors;
+        XmlHighlighting.Apply(c);
+        foreach (var editor in new[] { BeforeEditor, AfterEditor })
+        {
+            editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(c);
+            editor.TextArea.TextView.Redraw();
+        }
     }
 
     private async void OnCopySummary(object? sender, RoutedEventArgs e)
