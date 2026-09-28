@@ -163,16 +163,16 @@
                     <TextBlock Text="{x:Static res:Strings.Generate}" VerticalAlignment="Center" Opacity="0.7" />
                     <Border Classes="segmented">
                         <StackPanel Orientation="Horizontal" Spacing="2">
-                            <Button Command="{Binding GenerateMaximalCommand}" ToolTip.Tip="{x:Static res:Strings.MaximalTip}">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <PathIcon Data="{StaticResource IconMaximal}" />
-                                    <TextBlock Text="{x:Static res:Strings.Maximal}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
                             <Button Command="{Binding GenerateMinimalCommand}" ToolTip.Tip="{x:Static res:Strings.MinimalTip}">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <PathIcon Data="{StaticResource IconMinimal}" />
                                     <TextBlock Text="{x:Static res:Strings.Minimal}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding GenerateMaximalCommand}" ToolTip.Tip="{x:Static res:Strings.MaximalTip}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <PathIcon Data="{StaticResource IconMaximal}" />
+                                    <TextBlock Text="{x:Static res:Strings.Maximal}" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button Command="{Binding GenerateCoverageSetCommand}" ToolTip.Tip="{x:Static res:Strings.CoverageTip}">
