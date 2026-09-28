@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/XsdVisualizer.App/XsdVisualizer.App.csproj" />
+    <Project Path="src/XsdVisualizer.Core/XsdVisualizer.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/XsdVisualizer.Core.Tests/XsdVisualizer.Core.Tests.csproj" />
+  </Folder>
+</Solution>
