@@ -134,6 +134,11 @@ public sealed partial class Operation
             return new(issues, null);
         }
 
+        if (!message.BodyIsString && payload is not null
+            && wrapper.Elements().FirstOrDefault() is { } payloadRoot
+            && payloadRoot.Name != XName.Get(payload.Element.Name, payload.Element.Namespace))
+            issues.Add(Issue($"O Payload deveria ser {payload.Element.Name} (Payload Binding), mas é {payloadRoot.Name.LocalName}.", payloadRoot));
+
         string? decompressed = null;
         if (message.BodyIsString && payload is not null)
         {
@@ -162,8 +167,7 @@ public sealed partial class Operation
         XmlSchemaSet? set = new() { XmlResolver = SchemaResolver.EmbeddedOnly() };
         try
         {
-            var location = envelopeNs == Soap.Envelope12 ? "http://www.w3.org/2003/05/soap-envelope" : Soap.Envelope11;
-            set.Add(envelopeNs, location);
+            set.Add(envelopeNs, envelopeNs); // o resolver serve os XSDs oficiais do SOAP embutidos
             set.Add(WsdlSchemas);
             if (payload is not null) set.Add(payload.Unit.Schemas);
             set.Compile();

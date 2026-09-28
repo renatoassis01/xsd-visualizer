@@ -12,7 +12,8 @@ public static class SampleExporter
     /// <param name="payloadBindings">Payload Binding de cada Request/Response; Operations sem ele ficam de fora.
     /// Os Envelopes vão para <c>&lt;Schema Set&gt;/_servicos/&lt;Service&gt;/&lt;operation&gt;.{request,response}.{max,min,cov-NN}.xml</c>.</param>
     public static ExportResult ExportAll(SchemaSet set, string outputFolder, IProgress<GlobalElement>? progress = null,
-        CancellationToken cancellation = default, Func<Operation, MessageDirection, PayloadBinding?>? payloadBindings = null)
+        CancellationToken cancellation = default, Func<Operation, MessageDirection, PayloadBinding?>? payloadBindings = null,
+        Func<Operation, Endpoint?>? endpoints = null)
     {
         var duplicated = set.GlobalElements.GroupBy(e => e.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
         int written = 0, invalid = 0;
@@ -32,17 +33,23 @@ public static class SampleExporter
                 if (!sample.IsValid) invalid++;
             }
         }
+        var duplicatedServices = set.Services.GroupBy(s => s.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
         foreach (var service in set.Services)
             foreach (var operation in service.Operations)
                 foreach (var direction in new[] { MessageDirection.Request, MessageDirection.Response })
                 {
                     cancellation.ThrowIfCancellationRequested();
                     if (payloadBindings?.Invoke(operation, direction) is not { } payload) continue;
-                    var folder = Path.Combine(outputFolder, set.Name, "_servicos", service.Name);
+                    // Mesmo nome de Service em WSDLs diferentes (ex.: SVRS e SP): a pasta leva o arquivo.
+                    var serviceFolder = duplicatedServices.Contains(service.Name)
+                        ? $"{service.Name} ({Path.GetFileNameWithoutExtension(service.SourceFile)})"
+                        : service.Name;
+                    var folder = Path.Combine(outputFolder, set.Name, "_servicos", serviceFolder);
                     Directory.CreateDirectory(folder);
-                    var envelopes = operation.GenerateEnvelopes(direction, SampleKind.Maximal, payload: payload)
-                        .Concat(operation.GenerateEnvelopes(direction, SampleKind.Minimal, payload: payload))
-                        .Concat(operation.GenerateEnvelopes(direction, SampleKind.Coverage, payload: payload));
+                    var endpoint = endpoints?.Invoke(operation);
+                    var envelopes = operation.GenerateEnvelopes(direction, SampleKind.Maximal, endpoint, payload)
+                        .Concat(operation.GenerateEnvelopes(direction, SampleKind.Minimal, endpoint, payload))
+                        .Concat(operation.GenerateEnvelopes(direction, SampleKind.Coverage, endpoint, payload));
                     foreach (var envelope in envelopes)
                     {
                         File.WriteAllText(Path.Combine(folder, envelope.FileName), envelope.Xml);

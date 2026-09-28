@@ -363,6 +363,9 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         RefreshBindings();
     }
 
+    private Endpoint? ChosenEndpoint(Operation operation) =>
+        GetEndpoint(operation) is { } name ? operation.Endpoints.FirstOrDefault(e => e.Name == name) : null;
+
     public string? GetEndpoint(Operation operation) =>
         _session.Current.Endpoints.GetValueOrDefault(OperationKey(operation));
 
@@ -415,6 +418,9 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
             var samples = await Task.Run(() => operation.Model.GenerateEnvelopes(direction, kind, endpoint, binding, pins));
             var tab = EditorTabViewModel.ForSamples($"{operation.Name} · {DirectionLabel(direction)} · {suffix}", samples);
             Tabs.Add(tab);
+            // Payload compactado: o legível abre ao lado; o Envelope continua em foco.
+            if (tab.PayloadText is { } payload)
+                Tabs.Add(EditorTabViewModel.ForPayload(string.Format(Strings.PayloadTitle, tab.Title), payload, tab.PayloadElement));
             SelectedTab = tab;
             Status = Strings.Ready;
         });
@@ -442,7 +448,8 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         await RunBusy(string.Format(Strings.Exporting, set.Name), async () =>
         {
             var progress = new Progress<GlobalElement>(e => Status = string.Format(Strings.Exporting, e.Name));
-            var result = await Task.Run(() => SampleExporter.ExportAll(set.Model, output, progress, cancellation, Get), cancellation);
+            var result = await Task.Run(() => SampleExporter.ExportAll(set.Model, output, progress, cancellation,
+                payloadBindings: Get, endpoints: ChosenEndpoint), cancellation);
             Status = string.Format(Strings.ExportDone, result.Written, result.Invalid, Path.Combine(output, set.Name));
         });
     }

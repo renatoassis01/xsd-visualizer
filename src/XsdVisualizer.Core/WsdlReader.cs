@@ -50,9 +50,18 @@ internal sealed class WsdlReader(string file, XmlResolver resolver, List<Validat
             var operations = new Dictionary<string, Operation>(StringComparer.Ordinal);
             foreach (var port in service.Elements(W + "port"))
             {
-                if (!bindings.TryGetValue(Resolve(port, (string?)port.Attribute("binding")), out var binding)) continue;
+                if (!bindings.TryGetValue(Resolve(port, (string?)port.Attribute("binding")), out var binding))
+                {
+                    Issue($"Endpoint {(string?)port.Attribute("name")}: binding {(string?)port.Attribute("binding")} não encontrado.", port);
+                    continue;
+                }
                 var soap = binding.Elements().FirstOrDefault(e => e.Name.LocalName == "binding" && e.Name.Namespace.NamespaceName is Soap.WsdlSoap11 or Soap.WsdlSoap12);
-                if (soap is null) continue; // bindings HTTP/MIME: fora do escopo, ignorados
+                if (soap is null)
+                {
+                    Issue($"Binding {(string?)binding.Attribute("name")} não é SOAP (HTTP/MIME não suportados): Endpoint {(string?)port.Attribute("name")} ignorado.",
+                        binding, IssueSeverity.Warning);
+                    continue;
+                }
                 var version = soap.Name.Namespace == Soap.WsdlSoap12 ? SoapVersion.Soap12 : SoapVersion.Soap11;
                 var bindingStyle = (string?)soap.Attribute("style") ?? "document";
 
@@ -80,7 +89,11 @@ internal sealed class WsdlReader(string file, XmlResolver resolver, List<Validat
                 if (actions.Count > 0)
                     endpoints.Add(new Endpoint((string?)port.Attribute("name") ?? "", Address(port), version, actions));
             }
-            if (operations.Count == 0) continue;
+            if (operations.Count == 0)
+            {
+                Issue($"Service {(string?)service.Attribute("name")}: nenhuma Operation SOAP document/literal utilizável.", service, IssueSeverity.Warning);
+                continue;
+            }
             services.Add(new Service((string?)service.Attribute("name") ?? Path.GetFileNameWithoutExtension(file), file,
                 endpoints, operations.Values.Where(o => endpoints.Any(e => e.Supports(o))).ToList()));
         }
@@ -122,9 +135,18 @@ internal sealed class WsdlReader(string file, XmlResolver resolver, List<Validat
         var headers = new List<XmlSchemaElement>();
         foreach (var header in bindingMessage?.Elements().Where(e => e.Name.LocalName == "header") ?? [])
         {
-            if (!messages.TryGetValue(Resolve(header, (string?)header.Attribute("message")), out var headerMessage)) continue;
+            if (!messages.TryGetValue(Resolve(header, (string?)header.Attribute("message")), out var headerMessage))
+            {
+                Issue($"Operation {operation}: mensagem de header {(string?)header.Attribute("message")} não encontrada.", header);
+                continue;
+            }
             var part = headerMessage.Elements(W + "part").FirstOrDefault(p => (string?)p.Attribute("name") == (string?)header.Attribute("part"));
-            if (part?.Attribute("element") is not null && Element(part, (string?)part.Attribute("element"), schemas) is { } element)
+            if (part?.Attribute("element") is null)
+            {
+                Issue($"Operation {operation}: part {(string?)header.Attribute("part")} do header não encontrada ou sem element=.", header);
+                continue;
+            }
+            if (Element(part, (string?)part.Attribute("element"), schemas) is { } element)
                 headers.Add(element);
         }
         return new OperationMessage(direction, body, headers);
@@ -177,10 +199,10 @@ internal sealed class WsdlReader(string file, XmlResolver resolver, List<Validat
         return ns + qname[(colon + 1)..];
     }
 
-    private void Issue(string message, XElement at)
+    private void Issue(string message, XElement at, IssueSeverity severity = IssueSeverity.Error)
     {
         var line = (IXmlLineInfo)at;
-        Issue(message, line.LineNumber, line.LinePosition);
+        issues.Add(new ValidationIssue(message, file, line.LineNumber, line.LinePosition, severity));
     }
 
     private void Issue(string message, int line, int column) => issues.Add(new ValidationIssue(message, file, line, column));

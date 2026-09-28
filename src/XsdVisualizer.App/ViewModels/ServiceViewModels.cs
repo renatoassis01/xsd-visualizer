@@ -33,7 +33,9 @@ public sealed partial class OperationViewModel : ViewModelBase
         Model = model;
         _store = store;
         var saved = store.GetEndpoint(model);
+        _loading = true; // o padrão não é uma escolha do usuário: não vai para a sessão
         SelectedEndpoint = model.Endpoints.FirstOrDefault(e => e.Name == saved) ?? model.DefaultEndpoint;
+        _loading = false;
         LoadDirection();
     }
 
@@ -50,7 +52,7 @@ public sealed partial class OperationViewModel : ViewModelBase
     partial void OnSelectedEndpointChanged(Endpoint value)
     {
         if (value is null) return;
-        _store.SetEndpoint(Model, value);
+        if (!_loading) _store.SetEndpoint(Model, value);
         OnPropertyChanged(nameof(SoapAction));
         OnPropertyChanged(nameof(Address));
     }

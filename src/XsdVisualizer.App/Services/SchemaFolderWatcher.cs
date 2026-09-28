@@ -1,6 +1,6 @@
 namespace XsdVisualizer.App.Services;
 
-/// <summary>Avisa (com debounce) quando algum .xsd de uma pasta muda em disco.</summary>
+/// <summary>Avisa (com debounce) quando algum .xsd ou .wsdl de uma pasta muda em disco.</summary>
 public sealed class SchemaFolderWatcher : IDisposable
 {
     private readonly FileSystemWatcher _watcher;
@@ -9,7 +9,7 @@ public sealed class SchemaFolderWatcher : IDisposable
     public SchemaFolderWatcher(string folder, Action changed)
     {
         _debounce = new Timer(_ => changed(), null, Timeout.Infinite, Timeout.Infinite);
-        _watcher = new FileSystemWatcher(folder, "*.xsd")
+        _watcher = new FileSystemWatcher(folder, "*.*")
         {
             NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
             IncludeSubdirectories = false,
@@ -21,7 +21,11 @@ public sealed class SchemaFolderWatcher : IDisposable
         _watcher.EnableRaisingEvents = true;
     }
 
-    private void OnChange(object sender, FileSystemEventArgs e) => _debounce.Change(700, Timeout.Infinite);
+    private void OnChange(object sender, FileSystemEventArgs e)
+    {
+        if (Path.GetExtension(e.FullPath).ToLowerInvariant() is ".xsd" or ".wsdl")
+            _debounce.Change(700, Timeout.Infinite);
+    }
 
     public void Dispose()
     {

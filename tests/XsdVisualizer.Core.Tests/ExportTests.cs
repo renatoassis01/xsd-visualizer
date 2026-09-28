@@ -48,4 +48,23 @@ public class ExportTests
             Directory.GetFiles(services).Select(Path.GetFileName).Order(StringComparer.Ordinal));
         Assert.Equal(0, result.Invalid);
     }
+
+    [Fact]
+    public void Services_with_the_same_name_in_different_wsdls_get_separate_folders_and_the_chosen_endpoint()
+    {
+        using var folder = new SchemaFolder(("pedido.xsd", WsdlFixture.PedidoXsd),
+            ("A.wsdl", WsdlFixture.Wsdl()), ("B.wsdl", WsdlFixture.Wsdl()));
+        using var output = new SchemaFolder();
+        var set = new SchemaSetLoader().Open(folder.Path);
+        var pedido = new PayloadBinding(set.GlobalElements.Single(e => e.Name == "pedido"), false);
+
+        SampleExporter.ExportAll(set, output.Path,
+            payloadBindings: (o, d) => o.Name == "enviar" && d == MessageDirection.Request ? pedido : null,
+            endpoints: o => o.Endpoints.Single(e => e.SoapVersion == SoapVersion.Soap11));
+
+        var services = Path.Combine(output.Path, set.Name, "_servicos");
+        Assert.Equal(["Pedidos (A)", "Pedidos (B)"], Directory.GetDirectories(services).Select(Path.GetFileName).Order());
+        Assert.Contains("http://schemas.xmlsoap.org/soap/envelope/",
+            File.ReadAllText(Path.Combine(services, "Pedidos (A)", "enviar.request.max.xml")));
+    }
 }

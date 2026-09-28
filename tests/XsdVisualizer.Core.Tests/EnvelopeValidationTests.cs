@@ -90,4 +90,19 @@ public class EnvelopeValidationTests
             gzip.Write(System.Text.Encoding.UTF8.GetBytes(text));
         return buffer.ToArray();
     }
+
+    [Fact]
+    public void A_payload_whose_root_is_not_the_bound_global_element_is_reported()
+    {
+        using var folder = WsdlFixture.Folder();
+        var (_, enviar, _, pedido) = Open(folder);
+
+        var result = enviar.ValidateEnvelope($"""
+            <soap:Envelope xmlns:soap="{Soap12}"><soap:Body>
+              <dadosMsg xmlns="{WsdlFixture.Tns}"><retPedido xmlns="urn:loja"><cStat>1</cStat></retPedido></dadosMsg>
+            </soap:Body></soap:Envelope>
+            """, MessageDirection.Request, pedido);
+
+        Assert.Contains(result.Issues, i => i.Message.Contains("pedido") && i.Message.Contains("retPedido"));
+    }
 }

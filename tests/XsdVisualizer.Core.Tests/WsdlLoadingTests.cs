@@ -74,4 +74,23 @@ public class WsdlLoadingTests
         Assert.Equal(folder.Path, set.Folder);
         Assert.Single(set.Services);
     }
+
+    [Fact]
+    public void Unresolved_bindings_and_non_soap_bindings_are_reported_instead_of_silently_skipped()
+    {
+        var wsdl = WsdlFixture.Wsdl("12")
+            .Replace("</wsdl:service>", """
+                <wsdl:port name="Fantasma" binding="tns:NaoExiste"><soap12:address location="https://x"/></wsdl:port>
+                <wsdl:port name="Http" binding="tns:PedidosHttp"><soap12:address location="https://x"/></wsdl:port>
+              </wsdl:service>
+              <wsdl:binding name="PedidosHttp" type="tns:PedidosSoap"><http:binding xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" verb="GET"/></wsdl:binding>
+              """);
+        using var folder = new SchemaFolder(("pedido.xsd", WsdlFixture.PedidoXsd), ("Pedidos.wsdl", wsdl));
+
+        var set = new SchemaSetLoader().Open(folder.Path);
+
+        Assert.Single(set.Services);
+        Assert.Contains(set.LoadIssues, i => i.Message.Contains("NaoExiste"));
+        Assert.Contains(set.LoadIssues, i => i.Message.Contains("PedidosHttp") && i.Severity == IssueSeverity.Warning);
+    }
 }
