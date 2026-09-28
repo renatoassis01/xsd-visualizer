@@ -64,9 +64,9 @@
   <data name="AboutVersion" xml:space="preserve"><value>Versão {0}</value></data>
   <data name="AboutBuiltWith" xml:space="preserve"><value>Feito com .NET, Avalonia e AvaloniaEdit.</value></data>
   <data name="Close" xml:space="preserve"><value>Fechar</value></data>
-  <data name="MaximalTip" xml:space="preserve"><value>Gera um XML com todos os campos possíveis, inclusive os opcionais. Onde o schema oferece alternativas (ex.: CPF ou CNPJ), usa a primeira, ou a que você escolher no seletor ao lado do item na árvore.</value></data>
+  <data name="MaximalTip" xml:space="preserve"><value>Gera um XML com todos os campos possíveis, inclusive os opcionais. Onde o schema oferece alternativas (xs:choice, substitution group, xsi:type), usa a primeira, ou a que você escolher no seletor ao lado do item na árvore.</value></data>
   <data name="MinimalTip" xml:space="preserve"><value>Gera um XML só com o obrigatório: campos opcionais ficam de fora e o que se repete aparece o mínimo de vezes.</value></data>
-  <data name="CoverageTip" xml:space="preserve"><value>Gera vários XMLs que, juntos, mostram todas as possibilidades do schema: cada alternativa (ex.: CPF e CNPJ) e cada valor permitido de listas fechadas (ex.: UF) aparece em pelo menos um deles.</value></data>
+  <data name="CoverageTip" xml:space="preserve"><value>Gera vários XMLs que, juntos, mostram todas as possibilidades do schema: cada alternativa de um xs:choice, cada elemento opcional e cada valor de enumeração aparece em pelo menos um deles.</value></data>
   <data name="Generate" xml:space="preserve"><value>Gerar</value></data>
   <data name="Settings" xml:space="preserve"><value>Configurações</value></data>
   <data name="SettingsMenu" xml:space="preserve"><value>Configurações…</value></data>
@@ -106,7 +106,7 @@
   <data name="OperationLabel" xml:space="preserve"><value>Operation</value></data>
   <data name="ManyPayloadCandidates" xml:space="preserve"><value>Há vários Global Elements possíveis para o Payload: escolha um para validá-lo.</value></data>
   <data name="Compare" xml:space="preserve"><value>Comparar</value></data>
-  <data name="CompareTip" xml:space="preserve"><value>Compara dois Schema Sets abertos (o de antes e o de depois de uma NT). A árvore de mudanças mostra tudo o que mudou: campos que entraram ou saíram, tipos, tamanhos, padrões, valores de listas e documentação. O XML lado a lado é um exemplo e não mostra todas as mudanças ao mesmo tempo.</value></data>
+  <data name="CompareTip" xml:space="preserve"><value>Compara dois Schema Sets abertos — por exemplo, duas versões do mesmo conjunto de XSDs: um como Antes (a referência) e outro como Depois. Lista os Global Elements que entraram, saíram ou mudaram e, em cada um, as mudanças campo a campo: elementos e atributos novos ou removidos, tipo, cardinalidade, facets (tamanho, padrão, faixas), valores de enumeração e documentação. O XML lado a lado é um exemplo gerado dos dois lados e não mostra todas as mudanças de uma vez: clique numa mudança para vê-la no XML.</value></data>
   <data name="CompareTitle" xml:space="preserve"><value>Comparar Schema Sets</value></data>
   <data name="Before" xml:space="preserve"><value>Antes</value></data>
   <data name="After" xml:space="preserve"><value>Depois</value></data>

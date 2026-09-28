@@ -64,9 +64,9 @@
   <data name="AboutVersion" xml:space="preserve"><value>Version {0}</value></data>
   <data name="AboutBuiltWith" xml:space="preserve"><value>Built with .NET, Avalonia and AvaloniaEdit.</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
-  <data name="MaximalTip" xml:space="preserve"><value>Generates an XML with every possible field, optional ones included. Where the schema offers alternatives (e.g. CPF or CNPJ), it uses the first one, or the one you pick in the selector next to the item in the tree.</value></data>
+  <data name="MaximalTip" xml:space="preserve"><value>Generates an XML with every possible field, optional ones included. Where the schema offers alternatives (xs:choice, substitution group, xsi:type), it uses the first one, or the one you pick in the selector next to the item in the tree.</value></data>
   <data name="MinimalTip" xml:space="preserve"><value>Generates an XML with only what is required: optional fields are left out and repeated items appear the minimum number of times.</value></data>
-  <data name="CoverageTip" xml:space="preserve"><value>Generates several XMLs that, together, show every possibility of the schema: each alternative (e.g. CPF and CNPJ) and each allowed value of closed lists (e.g. state codes) appears in at least one of them.</value></data>
+  <data name="CoverageTip" xml:space="preserve"><value>Generates several XMLs that, together, show every possibility of the schema: each alternative of an xs:choice, each optional element and each enumeration value appears in at least one of them.</value></data>
   <data name="Generate" xml:space="preserve"><value>Generate</value></data>
   <data name="Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsMenu" xml:space="preserve"><value>Settings…</value></data>
@@ -106,7 +106,7 @@
   <data name="OperationLabel" xml:space="preserve"><value>Operation</value></data>
   <data name="ManyPayloadCandidates" xml:space="preserve"><value>Several Global Elements match the Payload: choose one to validate it.</value></data>
   <data name="Compare" xml:space="preserve"><value>Compare</value></data>
-  <data name="CompareTip" xml:space="preserve"><value>Compares two open Schema Sets (the before and after of a technical note). The change tree shows everything that changed: fields added or removed, types, lengths, patterns, list values and documentation. The side-by-side XML is an example and does not show every change at once.</value></data>
+  <data name="CompareTip" xml:space="preserve"><value>Compares two open Schema Sets — for example, two versions of the same set of XSDs: one as Before (the reference) and the other as After. Lists the Global Elements that were added, removed or changed and, for each one, the field-by-field changes: new or removed elements and attributes, type, cardinality, facets (length, pattern, ranges), enumeration values and documentation. The side-by-side XML is an example generated on both sides and does not show every change at once: click a change to see it in the XML.</value></data>
   <data name="CompareTitle" xml:space="preserve"><value>Compare Schema Sets</value></data>
   <data name="Before" xml:space="preserve"><value>Before</value></data>
   <data name="After" xml:space="preserve"><value>After</value></data>
