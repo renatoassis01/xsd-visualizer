@@ -143,4 +143,7 @@
   <data name="NoPayloadChoices" xml:space="preserve">
     <value>Nenhum Schema Set aberto tem Global Elements para usar como Payload. O WSDL só descreve o envelope: abra também a pasta de XSDs do serviço (Abrir pasta… ou arraste) e escolha aqui o Global Element que vai no Body.</value>
   </data>
+  <data name="FileLabel" xml:space="preserve">
+    <value>Arquivo</value>
+  </data>
 </root>

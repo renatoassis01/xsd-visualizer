@@ -190,10 +190,24 @@
                             </StackPanel>
                         </DataTemplate>
                         <DataTemplate DataType="vm:GlobalElementViewModel">
-                            <StackPanel Orientation="Horizontal" Spacing="6" ToolTip.Tip="{Binding Namespace}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <ToolTip.Tip>
+                                    <StackPanel Spacing="4" MaxWidth="420">
+                                        <TextBlock Text="{Binding Documentation}" TextWrapping="Wrap" IsVisible="{Binding HasDocumentation}" />
+                                        <TextBlock FontSize="11" Opacity="0.7" TextWrapping="Wrap">
+                                            <Run Text="{x:Static res:Strings.FileLabel}" /><Run Text=": " /><Run Text="{Binding SourceFileName}" />
+                                        </TextBlock>
+                                        <TextBlock FontSize="11" Opacity="0.7" TextWrapping="Wrap">
+                                            <Run Text="Namespace: " /><Run Text="{Binding Namespace}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </ToolTip.Tip>
                                 <PathIcon Data="{StaticResource IconXsd}" Foreground="{DynamicResource SystemControlHighlightAccentBrush}"
                                           Width="14" Height="14" VerticalAlignment="Center" />
-                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" />
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" />
+                                    <TextBlock Text="{Binding SourceFileName}" FontSize="11" Opacity="0.6" />
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </TreeView.DataTemplates>

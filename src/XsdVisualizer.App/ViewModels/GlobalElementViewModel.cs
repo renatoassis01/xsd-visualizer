@@ -2,17 +2,17 @@ using XsdVisualizer.Core;
 
 namespace XsdVisualizer.App.ViewModels;
 
-public sealed class GlobalElementViewModel(GlobalElement model, bool showSourceFile) : ViewModelBase
+public sealed class GlobalElementViewModel(GlobalElement model) : ViewModelBase
 {
     public GlobalElement Model { get; } = model;
 
-    /// <summary>Nome; com o arquivo quando o mesmo nome é declarado em mais de um arquivo do Schema Set.</summary>
-    public string DisplayName { get; } = showSourceFile
-        ? $"{model.Name}  ({model.FileName})"
-        : model.Name;
-
+    public string Name => Model.Name;
     public string Namespace => Model.Namespace;
     public string SourceFileName => Model.FileName;
+
+    /// <summary>Documentação do Global Element (xs:documentation), para a dica da lista.</summary>
+    public string? Documentation => Model.Tree.Documentation;
+    public bool HasDocumentation => !string.IsNullOrWhiteSpace(Documentation);
 
     /// <summary>Ramos fixados na árvore (caminho do Choice → índice do ramo), usados pelo Maximal Sample.</summary>
     public Dictionary<string, int> Pins { get; } = new();

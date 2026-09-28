@@ -53,7 +53,7 @@ XsdVisualizer ~/schemas/PL_010_V1.30 ~/notas/nota.xml
 ![Janela principal](../images/pt-BR/main.png)
 
 - **Barra de cima:** Abrir pasta…, Abrir XML…, Comparar, Recentes; à direita, Sobre e Configurações.
-- **Coluna da esquerda — Schema Sets:** os conjuntos abertos, cada um com seus Global Elements (e, se houver WSDL, um grupo Serviços). Ao lado de cada Schema Set ficam os botões **Gerar todos** (⤓) e **Fechar** (✕).
+- **Coluna da esquerda — Schema Sets:** os conjuntos abertos, cada um com seus Global Elements (e, se houver WSDL, um grupo Serviços). Embaixo de cada Global Element aparece o arquivo que o declara; parando o mouse sobre ele, aparecem a documentação, o arquivo e o namespace. Ao lado de cada Schema Set ficam os botões **Gerar todos** (⤓) e **Fechar** (✕).
 - **Coluna do meio:** os botões **Gerar** (Minimal, Maximal, Coverage Set), a pesquisa, a árvore do item selecionado e, embaixo, os detalhes do nó selecionado.
 - **Coluna da direita:** as abas do editor, uma por Sample gerado ou XML aberto, com a lista de Validation Issues embaixo.
 - **Barra de status:** o que está acontecendo (abrindo, gerando, salvo, copiado…).

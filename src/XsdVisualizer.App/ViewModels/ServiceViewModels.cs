@@ -148,7 +148,7 @@ public sealed partial class OperationViewModel : ViewModelBase
             PayloadOwner.PinsChanged -= OnPayloadPinsChanged;
             PayloadOwner.NodeSelected -= OnPayloadNodeSelected;
         }
-        PayloadOwner = SelectedPayload is { } choice ? new GlobalElementViewModel(choice.Element, showSourceFile: true) : null;
+        PayloadOwner = SelectedPayload is { } choice ? new GlobalElementViewModel(choice.Element) : null;
         if (PayloadOwner is not null)
         {
             PayloadOwner.PinsChanged += OnPayloadPinsChanged;

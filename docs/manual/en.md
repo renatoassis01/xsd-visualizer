@@ -53,7 +53,7 @@ XsdVisualizer ~/schemas/PL_010_V1.30 ~/invoices/invoice.xml
 ![Main window](../images/en/main.png)
 
 - **Top bar:** Open folder…, Open XML…, Compare, Recent; on the right, About and Settings.
-- **Left column (Schema Sets):** the open sets, each with its Global Elements (and a Services group when there is a WSDL). Next to each Schema Set are the **Generate all** (⤓) and **Close** (✕) buttons.
+- **Left column (Schema Sets):** the open sets, each with its Global Elements (and a Services group when there is a WSDL). Each Global Element shows the file that declares it underneath; hovering over it shows its documentation, file and namespace. Next to each Schema Set are the **Generate all** (⤓) and **Close** (✕) buttons.
 - **Middle column:** the **Generate** buttons (Minimal, Maximal, Coverage Set), the search box, the tree of the selected item and, below it, the details of the selected node.
 - **Right column:** the editor tabs, one per generated Sample or opened XML, with the list of Validation Issues underneath.
 - **Status bar:** what is happening (opening, generating, saved, copied…).

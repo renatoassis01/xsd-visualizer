@@ -188,7 +188,7 @@ public sealed partial class EditorTabViewModel : ViewModelBase
             var previousOperation = BoundOperation?.Message;
             var operations = binding.MessageCandidates.Select(m => new OperationChoice(m)).ToList();
             _envelopeBody = operations.Count == 0 ? BodyElementName(Document.Text) : null;
-            Candidates = binding.Candidates.Select(c => new GlobalElementViewModel(c, showSourceFile: true)).ToList();
+            Candidates = binding.Candidates.Select(c => new GlobalElementViewModel(c)).ToList();
             BoundElement = binding.Bound is { } payloadRoot ? Candidates.Single(c => c.Model == payloadRoot) : null;
             OperationCandidates = operations;
             BoundOperation = operations.FirstOrDefault(o => o.Message == previousOperation)
@@ -198,7 +198,7 @@ public sealed partial class EditorTabViewModel : ViewModelBase
             return;
         }
         var candidates = binding.Candidates
-            .Select(c => new GlobalElementViewModel(c, showSourceFile: true))
+            .Select(c => new GlobalElementViewModel(c))
             .ToList();
         var previous = BoundElement?.Model;
         Candidates = candidates;

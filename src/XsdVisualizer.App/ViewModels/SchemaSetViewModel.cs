@@ -8,8 +8,7 @@ public sealed class SchemaSetViewModel : ViewModelBase
     public SchemaSetViewModel(SchemaSet model, IPayloadBindings store)
     {
         Model = model;
-        var duplicated = model.GlobalElements.GroupBy(e => e.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
-        GlobalElements = model.GlobalElements.Select(e => new GlobalElementViewModel(e, duplicated.Contains(e.Name))).ToList();
+        GlobalElements = model.GlobalElements.Select(e => new GlobalElementViewModel(e)).ToList();
         Services = model.Services.Select(s => new ServiceViewModel(s, store)).ToList();
         Children = Services.Count == 0
             ? GlobalElements.Cast<object>().ToList()
