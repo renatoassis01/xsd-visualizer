@@ -26,7 +26,8 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
         var files = candidates.Except(wsdls).ToList();
         var issues = new List<ValidationIssue>();
         var unreadable = new HashSet<string>(StringComparer.Ordinal);
-        var referenced = files.SelectMany(f => ReferencedFiles(f, issues, unreadable)).ToHashSet(StringComparer.Ordinal);
+        var missing = new List<(string File, ValidationIssue Issue)>();
+        var referenced = files.SelectMany(f => ReferencedFiles(f, issues, unreadable, missing)).ToHashSet(StringComparer.Ordinal);
         var units = files
             .Where(f => !referenced.Contains(f) && !unreadable.Contains(f))
             .Select(f => Compile(f, issues, _downloader, _cacheDirectory))
@@ -46,7 +47,12 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
             .SelectMany(f => new WsdlReader(f, Resolver(f, issues), issues).Read())
             .ToList();
 
-        return new SchemaSet(folder, elements, issues.Distinct().ToList(), services);
+        // O aviso genérico do .NET ("Cannot resolve the 'schemaLocation' attribute") repete, sem o nome, o que a
+        // Validation Issue de arquivo ausente já diz na mesma linha.
+        var missingAt = missing.Select(m => (m.Issue.File, m.Issue.Line, m.Issue.Column)).ToHashSet();
+        issues.RemoveAll(i => i.Severity == IssueSeverity.Warning && missingAt.Contains((i.File, i.Line, i.Column)));
+        return new SchemaSet(folder, elements, issues.Distinct().ToList(), services,
+            missing.Select(m => Path.GetFileName(m.File)).Distinct(StringComparer.Ordinal).ToList());
     }
 
     /// <summary>Se o elemento raiz é de WSDL; sem conseguir ler, vale a extensão.</summary>
@@ -68,7 +74,12 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
     public static string FolderOf(string path) =>
         Path.TrimEndingDirectorySeparator(Path.GetFullPath(File.Exists(path) ? Path.GetDirectoryName(path)! : path));
 
-    private static List<string> ReferencedFiles(string file, List<ValidationIssue> issues, HashSet<string> unreadable)
+    /// <summary>
+    /// Arquivos locais que o arquivo inclui/importa; os que não existem vão para <paramref name="missing"/> e viram
+    /// uma Validation Issue que diz o nome do arquivo (sem isso só aparecem os tipos não declarados).
+    /// </summary>
+    private static List<string> ReferencedFiles(string file, List<ValidationIssue> issues, HashSet<string> unreadable,
+        List<(string File, ValidationIssue Issue)> missing)
     {
         var result = new List<string>();
         try
@@ -86,7 +97,15 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
                 if (reader.LocalName is not ("include" or "import" or "redefine")) continue;
                 var location = reader.GetAttribute("schemaLocation");
                 if (location is null || Uri.TryCreate(location, UriKind.Absolute, out var abs) && !abs.IsFile) continue;
-                result.Add(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file)!, location)));
+                var referenced = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file)!, location));
+                result.Add(referenced);
+                if (File.Exists(referenced)) continue;
+                var at = (IXmlLineInfo)reader;
+                var issue = new ValidationIssue(
+                    $"Arquivo não encontrado na pasta: {location} (referenciado por {Path.GetFileName(file)})",
+                    file, at.LineNumber, at.LinePosition);
+                missing.Add((referenced, issue));
+                issues.Add(issue);
             }
         }
         catch (XmlException e)

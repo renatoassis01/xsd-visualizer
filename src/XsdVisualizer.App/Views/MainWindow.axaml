@@ -149,6 +149,8 @@
                                           Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,0,0" />
                                 <StackPanel MaxWidth="160">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding MissingFilesSummary}" Foreground="{DynamicResource WarningText}" FontSize="11"
+                                               FontWeight="SemiBold" TextWrapping="Wrap" IsVisible="{Binding HasMissingFiles}" />
                                     <TextBlock Text="{Binding LoadIssuesSummary}" Foreground="{DynamicResource WarningText}" FontSize="11"
                                                IsVisible="{Binding HasLoadIssues}">
                                         <ToolTip.Tip>
@@ -278,7 +280,24 @@
                 </StackPanel>
                 <Panel Grid.Row="3" Margin="0,6,0,0" IsVisible="{Binding Tree.ShowElementPanel}">
                     <TextBlock Text="{x:Static res:Strings.SelectElementHint}" Opacity="0.6"
-                               IsVisible="{Binding !Tree.HasSelectedElement}" />
+                               IsVisible="{Binding Tree.ShowSelectElementHint}" />
+                    <!-- Schema Set selecionado: as Validation Issues da carga (o tooltip na árvore é fácil de não ver) -->
+                    <DockPanel DataContext="{Binding Tree.SelectedSchemaSet}" x:DataType="vm:SchemaSetViewModel"
+                               IsVisible="{Binding HasLoadIssues, FallbackValue=False}">
+                        <TextBlock DockPanel.Dock="Top" Text="{Binding LoadIssuesTitle}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                        <ListBox ItemsSource="{Binding LoadIssues}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="core:ValidationIssue">
+                                    <TextBlock TextWrapping="Wrap" FontSize="12">
+                                        <Run Text="{Binding File, Converter={x:Static views:PathConverters.FileName}, StringFormat='{}{0}:'}" FontWeight="SemiBold" />
+                                        <Run Text="{Binding Line, StringFormat='{}{0}:'}" FontWeight="SemiBold" />
+                                        <Run Text="{Binding Column, StringFormat='{}{0}  '}" FontWeight="SemiBold" />
+                                        <Run Text="{Binding Message}" />
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
                     <TreeView Classes="schema" ItemsSource="{Binding Tree.TreeRoots}" />
                 </Panel>
 
