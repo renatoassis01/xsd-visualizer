@@ -44,5 +44,24 @@ public class ComparisonTests
         Assert.Equal(PairStatus.Unchanged, pair.Status);
     }
 
+    [Fact]
+    public void The_markdown_summary_lists_new_removed_and_changed_elements_with_their_changes()
+    {
+        using var f = new ComparisonFixture();
+
+        var markdown = Comparison.Compare(f.Before, f.After).ToMarkdown();
+
+        Assert.Contains($"{f.Before.Name} → {f.After.Name}", markdown);
+        Assert.Contains("- novo", markdown);
+        Assert.Contains("- legado", markdown);
+        Assert.Contains("| pedido/xPed | Modified | cardinality: 0..1 → 1..1; maxLength: 15 → 60 |", markdown);
+        Assert.Contains("| pedido/cStat | Modified | enumeration: +150, +151, −999 |", markdown);
+        Assert.Contains("| pedido/IBSCBS | Added | |", markdown);
+        Assert.Contains("| pedido/fax | Removed | |", markdown);
+        Assert.DoesNotContain("pedido/obs", markdown);
+        Assert.DoesNotContain("igual", markdown);
+        Assert.Contains("pedido/obs", Comparison.Compare(f.Before, f.After).ToMarkdown(includeDocumentation: true));
+    }
+
     private static string File(GlobalElement? e) => e is null ? "" : Path.GetFileName(e.SourceFile);
 }

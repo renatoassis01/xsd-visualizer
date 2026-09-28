@@ -52,6 +52,50 @@ public sealed class Comparison
             .ToList());
     }
 
+    /// <summary>Resumo para o time: Global Elements novos, removidos e alterados, com as Changes de cada alterado.</summary>
+    public string ToMarkdown(bool includeDocumentation = false)
+    {
+        var md = new System.Text.StringBuilder();
+        md.AppendLine($"# Comparação: {Before.Name} → {After.Name}").AppendLine();
+
+        void Section(string title, IEnumerable<ElementPair> pairs, Func<ElementPair, GlobalElement> side)
+        {
+            var list = pairs.ToList();
+            if (list.Count == 0) return;
+            md.AppendLine($"## {title} ({list.Count})").AppendLine();
+            foreach (var pair in list) md.AppendLine($"- {pair.Name} ({Path.GetFileName(side(pair).SourceFile)})");
+            md.AppendLine();
+        }
+        Section("Global Elements novos", Pairs.Where(p => p.Status == PairStatus.Added), p => p.After!);
+        Section("Global Elements removidos", Pairs.Where(p => p.Status == PairStatus.Removed), p => p.Before!);
+
+        var changed = Pairs.Where(p => p.Before is not null && p.After is not null && p.Changes(includeDocumentation).Count > 0).ToList();
+        if (changed.Count > 0)
+        {
+            md.AppendLine($"## Global Elements alterados ({changed.Count})").AppendLine();
+            foreach (var pair in changed)
+            {
+                md.AppendLine($"### {pair.Name} ({Path.GetFileName(pair.After!.SourceFile)})").AppendLine();
+                md.AppendLine("| Caminho | Change | Detalhes |").AppendLine("|---|---|---|");
+                foreach (var change in pair.Changes(includeDocumentation))
+                {
+                    var details = string.Join("; ", change.Differences
+                        .Where(d => includeDocumentation || !d.IsDocumentation)
+                        .Select(Describe));
+                    md.AppendLine(details.Length == 0
+                        ? $"| {change.Path} | {change.Kind} | |"
+                        : $"| {change.Path} | {change.Kind} | {details.Replace("|", "\\|").Replace("\n", " ")} |");
+                }
+                md.AppendLine();
+            }
+        }
+        return md.ToString();
+    }
+
+    private static string Describe(PropertyChange d) => d.Property == "enumeration"
+        ? $"enumeration: {string.Join(", ", d.AddedValues.Select(v => "+" + v).Concat(d.RemovedValues.Select(v => "−" + v)))}"
+        : $"{d.Property}: {d.Before ?? "—"} → {d.After ?? "—"}";
+
     private static bool SameName(GlobalElement x, GlobalElement y) => x.Name == y.Name && x.Namespace == y.Namespace;
 }
 
