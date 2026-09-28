@@ -73,3 +73,22 @@ _Avoid_: associação, match
 **Validation Issue** (erro de validação):
 Divergência entre um Document ou Sample e o seu Schema Set, localizada por linha e coluna.
 _Avoid_: erro, warning
+
+### Comparação
+
+**Comparison** (comparação):
+Confronto entre dois Schema Sets, um marcado como **Before** (antes) e outro como **After** (depois), que lista os Element Pairs e as Changes de cada um.
+_Avoid_: diff (sozinho), versão antiga/nova, origem/destino
+
+**Before / After** (antes / depois):
+Os dois lados de uma Comparison: o Schema Set de referência e o que está sendo avaliado contra ele.
+_Avoid_: old/new, antigo/novo, esquerda/direita
+
+**Element Pair** (par):
+Um Global Element do Before e o correspondente do After, pareados por namespace + nome (ou escolhidos à mão). Um lado pode faltar: aí o Global Element entrou ou saiu.
+_Avoid_: match, correspondência
+
+**Change** (mudança):
+Diferença em um nó entre Before e After: **Added** (entrou, só no After), **Removed** (saiu, só no Before), **Modified** (nos dois, com diferença de tipo, cardinalidade, facets ou valor fixo/padrão) ou **Documentation-only** (só o texto de `xs:documentation` mudou). Os nós são pareados pelo caminho de nomes; um elemento renomeado é um Removed mais um Added.
+_Avoid_: delta, alteração genérica
+
