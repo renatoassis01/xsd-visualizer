@@ -18,6 +18,7 @@
         <Style Selector="Ellipse.added"><Setter Property="Fill" Value="{DynamicResource DiffAddedText}" /></Style>
         <Style Selector="Ellipse.removed"><Setter Property="Fill" Value="{DynamicResource DiffRemovedText}" /></Style>
         <Style Selector="Ellipse.modified"><Setter Property="Fill" Value="{DynamicResource DiffModifiedText}" /></Style>
+        <Style Selector="Ellipse.docOnly"><Setter Property="Fill" Value="{DynamicResource DiffModifiedText}" /><Setter Property="Opacity" Value="0.45" /></Style>
         <Style Selector="Ellipse.unchanged"><Setter Property="Fill" Value="Gray" /><Setter Property="Opacity" Value="0.4" /></Style>
         <Style Selector="TreeView.changes TreeViewItem" x:DataType="vm:ChangeNodeViewModel">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
@@ -85,6 +86,7 @@
                                          Classes.added="{Binding Status, Converter={x:Static views:DiffConverters.IsAdded}}"
                                          Classes.removed="{Binding Status, Converter={x:Static views:DiffConverters.IsRemoved}}"
                                          Classes.modified="{Binding Status, Converter={x:Static views:DiffConverters.IsModified}}"
+                                         Classes.docOnly="{Binding Status, Converter={x:Static views:DiffConverters.IsDocumentationOnly}}"
                                          Classes.unchanged="{Binding Status, Converter={x:Static views:DiffConverters.IsUnchanged}}"
                                          />
                                 <StackPanel Grid.Column="1">

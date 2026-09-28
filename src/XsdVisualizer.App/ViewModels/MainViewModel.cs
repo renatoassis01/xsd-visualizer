@@ -184,12 +184,12 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     {
         var index = SchemaSets.ToList().FindIndex(s => s.Folder == folder);
         if (index < 0) return;
-        var previous = SchemaSets[index];
+        var selected = Tree.SelectionIn(SchemaSets[index]);
         var set = await Task.Run(() => _loader.Open(folder));
         var vm = new SchemaSetViewModel(set, Bindings);
         SchemaSets[index] = vm;
         SchemaSetsChanged();
-        Tree.Reselect(previous, vm);
+        Tree.Reselect(selected, vm);
         RefreshBindings();
         Status = string.Format(Strings.Reloaded, set.Name);
     }

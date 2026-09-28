@@ -40,7 +40,8 @@ public sealed partial class ComparisonViewModel : ViewModelBase
         });
         Model = model;
         _allPairs.AddRange(model.Pairs
-            .OrderBy(p => p.Status switch { ChangeKind.Modified => 0, ChangeKind.Added => 1, ChangeKind.Removed => 2, ChangeKind.DocumentationOnly => 3, _ => 4 })
+            // Só documentação fica junto dos iguais, como antes de o par ter esse status.
+            .OrderBy(p => p.Status switch { ChangeKind.Modified => 0, ChangeKind.Added => 1, ChangeKind.Removed => 2, _ => 3 })
             .ThenBy(p => p.Name, StringComparer.Ordinal)
             .Select(p => new ElementPairViewModel(p)));
         IsBusy = false;
@@ -205,7 +206,7 @@ public sealed class ElementPairViewModel(ElementPair model, bool isManual = fals
     public ChangeKind Status => Model.Status;
     public string StatusText => Status == ChangeKind.Modified
         ? string.Format(Strings.ChangesCount, Model.Tree.ChangeCount)
-        : ChangeKindText.Of(Status);
+        : ChangeKindText.Of(Status).ToLowerInvariant(); // a lista de pares usa minúsculas (entrou, saiu, igual)
 }
 
 public sealed partial class ChangeNodeViewModel : ViewModelBase

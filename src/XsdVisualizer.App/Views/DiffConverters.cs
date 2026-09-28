@@ -9,5 +9,6 @@ public static class DiffConverters
     public static readonly FuncValueConverter<ChangeKind, bool> IsAdded = new(k => k == ChangeKind.Added);
     public static readonly FuncValueConverter<ChangeKind, bool> IsRemoved = new(k => k == ChangeKind.Removed);
     public static readonly FuncValueConverter<ChangeKind, bool> IsModified = new(k => k == ChangeKind.Modified);
-    public static readonly FuncValueConverter<ChangeKind, bool> IsUnchanged = new(k => k is ChangeKind.Unchanged or ChangeKind.DocumentationOnly);
+    public static readonly FuncValueConverter<ChangeKind, bool> IsDocumentationOnly = new(k => k == ChangeKind.DocumentationOnly);
+    public static readonly FuncValueConverter<ChangeKind, bool> IsUnchanged = new(k => k == ChangeKind.Unchanged);
 }

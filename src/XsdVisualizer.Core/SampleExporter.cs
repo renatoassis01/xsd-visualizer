@@ -22,7 +22,7 @@ public static class SampleExporter
             cancellation.ThrowIfCancellationRequested();
             progress?.Report(element);
             var folderName = duplicated.Contains(element.Name)
-                ? $"{element.Name} ({Path.GetFileNameWithoutExtension(element.SourceFile)})"
+                ? WithFile(element.Name, element.SourceFile)
                 : element.Name;
             var folder = Path.Combine(outputFolder, set.Name, folderName);
             Directory.CreateDirectory(folder);
@@ -42,7 +42,7 @@ public static class SampleExporter
                     if (payloadBindings?.Invoke(message) is not { } payload) continue;
                     // Mesmo nome de Service em WSDLs diferentes (ex.: SVRS e SP): a pasta leva o arquivo.
                     var serviceFolder = duplicatedServices.Contains(service.Name)
-                        ? $"{service.Name} ({Path.GetFileNameWithoutExtension(service.SourceFile)})"
+                        ? WithFile(service.Name, service.SourceFile)
                         : service.Name;
                     var folder = Path.Combine(outputFolder, set.Name, "_servicos", serviceFolder);
                     Directory.CreateDirectory(folder);
@@ -59,4 +59,7 @@ public static class SampleExporter
                 }
         return new ExportResult(written, invalid);
     }
+
+    /// <summary>Nome de pasta quando o mesmo nome aparece em mais de um arquivo: "evento (evento-a)".</summary>
+    private static string WithFile(string name, string sourceFile) => $"{name} ({Path.GetFileNameWithoutExtension(sourceFile)})";
 }

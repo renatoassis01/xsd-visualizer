@@ -72,7 +72,7 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
         }
         catch (XmlException e)
         {
-            issues.Add(new ValidationIssue(e.Message, file, e.LineNumber, e.LinePosition));
+            issues.Add(SchemaValidation.Issue(e, file));
             unreadable.Add(file);
         }
         return result;
@@ -97,7 +97,7 @@ public sealed class SchemaSetLoader(ISchemaDownloader? downloader = null, string
         }
         catch (XmlException e)
         {
-            issues.Add(new ValidationIssue(e.Message, SourceFile(e.SourceUri) ?? file, e.LineNumber, e.LinePosition));
+            issues.Add(SchemaValidation.Issue(e, SourceFile(e.SourceUri) ?? file));
             return null;
         }
         catch (XmlSchemaException e)

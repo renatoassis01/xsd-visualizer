@@ -104,11 +104,15 @@ public sealed partial class SchemaTreeViewModel : ViewModelBase
         if (SelectedOperation is not null && set.Operations.Contains(SelectedOperation)) SelectedOperation = null;
     }
 
-    /// <summary>Um Schema Set foi recarregado: mantém selecionado o mesmo Global Element (nome + arquivo), se ainda existir.</summary>
-    public void Reselect(SchemaSetViewModel before, SchemaSetViewModel after)
+    /// <summary>O Global Element selecionado, se for deste Schema Set (lembrado antes de recarregá-lo).</summary>
+    public GlobalElementViewModel? SelectionIn(SchemaSetViewModel set) =>
+        SelectedElement is { } e && set.GlobalElements.Contains(e) ? e : null;
+
+    /// <summary>Um Schema Set foi recarregado: volta a selecionar o mesmo Global Element (nome + arquivo), se ainda existir.</summary>
+    public void Reselect(GlobalElementViewModel? before, SchemaSetViewModel after)
     {
-        if (SelectedElement is not { } e || !before.GlobalElements.Contains(e)) return;
-        SelectedElement = after.GlobalElements.FirstOrDefault(g => g.Model.Name == e.Model.Name && g.Model.SourceFile == e.Model.SourceFile);
+        if (before is null) return;
+        SelectedElement = after.GlobalElements.FirstOrDefault(g => g.Model.Name == before.Model.Name && g.Model.SourceFile == before.Model.SourceFile);
     }
 
     // ---- Pesquisa na árvore ----
