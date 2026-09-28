@@ -1,0 +1,33 @@
+namespace XsdVisualizer.Core.Tests;
+
+public class ExportTests
+{
+    [Fact]
+    public void Exporting_writes_max_min_and_coverage_samples_per_global_element()
+    {
+        using var folder = new SchemaFolder(
+            ("pedido.xsd", SchemaFolder.Xsd("""
+                <xs:element name="pedido">
+                  <xs:complexType><xs:choice><xs:element name="a" type="xs:string"/><xs:element name="b" type="xs:string"/></xs:choice></xs:complexType>
+                </xs:element>
+                """)),
+            ("evento-a.xsd", SchemaFolder.Xsd("""<xs:element name="evento" type="xs:string"/>""")),
+            ("evento-b.xsd", SchemaFolder.Xsd("""<xs:element name="evento" type="xs:int"/>""")));
+        using var output = new SchemaFolder();
+        var set = new SchemaSetLoader().Open(folder.Path);
+
+        var result = SampleExporter.ExportAll(set, output.Path);
+
+        var root = Path.Combine(output.Path, set.Name);
+        Assert.Equal(
+            [
+                "evento (evento-a)/evento.cov-01.xml", "evento (evento-a)/evento.max.xml", "evento (evento-a)/evento.min.xml",
+                "evento (evento-b)/evento.cov-01.xml", "evento (evento-b)/evento.max.xml", "evento (evento-b)/evento.min.xml",
+                "pedido/pedido.cov-01.xml", "pedido/pedido.cov-02.xml", "pedido/pedido.max.xml", "pedido/pedido.min.xml",
+            ],
+            Directory.GetFiles(root, "*.xml", SearchOption.AllDirectories)
+                .Select(f => Path.GetRelativePath(root, f).Replace('\\', '/'))
+                .Order(StringComparer.Ordinal));
+        Assert.Equal((10, 0), (result.Written, result.Invalid));
+    }
+}
