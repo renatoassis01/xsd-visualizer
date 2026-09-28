@@ -63,7 +63,7 @@ public partial class MainWindow : Window, IDialogService
         await new CompareDialog(sets).ShowDialog<(XsdVisualizer.Core.SchemaSet, XsdVisualizer.Core.SchemaSet)?>(this);
 
     public void ShowComparison(ComparisonViewModel comparison) =>
-        new ComparisonWindow { DataContext = comparison }.Show(this);
+        new ComparisonWindow { DataContext = comparison }.Show(); // sem dono: a troca de idioma recria a janela principal
 
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(this);
 

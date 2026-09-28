@@ -82,10 +82,11 @@ public sealed partial class ComparisonViewModel : ViewModelBase
 
     [ObservableProperty] public partial GlobalElementChoice? ManualPartner { get; set; }
 
-    partial void OnManualPartnerChanged(GlobalElementChoice? value)
+    async partial void OnManualPartnerChanged(GlobalElementChoice? value)
     {
         if (value is null || SelectedPair?.Model.Before is not { } before) return;
         var manual = new ElementPairViewModel(ElementPair.Manual(before, value.Element), isManual: true);
+        await Task.Run(() => manual.Model.Tree); // árvore grande (ex.: NF-e) fora da thread de interface
         _allPairs.Insert(0, manual);
         RefreshPairs();
         SelectedPair = manual;

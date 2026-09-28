@@ -106,13 +106,13 @@
   <data name="OperationLabel" xml:space="preserve"><value>Operation</value></data>
   <data name="ManyPayloadCandidates" xml:space="preserve"><value>Several Global Elements match the Payload: choose one to validate it.</value></data>
   <data name="Compare" xml:space="preserve"><value>Compare</value></data>
-  <data name="CompareTip" xml:space="preserve"><value>Compare two open Schema Sets (e.g. the old and new package of a technical note)</value></data>
+  <data name="CompareTip" xml:space="preserve"><value>Compare two open Schema Sets: the before and after of a technical note</value></data>
   <data name="CompareTitle" xml:space="preserve"><value>Compare Schema Sets</value></data>
   <data name="Before" xml:space="preserve"><value>Before</value></data>
   <data name="After" xml:space="preserve"><value>After</value></data>
   <data name="NeedTwoSets" xml:space="preserve"><value>Open at least two Schema Sets to compare.</value></data>
   <data name="ComparisonTitle" xml:space="preserve"><value>Comparison: {0} → {1}</value></data>
-  <data name="OnlyChanged" xml:space="preserve"><value>Only changed</value></data>
+  <data name="OnlyChanged" xml:space="preserve"><value>Only with changes</value></data>
   <data name="OnlyChanges" xml:space="preserve"><value>Only changes</value></data>
   <data name="ShowDocumentation" xml:space="preserve"><value>Documentation changes</value></data>
   <data name="NextChange" xml:space="preserve"><value>Next change</value></data>
@@ -121,7 +121,7 @@
   <data name="CopySummary" xml:space="preserve"><value>Copy summary</value></data>
   <data name="SummaryCopied" xml:space="preserve"><value>Summary copied to the clipboard.</value></data>
   <data name="PairWith" xml:space="preserve"><value>Pair with…</value></data>
-  <data name="StatusAdded" xml:space="preserve"><value>new</value></data>
+  <data name="StatusAdded" xml:space="preserve"><value>added</value></data>
   <data name="StatusRemoved" xml:space="preserve"><value>removed</value></data>
   <data name="StatusModified" xml:space="preserve"><value>changed</value></data>
   <data name="StatusUnchanged" xml:space="preserve"><value>unchanged</value></data>

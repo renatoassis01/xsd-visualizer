@@ -66,17 +66,17 @@ public sealed class Comparison
             foreach (var pair in list) md.AppendLine($"- {pair.Name} ({Path.GetFileName(side(pair).SourceFile)})");
             md.AppendLine();
         }
-        Section("Global Elements novos", Pairs.Where(p => p.Status == PairStatus.Added), p => p.After!);
-        Section("Global Elements removidos", Pairs.Where(p => p.Status == PairStatus.Removed), p => p.Before!);
+        Section("Global Elements que entraram", Pairs.Where(p => p.Status == PairStatus.Added), p => p.After!);
+        Section("Global Elements que saíram", Pairs.Where(p => p.Status == PairStatus.Removed), p => p.Before!);
 
         var changed = Pairs.Where(p => p.Before is not null && p.After is not null && p.Changes(includeDocumentation).Count > 0).ToList();
         if (changed.Count > 0)
         {
-            md.AppendLine($"## Global Elements alterados ({changed.Count})").AppendLine();
+            md.AppendLine($"## Global Elements com mudanças ({changed.Count})").AppendLine();
             foreach (var pair in changed)
             {
                 md.AppendLine($"### {pair.Name} ({Path.GetFileName(pair.After!.SourceFile)})").AppendLine();
-                md.AppendLine("| Caminho | Change | Detalhes |").AppendLine("|---|---|---|");
+                md.AppendLine("| Caminho | Mudança | Detalhes |").AppendLine("|---|---|---|");
                 foreach (var change in pair.Changes(includeDocumentation))
                 {
                     var details = string.Join("; ", change.Differences

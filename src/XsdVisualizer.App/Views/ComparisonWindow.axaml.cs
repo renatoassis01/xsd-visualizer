@@ -31,7 +31,12 @@ public partial class ComparisonWindow : Window
         BeforeEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(BeforeEditor, AfterEditor);
         AfterEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(AfterEditor, BeforeEditor);
         ApplyTheme();
-        if (Application.Current is { } app) app.ActualThemeVariantChanged += (_, _) => ApplyTheme();
+        if (Application.Current is { } app)
+        {
+            EventHandler onTheme = (_, _) => ApplyTheme();
+            app.ActualThemeVariantChanged += onTheme;
+            Closed += (_, _) => app.ActualThemeVariantChanged -= onTheme;
+        }
     }
 
     private ComparisonViewModel? Vm => DataContext as ComparisonViewModel;
@@ -63,8 +68,18 @@ public partial class ComparisonWindow : Window
     /// <summary>Rola os dois lados até a primeira linha do elemento com esse caminho e a destaca.</summary>
     private void Reveal(string path)
     {
-        var lines = _afterLines.Lines.Any(l => l.Path == path) ? _afterLines.Lines : _beforeLines.Lines;
-        var index = lines.ToList().FindIndex(l => l.Path == path);
+        // Atributos (@x) e alternativas xsi:type (nome[T]) não têm linha própria: usa o elemento mais próximo.
+        var candidate = System.Text.RegularExpressions.Regex.Replace(path, @"\[[^\]]*\]", "");
+        var index = -1;
+        while (candidate.Length > 0)
+        {
+            var target = candidate;
+            index = _afterLines.Lines.ToList().FindIndex(l => l.Path == target);
+            if (index < 0) index = _beforeLines.Lines.ToList().FindIndex(l => l.Path == target);
+            if (index >= 0) break;
+            var slash = candidate.LastIndexOf('/');
+            candidate = slash < 0 ? "" : candidate[..slash];
+        }
         if (index < 0) return;
         _beforeLines.Highlighted = _afterLines.Highlighted = index;
         AfterEditor.ScrollTo(index + 1, 1);

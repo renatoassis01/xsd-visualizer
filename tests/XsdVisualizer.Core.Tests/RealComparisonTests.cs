@@ -19,4 +19,14 @@ public class RealComparisonTests
         Assert.Contains(diff.After, l => l.Kind == DiffLineKind.Added && l.Text.Contains("<IBSCBS>"));
         Assert.False(string.IsNullOrWhiteSpace(comparison.ToMarkdown()));
     }
+
+    [Fact]
+    public void The_nfe_package_compared_with_itself_has_no_changes()
+    {
+        var comparison = Comparison.Compare(
+            new SchemaSetLoader().Open(RealSchemaSetsTests.Fixture("PL_010_V1.30")),
+            new SchemaSetLoader().Open(RealSchemaSetsTests.Fixture("PL_010_V1.30")));
+
+        Assert.All(comparison.Pairs, p => Assert.Equal(PairStatus.Unchanged, p.Status));
+    }
 }
