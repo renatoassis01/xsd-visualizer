@@ -66,7 +66,7 @@ Durante a carga:
 - Imports remotos (por exemplo, `xmldsig`) usam uma cópia embutida dos schemas W3C mais comuns; depois, um cache local; e só então são baixados.
 - Cada arquivo que nenhum outro inclui é compilado separado, porque pastas reais costumam misturar versões que redefinem os mesmos nomes. Por isso um Global Element aparece com o nome **e** o arquivo em que foi declarado.
 
-Problemas encontrados na carga (arquivo malformado, tipo inexistente, construção de XSD 1.1, schema remoto indisponível) aparecem em laranja embaixo do nome do Schema Set, como *"12 Validation Issue(s) na carga"*. O resto do conjunto continua utilizável.
+Problemas encontrados na carga (arquivo malformado, tipo inexistente, construção de XSD 1.1, schema remoto indisponível) aparecem em laranja embaixo do nome do Schema Set, como *"12 Validation Issue(s) na carga"*. Clique no Schema Set para ver a lista na coluna do meio. Se um `include`/`import` aponta para um arquivo que não está na pasta, o nome dele aparece logo abaixo, como *"Falta: tiposBasico_v1.03.xsd"*. O resto do conjunto continua utilizável.
 
 Você pode ter vários Schema Sets abertos ao mesmo tempo, o que é necessário para [comparar](#10-comparar-duas-versões) e para [vincular Payloads de WSDL](#9-serviços-wsdl).
 

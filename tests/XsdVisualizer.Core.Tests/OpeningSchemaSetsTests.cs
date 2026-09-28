@@ -75,6 +75,26 @@ public class OpeningSchemaSetsTests
     }
 
     [Fact]
+    public void A_missing_included_file_is_named_instead_of_only_its_undeclared_types()
+    {
+        using var folder = new SchemaFolder(("evento.xsd", SchemaFolder.Xsd("""
+            <xs:include schemaLocation="tipos.xsd"/>
+            <xs:element name="evento" type="TCodigo"/>
+            """, "urn:loja")));
+
+        var set = new SchemaSetLoader().Open(folder.Path);
+
+        Assert.Empty(set.GlobalElements);
+        Assert.Equal(["tipos.xsd"], set.MissingFiles);
+        var missing = set.LoadIssues[0];
+        Assert.Equal("Arquivo não encontrado na pasta: tipos.xsd (referenciado por evento.xsd)", missing.Message);
+        Assert.Equal(folder.PathOf("evento.xsd"), missing.File);
+        Assert.Equal(3, missing.Line);
+        Assert.DoesNotContain(set.LoadIssues, i => i.Message.Contains("schemaLocation"));
+        Assert.Contains(set.LoadIssues, i => i.Message.Contains("TCodigo"));
+    }
+
+    [Fact]
     public void Opening_a_loose_xsd_opens_its_whole_folder()
     {
         using var folder = new SchemaFolder(

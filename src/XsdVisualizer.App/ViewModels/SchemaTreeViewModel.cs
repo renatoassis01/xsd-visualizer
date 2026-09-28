@@ -24,6 +24,8 @@ public sealed partial class SchemaTreeViewModel : ViewModelBase
 
     [ObservableProperty] public partial object? SelectedSchemaItem { get; set; }
     [ObservableProperty] public partial GlobalElementViewModel? SelectedElement { get; set; }
+    /// <summary>Schema Set selecionado na árvore (a coluna do meio mostra as Validation Issues da carga).</summary>
+    [ObservableProperty] public partial SchemaSetViewModel? SelectedSchemaSet { get; set; }
     [ObservableProperty] public partial OperationViewModel? SelectedOperation { get; set; }
     [ObservableProperty] public partial IReadOnlyList<SchemaNodeViewModel> TreeRoots { get; set; } = [];
     [ObservableProperty] public partial SchemaNodeViewModel? SelectedNode { get; set; }
@@ -31,6 +33,7 @@ public sealed partial class SchemaTreeViewModel : ViewModelBase
     public bool HasSelectedElement => SelectedElement is not null;
     public bool HasSelectedOperation => SelectedOperation is not null;
     public bool ShowElementPanel => SelectedOperation is null;
+    public bool ShowSelectElementHint => SelectedElement is null && SelectedSchemaSet is not { HasLoadIssues: true };
 
     partial void OnSelectedSchemaItemChanged(object? value)
     {
@@ -38,14 +41,23 @@ public sealed partial class SchemaTreeViewModel : ViewModelBase
         {
             case GlobalElementViewModel element:
                 SelectedOperation = null;
+                SelectedSchemaSet = null;
                 SelectedElement = element;
                 break;
             case OperationViewModel operation:
                 SelectedElement = null;
+                SelectedSchemaSet = null;
                 SelectedOperation = operation;
+                break;
+            case SchemaSetViewModel set:
+                SelectedElement = null;
+                SelectedOperation = null;
+                SelectedSchemaSet = set;
                 break;
         }
     }
+
+    partial void OnSelectedSchemaSetChanged(SchemaSetViewModel? value) => OnPropertyChanged(nameof(ShowSelectElementHint));
 
     partial void OnSelectedElementChanged(GlobalElementViewModel? oldValue, GlobalElementViewModel? newValue)
     {
@@ -64,6 +76,7 @@ public sealed partial class SchemaTreeViewModel : ViewModelBase
         if (TreeRoots.FirstOrDefault() is { } root) root.IsSelected = true;
         SearchText = "";
         OnPropertyChanged(nameof(HasSelectedElement));
+        OnPropertyChanged(nameof(ShowSelectElementHint));
         SelectionChanged?.Invoke();
     }
 
@@ -102,6 +115,7 @@ public sealed partial class SchemaTreeViewModel : ViewModelBase
     {
         if (SelectedElement is not null && set.GlobalElements.Contains(SelectedElement)) SelectedElement = null;
         if (SelectedOperation is not null && set.Operations.Contains(SelectedOperation)) SelectedOperation = null;
+        if (SelectedSchemaSet == set) SelectedSchemaSet = null;
     }
 
     /// <summary>O Global Element selecionado, se for deste Schema Set (lembrado antes de recarregá-lo).</summary>

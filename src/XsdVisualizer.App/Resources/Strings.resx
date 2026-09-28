@@ -14,6 +14,8 @@
   <data name="SchemaSets" xml:space="preserve"><value>Schema Sets</value></data>
   <data name="CloseSchemaSet" xml:space="preserve"><value>Fechar Schema Set</value></data>
   <data name="LoadIssuesCount" xml:space="preserve"><value>{0} Validation Issue(s) na carga</value></data>
+  <data name="MissingFiles" xml:space="preserve"><value>Falta: {0}</value></data>
+  <data name="LoadIssuesTitle" xml:space="preserve"><value>Validation Issues na carga de {0}</value></data>
   <data name="SelectElementHint" xml:space="preserve"><value>Selecione um Global Element à esquerda.</value></data>
   <data name="SearchTree" xml:space="preserve"><value>Pesquisar por nome ou documentação</value></data>
   <data name="Maximal" xml:space="preserve"><value>Maximal</value></data>

@@ -27,6 +27,14 @@ public sealed class SchemaSetViewModel : ViewModelBase
     public IReadOnlyList<ValidationIssue> LoadIssues => Model.LoadIssues;
     public bool HasLoadIssues => LoadIssues.Count > 0;
     public string LoadIssuesSummary => string.Format(Strings.LoadIssuesCount, LoadIssues.Count);
+    public string LoadIssuesTitle => string.Format(Strings.LoadIssuesTitle, Name);
+    public bool HasMissingFiles => Model.MissingFiles.Count > 0;
+    public string MissingFilesSummary => string.Format(Strings.MissingFiles, string.Join(", ", Model.MissingFiles));
 
-    public void RefreshTexts() => OnPropertyChanged(nameof(LoadIssuesSummary));
+    public void RefreshTexts()
+    {
+        OnPropertyChanged(nameof(LoadIssuesSummary));
+        OnPropertyChanged(nameof(LoadIssuesTitle));
+        OnPropertyChanged(nameof(MissingFilesSummary));
+    }
 }

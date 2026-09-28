@@ -66,7 +66,7 @@ While loading:
 - Remote imports (for example `xmldsig`) use embedded copies of the most common W3C schemas first, then a local cache, and only then a download.
 - Every file that no other file includes is compiled on its own, because real folders often mix versions that redefine the same names. That is why a Global Element is shown with its name **and** the file that declares it.
 
-Problems found while loading (malformed file, missing type, XSD 1.1 construct, unavailable remote schema) show in orange under the Schema Set name, for example *"12 Validation Issue(s) while loading"*. The rest of the set remains usable.
+Problems found while loading (malformed file, missing type, XSD 1.1 construct, unavailable remote schema) show in orange under the Schema Set name, for example *"12 Validation Issue(s) while loading"*. Click the Schema Set to see the list in the middle column. If an `include`/`import` points to a file that isn't in the folder, its name shows right below, for example *"Missing: tiposBasico_v1.03.xsd"*. The rest of the set remains usable.
 
 You can have several Schema Sets open at once. You need that to [compare](#10-comparing-two-versions) and to [bind WSDL Payloads](#9-services-wsdl).
 
