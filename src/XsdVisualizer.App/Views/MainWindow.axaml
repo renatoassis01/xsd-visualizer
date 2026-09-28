@@ -69,10 +69,9 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="x:String">
                                             <!-- Conteúdo em TextBlock: texto direto no Button trata "_" como tecla de atalho e some com ele. -->
+                                            <!-- Sem Command: fechar o flyout desliga o $parent[Window] antes de o comando rodar. -->
                                             <Button Classes="toolbar" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                                                    ToolTip.Tip="{Binding}" Click="OnRecentClick"
-                                                    Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenRecentCommand}"
-                                                    CommandParameter="{Binding}">
+                                                    ToolTip.Tip="{Binding}" Click="OnRecentClick">
                                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                                                     <PathIcon Data="{StaticResource IconFolder}" Foreground="{StaticResource FolderBrush}"
                                                               Width="20" Height="20" VerticalAlignment="Center" />

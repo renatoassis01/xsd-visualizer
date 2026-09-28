@@ -21,8 +21,8 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     {
         _session = session;
         var saved = session.Current;
-        Recent = new(saved.Recent);
-        foreach (var folder in saved.OpenSchemaSets.Where(Directory.Exists))
+        Recent = new(SessionStore.Normalize(saved.Recent));
+        foreach (var folder in SessionStore.Normalize(saved.OpenSchemaSets).Where(Directory.Exists))
             _ = OpenSchemaSetAsync(folder, remember: false);
     }
 
@@ -159,9 +159,6 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         if (Dialogs is null || await Dialogs.PickXmlFileAsync(Strings.ChooseXml) is not { } file) return;
         await OpenDocumentAsync(file);
     }
-
-    [RelayCommand]
-    private Task OpenRecent(string folder) => OpenSchemaSetAsync(folder);
 
     /// <summary>Trata o que foi arrastado: pastas e .xsd abrem Schema Sets; .xml abre Documents.</summary>
     public async Task OpenDroppedAsync(IEnumerable<string> paths)

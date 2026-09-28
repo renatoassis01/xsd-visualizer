@@ -60,7 +60,12 @@ public partial class MainWindow : Window, IDialogService
 
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(this);
 
-    private void OnRecentClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => RecentButton.Flyout?.Hide();
+    private async void OnRecentClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Button { DataContext: string folder } || DataContext is not MainViewModel vm) return;
+        RecentButton.Flyout?.Hide();
+        await vm.OpenSchemaSetAsync(folder);
+    }
 
     private void OnSettingsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
         (Avalonia.Application.Current as App)?.ShowSettings();

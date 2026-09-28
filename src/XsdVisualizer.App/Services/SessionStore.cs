@@ -63,6 +63,11 @@ public sealed class SessionStore
         }
     }
 
+    /// <summary>Coloca a pasta no topo dos recentes, sem duplicar ("pasta" e "pasta/" são a mesma).</summary>
     public static List<string> Touch(IEnumerable<string> recent, string folder) =>
-        recent.Where(r => !string.Equals(r, folder, StringComparison.Ordinal)).Prepend(folder).Take(MaxRecent).ToList();
+        Normalize(recent.Prepend(folder)).Take(MaxRecent).ToList();
+
+    /// <summary>Remove separador final e duplicatas, mantendo a ordem.</summary>
+    public static IEnumerable<string> Normalize(IEnumerable<string> folders) =>
+        folders.Select(Path.TrimEndingDirectorySeparator).Distinct(StringComparer.Ordinal);
 }
