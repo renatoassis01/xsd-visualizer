@@ -65,7 +65,7 @@ public sealed partial class Operation
                 if (payload!.Compressed)
                 {
                     writer.WriteString(Compress(compact));
-                    readablePayload = payloadRoot.ToString();
+                    readablePayload = payloadRoot.ToString().ReplaceLineEndings("\n");
                 }
                 else writer.WriteString(compact);
                 writer.WriteEndElement();
@@ -154,7 +154,7 @@ public sealed partial class Operation
                 }
             }
             // Formatado, para as posições baterem com o Payload exibido.
-            try { text = XDocument.Parse(text).ToString(); } catch (XmlException) { }
+            try { text = XDocument.Parse(text).ToString().ReplaceLineEndings("\n"); } catch (XmlException) { }
             decompressed = payload.Compressed ? text : null;
             issues.AddRange(payload.Element.Validate(text).Select(i => i with { InPayload = true }));
         }
