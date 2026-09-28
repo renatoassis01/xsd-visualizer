@@ -18,6 +18,7 @@ public partial class XmlEditorView : UserControl
         InitializeComponent();
         XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
         Editor.SyntaxHighlighting = XmlHighlighting.Definition;
+        Editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(Application.Current?.ActualThemeVariant);
         Editor.TextArea.TextView.BackgroundRenderers.Add(_underlines);
         IssueList.SelectionChanged += (_, _) =>
         {
@@ -40,6 +41,7 @@ public partial class XmlEditorView : UserControl
     private void OnThemeChanged(object? sender, EventArgs e)
     {
         XmlHighlighting.Apply(Application.Current?.ActualThemeVariant);
+        Editor.TextArea.TextView.LinkTextForegroundBrush = XmlHighlighting.LinkBrush(Application.Current?.ActualThemeVariant);
         Editor.TextArea.TextView.Redraw();
     }
 

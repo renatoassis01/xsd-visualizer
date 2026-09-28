@@ -25,6 +25,12 @@ internal static class XmlHighlighting
 
     private static Dictionary<string, HighlightingBrush?>? _light;
 
+    // URLs viram links no editor; o azul padrão do AvaloniaEdit é forte demais no fundo escuro.
+    private static readonly IBrush LightLink = new SolidColorBrush(Color.Parse("#0B57D0"));
+    private static readonly IBrush DarkLink = new SolidColorBrush(Color.Parse("#8AB4F8"));
+
+    public static IBrush LinkBrush(ThemeVariant? variant) => variant == ThemeVariant.Dark ? DarkLink : LightLink;
+
     public static IHighlightingDefinition Definition => HighlightingManager.Instance.GetDefinition("XML");
 
     public static void Apply(ThemeVariant? variant)
