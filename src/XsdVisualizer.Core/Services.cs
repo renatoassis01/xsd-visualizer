@@ -72,6 +72,8 @@ public sealed partial class Operation
         Request = request;
         Response = response;
         WsdlSchemas = wsdlSchemas;
+        request.Operation = this;
+        response.Operation = this;
     }
 
     public string Name { get; }
@@ -103,6 +105,8 @@ public sealed class OperationMessage
     }
 
     public MessageDirection Direction { get; }
+    /// <summary>A Operation de que esta é a Request ou a Response.</summary>
+    public Operation Operation { get; internal set; } = null!;
     internal XmlSchemaElement Body { get; }
     internal IReadOnlyList<XmlSchemaElement> Headers { get; }
 
@@ -112,6 +116,25 @@ public sealed class OperationMessage
 
     /// <summary>O Body é uma string (Payload como texto, em geral gzip+base64) em vez de conteúdo XML livre.</summary>
     public bool BodyIsString => Body.ElementSchemaType is XmlSchemaSimpleType;
+
+    /// <summary>
+    /// Envelopes desta mensagem: o Payload varia conforme <paramref name="kind"/> (gerado pelo Global Element do
+    /// <paramref name="payload"/>); o envelope por fora, os headers e o Body seguem o WSDL e o <paramref name="endpoint"/>
+    /// (padrão: o da Operation). <paramref name="pins"/>: ramos fixados na árvore do Payload, usados pelo Maximal.
+    /// </summary>
+    public IReadOnlyList<Sample> GenerateEnvelopes(SampleKind kind, Endpoint? endpoint = null, PayloadBinding? payload = null,
+        IReadOnlyDictionary<string, int>? pins = null) =>
+        Operation.GenerateEnvelopes(Direction, kind, endpoint, payload, pins);
+
+    /// <summary>
+    /// Valida um Envelope desta mensagem em camadas, numa passada: o envelope contra o schema do SOAP, o Body contra
+    /// o schema do WSDL e o Payload contra o Global Element do <paramref name="payload"/>. Payload compactado (ou em
+    /// string) é validado à parte; suas Validation Issues se referem ao Payload descompactado (InPayload).
+    /// </summary>
+    public EnvelopeValidation ValidateEnvelope(string xml, PayloadBinding? payload) =>
+        Operation.ValidateEnvelope(xml, Direction, payload);
+
+    public override string ToString() => $"{Operation}/{Direction.Label()}";
 }
 
 /// <summary>Ligação da Request/Response de uma Operation ao Global Element do seu Payload.</summary>

@@ -5,8 +5,8 @@ namespace XsdVisualizer.App.ViewModels;
 /// <summary>Onde ficam os Payload Bindings e o Endpoint escolhido de cada Operation (persistidos na sessão).</summary>
 public interface IPayloadBindings
 {
-    PayloadBinding? Get(Operation operation, MessageDirection direction);
-    void Set(Operation operation, MessageDirection direction, GlobalElement? element, bool compressed);
+    PayloadBinding? Get(OperationMessage message);
+    void Set(OperationMessage message, GlobalElement? element, bool compressed);
     string? GetEndpoint(Operation operation);
     void SetEndpoint(Operation operation, Endpoint endpoint);
     IReadOnlyList<GlobalElementChoice> PayloadChoices { get; }

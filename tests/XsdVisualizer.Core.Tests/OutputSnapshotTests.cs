@@ -50,17 +50,17 @@ public class OutputSnapshotTests
             var zip = service.Operations.Single(o => o.Name == "nfeAutorizacaoLoteZip");
             foreach (var endpoint in lote.Endpoints)
             {
-                var request = lote.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal, endpoint, enviNFe)[0];
+                var request = lote.Request.GenerateEnvelopes(SampleKind.Maximal, endpoint, enviNFe)[0];
                 yield return ($"{id}/{endpoint.Name}/lote.request.max", request.Xml + Issues(request.Issues));
-                var response = lote.GenerateEnvelopes(MessageDirection.Response, SampleKind.Minimal, endpoint, retEnviNFe)[0];
+                var response = lote.Response.GenerateEnvelopes(SampleKind.Minimal, endpoint, retEnviNFe)[0];
                 yield return ($"{id}/{endpoint.Name}/lote.response.min", response.Xml + Issues(response.Issues));
             }
-            var compressed = zip.GenerateEnvelopes(MessageDirection.Request, SampleKind.Minimal, payload: enviNFe with { Compressed = true })[0];
+            var compressed = zip.Request.GenerateEnvelopes(SampleKind.Minimal, payload: enviNFe with { Compressed = true })[0];
             yield return ($"{id}/zip.request.min", compressed.Xml + compressed.Payload);
-            var unbound = lote.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal)[0];
+            var unbound = lote.Request.GenerateEnvelopes(SampleKind.Maximal)[0];
             yield return ($"{id}/lote.request.unbound", unbound.Xml + Issues(unbound.Issues));
-            var invalid = lote.ValidateEnvelope(unbound.Xml.Replace("<nfeDadosMsg", "<nfeResultMsg").Replace("</nfeDadosMsg>", "</nfeResultMsg>"),
-                MessageDirection.Request, enviNFe);
+            var invalid = lote.Request.ValidateEnvelope(unbound.Xml.Replace("<nfeDadosMsg", "<nfeResultMsg").Replace("</nfeDadosMsg>", "</nfeResultMsg>"),
+                enviNFe);
             yield return ($"{id}/lote.invalid", Issues(invalid.Issues));
         }
 

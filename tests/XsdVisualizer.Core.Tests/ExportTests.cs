@@ -40,7 +40,7 @@ public class ExportTests
         var pedido = new PayloadBinding(set.GlobalElements.Single(e => e.Name == "pedido"), false);
 
         var result = SampleExporter.ExportAll(set, output.Path,
-            payloadBindings: (operation, direction) => operation.Name == "enviar" && direction == MessageDirection.Request ? pedido : null);
+            payloadBindings: m => m.Operation.Name == "enviar" && m.Direction == MessageDirection.Request ? pedido : null);
 
         var services = Path.Combine(output.Path, set.Name, "_servicos", "Pedidos");
         Assert.Equal(
@@ -59,7 +59,7 @@ public class ExportTests
         var pedido = new PayloadBinding(set.GlobalElements.Single(e => e.Name == "pedido"), false);
 
         SampleExporter.ExportAll(set, output.Path,
-            payloadBindings: (o, d) => o.Name == "enviar" && d == MessageDirection.Request ? pedido : null,
+            payloadBindings: m => m.Operation.Name == "enviar" && m.Direction == MessageDirection.Request ? pedido : null,
             endpoints: o => o.Endpoints.Single(e => e.SoapVersion == SoapVersion.Soap11));
 
         var services = Path.Combine(output.Path, set.Name, "_servicos");

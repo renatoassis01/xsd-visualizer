@@ -85,10 +85,10 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
     /// <summary>Fixar um ramo na árvore do Payload regera o Envelope Maximal (aba atualizada no lugar).</summary>
     private async void OnEnvelopePinsChanged(OperationViewModel operation)
     {
-        var (direction, endpoint, binding) = (operation.Direction, operation.SelectedEndpoint, operation.CurrentBinding);
+        var (message, endpoint, binding) = (operation.Message, operation.SelectedEndpoint, operation.CurrentBinding);
         var pins = new Dictionary<string, int>(operation.PayloadOwner?.Pins ?? new());
-        var sample = (await Task.Run(() => operation.Model.GenerateEnvelopes(direction, SampleKind.Maximal, endpoint, binding, pins)))[0];
-        ShowSamples(t => t.IsMaximalEnvelopeOf(operation.Model, direction), $"{operation.Name} · {DirectionLabel(direction)} · max", [sample]);
+        var sample = (await Task.Run(() => message.GenerateEnvelopes(SampleKind.Maximal, endpoint, binding, pins)))[0];
+        ShowSamples(t => t.IsMaximalEnvelopeOf(message), $"{operation.Name} · {DirectionLabel(message.Direction)} · max", [sample]);
     }
 
     private void ShowSamples(Func<EditorTabViewModel, bool> existing, string title, IReadOnlyList<Sample> samples)
@@ -336,20 +336,17 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         foreach (var operation in SchemaSets.SelectMany(s => s.Operations)) operation.RefreshChoices();
     }
 
-    private static string OperationKey(Operation operation) =>
-        $"{operation.Service.SourceFile}|{operation.Service.Name}|{operation.Name}";
-
-    public PayloadBinding? Get(Operation operation, MessageDirection direction)
+    public PayloadBinding? Get(OperationMessage message)
     {
-        if (!_session.Current.PayloadBindings.TryGetValue($"{OperationKey(operation)}|{direction}", out var saved)) return null;
+        if (!_session.Current.PayloadBindings.TryGetValue(SessionKeys.Of(message), out var saved)) return null;
         var element = SchemaSets.SelectMany(s => s.Model.GlobalElements).FirstOrDefault(e =>
             e.Name == saved.ElementName && e.Namespace == saved.ElementNamespace && e.SourceFile == saved.ElementSourceFile);
         return element is null ? null : new PayloadBinding(element, saved.Compressed);
     }
 
-    public void Set(Operation operation, MessageDirection direction, GlobalElement? element, bool compressed)
+    public void Set(OperationMessage message, GlobalElement? element, bool compressed)
     {
-        var key = $"{OperationKey(operation)}|{direction}";
+        var key = SessionKeys.Of(message);
         if (element is null) _session.Current.PayloadBindings.Remove(key);
         else _session.Current.PayloadBindings[key] = new SavedPayloadBinding
         {
@@ -366,11 +363,11 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         GetEndpoint(operation) is { } name ? operation.Endpoints.FirstOrDefault(e => e.Name == name) : null;
 
     public string? GetEndpoint(Operation operation) =>
-        _session.Current.Endpoints.GetValueOrDefault(OperationKey(operation));
+        _session.Current.Endpoints.GetValueOrDefault(SessionKeys.Of(operation));
 
     public void SetEndpoint(Operation operation, Endpoint endpoint)
     {
-        _session.Current.Endpoints[OperationKey(operation)] = endpoint.Name;
+        _session.Current.Endpoints[SessionKeys.Of(operation)] = endpoint.Name;
         _session.Save();
     }
 
@@ -426,12 +423,12 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
 
     private async Task GenerateEnvelopesAsync(OperationViewModel operation, SampleKind kind, string suffix)
     {
-        var (direction, endpoint, binding) = (operation.Direction, operation.SelectedEndpoint, operation.CurrentBinding);
+        var (message, endpoint, binding) = (operation.Message, operation.SelectedEndpoint, operation.CurrentBinding);
         var pins = new Dictionary<string, int>(operation.PayloadOwner?.Pins ?? new());
         await RunBusy(string.Format(Strings.Generating, operation.Name), async () =>
         {
-            var samples = await Task.Run(() => operation.Model.GenerateEnvelopes(direction, kind, endpoint, binding, pins));
-            var tab = EditorTabViewModel.ForSamples($"{operation.Name} · {DirectionLabel(direction)} · {suffix}", samples);
+            var samples = await Task.Run(() => message.GenerateEnvelopes(kind, endpoint, binding, pins));
+            var tab = EditorTabViewModel.ForSamples($"{operation.Name} · {DirectionLabel(message.Direction)} · {suffix}", samples);
             Tabs.Add(tab);
             // Payload compactado: o legível abre ao lado; o Envelope continua em foco.
             if (tab.PayloadText is { } payload)

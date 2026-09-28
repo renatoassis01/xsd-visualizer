@@ -18,7 +18,7 @@ public class EnvelopeValidationTests
         using var folder = WsdlFixture.Folder();
         var (_, enviar, _, pedido) = Open(folder);
 
-        var result = enviar.ValidateEnvelope($"""
+        var result = enviar.Request.ValidateEnvelope($"""
             <soap:Envelope xmlns:soap="{Soap12}">
               <soap:Body>
                 <dadosMsg xmlns="{WsdlFixture.Tns}">
@@ -30,7 +30,7 @@ public class EnvelopeValidationTests
                 </dadosMsg>
               </soap:Body>
             </soap:Envelope>
-            """, MessageDirection.Request, pedido);
+            """, pedido);
 
         var issue = Assert.Single(result.Issues);
         Assert.Equal(7, issue.Line);
@@ -43,9 +43,9 @@ public class EnvelopeValidationTests
         using var folder = WsdlFixture.Folder();
         var (_, enviar, _, pedido) = Open(folder);
 
-        var result = enviar.ValidateEnvelope($"""
+        var result = enviar.Request.ValidateEnvelope($"""
             <soap:Envelope xmlns:soap="{Soap12}"><soap:Body><resultMsg xmlns="{WsdlFixture.Tns}"/></soap:Body></soap:Envelope>
-            """, MessageDirection.Request, pedido);
+            """, pedido);
 
         Assert.Contains(result.Issues, i => i.Message.Contains("dadosMsg"));
     }
@@ -59,9 +59,9 @@ public class EnvelopeValidationTests
         var payload = """<pedido xmlns="urn:loja"><numero>um</numero><CPF>1</CPF><uf>SP</uf></pedido>""";
         var base64 = Convert.ToBase64String(Gzip(payload));
 
-        var result = enviarZip.ValidateEnvelope($"""
+        var result = enviarZip.Request.ValidateEnvelope($"""
             <soap:Envelope xmlns:soap="{Soap12}"><soap:Body><dadosMsgZip xmlns="{WsdlFixture.Tns}">{base64}</dadosMsgZip></soap:Body></soap:Envelope>
-            """, MessageDirection.Request, compressed);
+            """, compressed);
 
         var issue = Assert.Single(result.Issues);
         Assert.True(issue.InPayload);
@@ -76,9 +76,9 @@ public class EnvelopeValidationTests
         using var folder = WsdlFixture.Folder();
         var (_, _, enviarZip, pedido) = Open(folder);
 
-        var result = enviarZip.ValidateEnvelope($"""
+        var result = enviarZip.Request.ValidateEnvelope($"""
             <soap:Envelope xmlns:soap="{Soap12}"><soap:Body><dadosMsgZip xmlns="{WsdlFixture.Tns}">não é base64</dadosMsgZip></soap:Body></soap:Envelope>
-            """, MessageDirection.Request, pedido with { Compressed = true });
+            """, pedido with { Compressed = true });
 
         Assert.Contains(result.Issues, i => i.Message.Contains("gzip+base64"));
     }
@@ -97,11 +97,11 @@ public class EnvelopeValidationTests
         using var folder = WsdlFixture.Folder();
         var (_, enviar, _, pedido) = Open(folder);
 
-        var result = enviar.ValidateEnvelope($"""
+        var result = enviar.Request.ValidateEnvelope($"""
             <soap:Envelope xmlns:soap="{Soap12}"><soap:Body>
               <dadosMsg xmlns="{WsdlFixture.Tns}"><retPedido xmlns="urn:loja"><cStat>1</cStat></retPedido></dadosMsg>
             </soap:Body></soap:Envelope>
-            """, MessageDirection.Request, pedido);
+            """, pedido);
 
         Assert.Contains(result.Issues, i => i.Message.Contains("pedido") && i.Message.Contains("retPedido"));
     }

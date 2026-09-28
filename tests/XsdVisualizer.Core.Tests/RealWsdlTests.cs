@@ -33,9 +33,9 @@ public class RealWsdlTests
         var enviNFe = new PayloadBinding(Element("enviNFe", "enviNFe_v4.00.xsd"), false);
         var retEnviNFe = new PayloadBinding(Element("retEnviNFe", "retEnviNFe_v4.00.xsd"), false);
 
-        var envelopes = lote.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal, payload: enviNFe)
-            .Concat(lote.GenerateEnvelopes(MessageDirection.Response, SampleKind.Maximal, payload: retEnviNFe))
-            .Concat(zip.GenerateEnvelopes(MessageDirection.Request, SampleKind.Minimal, payload: enviNFe with { Compressed = true }))
+        var envelopes = lote.Request.GenerateEnvelopes(SampleKind.Maximal, payload: enviNFe)
+            .Concat(lote.Response.GenerateEnvelopes(SampleKind.Maximal, payload: retEnviNFe))
+            .Concat(zip.Request.GenerateEnvelopes(SampleKind.Minimal, payload: enviNFe with { Compressed = true }))
             .ToList();
 
         Assert.All(envelopes, e => Assert.True(e.IsValid, $"{e.FileName}: {string.Join("\n", e.Issues.Take(5))}"));

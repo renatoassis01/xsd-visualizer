@@ -9,11 +9,11 @@ namespace XsdVisualizer.App.ViewModels;
 
 public sealed record SampleItem(Sample Sample, string Display);
 
-/// <summary>Uma Operation e direção candidatas para um Envelope trazido pelo usuário.</summary>
-public sealed record OperationChoice(OperationCandidate Candidate)
+/// <summary>Uma Request/Response candidata para um Envelope trazido pelo usuário.</summary>
+public sealed record OperationChoice(OperationMessage Message)
 {
     public string Display =>
-        $"{Candidate.Operation.Service.Name} / {Candidate.Operation.Name} ({DirectionText.Of(Candidate.Direction)})   [{Candidate.Operation.Service.FileName}]";
+        $"{Message.Operation.Service.Name} / {Message.Operation.Name} ({DirectionText.Of(Message.Direction)})   [{Message.Operation.Service.FileName}]";
     public override string ToString() => Display;
 }
 
@@ -25,7 +25,7 @@ public sealed partial class EditorTabViewModel : ViewModelBase
 {
     private int _validationVersion;
     private bool _loadingText;
-    private Func<Operation, MessageDirection, PayloadBinding?> _savedPayloads = (_, _) => null;
+    private Func<OperationMessage, PayloadBinding?> _savedPayloads = _ => null;
     private Func<string, IReadOnlyList<ValidationIssue>>? _payloadValidator;
 
     private EditorTabViewModel(string title, string text)
@@ -41,7 +41,7 @@ public sealed partial class EditorTabViewModel : ViewModelBase
     }
 
     public static EditorTabViewModel ForDocument(string path, string text, IEnumerable<SchemaSet> openSets,
-        Func<Operation, MessageDirection, PayloadBinding?> savedPayloads)
+        Func<OperationMessage, PayloadBinding?> savedPayloads)
     {
         var tab = new EditorTabViewModel(Path.GetFileName(path), text) { FilePath = path, IsDocument = true, _savedPayloads = savedPayloads };
         tab.RefreshBinding(openSets);
@@ -85,8 +85,8 @@ public sealed partial class EditorTabViewModel : ViewModelBase
         SampleItems is [{ Sample: { Kind: SampleKind.Maximal } sample }] && sample.Element == element;
 
     /// <summary>Um só Envelope Maximal dessa Operation e direção (regerado quando um ramo do Payload é fixado).</summary>
-    public bool IsMaximalEnvelopeOf(Operation operation, MessageDirection direction) =>
-        SampleItems is [{ Sample: { Kind: SampleKind.Maximal } sample }] && sample.Operation == operation && sample.Direction == direction;
+    public bool IsMaximalEnvelopeOf(OperationMessage message) =>
+        SampleItems is [{ Sample: { Kind: SampleKind.Maximal } sample }] && sample.Operation == message.Operation && sample.Direction == message.Direction;
 
     /// <summary>Troca os Samples da aba (ex.: Maximal regerado), mantendo a aba aberta.</summary>
     public void ReplaceSamples(IReadOnlyList<Sample> samples)
@@ -161,9 +161,8 @@ public sealed partial class EditorTabViewModel : ViewModelBase
 
     /// <summary>Payload Binding salvo da Operation vinculada ou, sem ele, o Global Element da raiz do Payload.</summary>
     private PayloadBinding? CurrentPayloadBinding =>
-        BoundOperation?.Candidate is { } c
-            ? _savedPayloads(c.Operation, c.Direction)
-              ?? (BoundElement?.Model is { } root ? new PayloadBinding(root, c.Operation.Message(c.Direction).BodyIsString) : null)
+        BoundOperation?.Message is { } m
+            ? _savedPayloads(m) ?? (BoundElement?.Model is { } root ? new PayloadBinding(root, m.BodyIsString) : null)
             : null;
 
     private void UpdateEnvelopeMessage()
@@ -186,14 +185,14 @@ public sealed partial class EditorTabViewModel : ViewModelBase
         IsEnvelope = binding.IsEnvelope;
         if (binding.IsEnvelope)
         {
-            var previousOperation = BoundOperation?.Candidate;
-            var operations = binding.OperationCandidates.Select(c => new OperationChoice(c)).ToList();
+            var previousOperation = BoundOperation?.Message;
+            var operations = binding.MessageCandidates.Select(m => new OperationChoice(m)).ToList();
             _envelopeBody = operations.Count == 0 ? BodyElementName(Document.Text) : null;
             Candidates = binding.Candidates.Select(c => new GlobalElementViewModel(c, showSourceFile: true)).ToList();
             BoundElement = binding.Bound is { } payloadRoot ? Candidates.Single(c => c.Model == payloadRoot) : null;
             OperationCandidates = operations;
-            BoundOperation = operations.FirstOrDefault(o => o.Candidate == previousOperation)
-                ?? (binding.BoundOperation is { } only ? operations.Single(o => o.Candidate == only) : null);
+            BoundOperation = operations.FirstOrDefault(o => o.Message == previousOperation)
+                ?? (binding.BoundMessage is { } only ? operations.Single(o => o.Message == only) : null);
             UpdateEnvelopeMessage();
             ScheduleValidation(immediate: true);
             return;
@@ -228,11 +227,11 @@ public sealed partial class EditorTabViewModel : ViewModelBase
                 return SelectedSampleItem?.Sample is { } sample ? text => (sample.Validate(text), null) : null;
             if (IsEnvelope)
             {
-                if (BoundOperation?.Candidate is not { } c) return null;
+                if (BoundOperation?.Message is not { } message) return null;
                 var binding = CurrentPayloadBinding;
                 return text =>
                 {
-                    var result = c.Operation.ValidateEnvelope(text, c.Direction, binding);
+                    var result = message.ValidateEnvelope(text, binding);
                     return (result.Issues, result.DecompressedPayload);
                 };
             }

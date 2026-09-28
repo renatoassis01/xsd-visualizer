@@ -3,9 +3,6 @@ using System.Xml.Linq;
 
 namespace XsdVisualizer.Core;
 
-/// <summary>Uma Operation e a direção (Request/Response) cujo Body casa com o de um Envelope.</summary>
-public sealed record OperationCandidate(Operation Operation, MessageDirection Direction);
-
 /// <summary>
 /// Binding de um Document: os Global Elements (dos Schema Sets abertos) com o mesmo nome e namespace
 /// da raiz do XML. Com um só candidato, o vínculo é automático; com vários, o usuário escolhe.
@@ -15,13 +12,13 @@ public sealed record OperationCandidate(Operation Operation, MessageDirection Di
 public sealed class DocumentBinding
 {
     private DocumentBinding(string? rootName, string? rootNamespace, IReadOnlyList<GlobalElement> candidates,
-        bool isEnvelope, IReadOnlyList<OperationCandidate> operationCandidates)
+        bool isEnvelope, IReadOnlyList<OperationMessage> messageCandidates)
     {
         RootName = rootName;
         RootNamespace = rootNamespace;
         Candidates = candidates;
         IsEnvelope = isEnvelope;
-        OperationCandidates = operationCandidates;
+        MessageCandidates = messageCandidates;
     }
 
     public string? RootName { get; }
@@ -30,8 +27,9 @@ public sealed class DocumentBinding
     public GlobalElement? Bound => Candidates.Count == 1 ? Candidates[0] : null;
 
     public bool IsEnvelope { get; }
-    public IReadOnlyList<OperationCandidate> OperationCandidates { get; }
-    public OperationCandidate? BoundOperation => OperationCandidates.Count == 1 ? OperationCandidates[0] : null;
+    /// <summary>Requests/Responses (de Operations abertas) cujo Body casa com o do Envelope.</summary>
+    public IReadOnlyList<OperationMessage> MessageCandidates { get; }
+    public OperationMessage? BoundMessage => MessageCandidates.Count == 1 ? MessageCandidates[0] : null;
 
     public static DocumentBinding Find(string xml, IEnumerable<SchemaSet> openSchemaSets)
     {
@@ -54,9 +52,8 @@ public sealed class DocumentBinding
         var wrapper = root.Element(XName.Get("Body", ns))?.Elements().FirstOrDefault();
         var operations = wrapper is null ? [] : sets
             .SelectMany(s => s.Services).SelectMany(s => s.Operations)
-            .SelectMany(o => new[] { o.Request, o.Response }
-                .Where(m => m.BodyElementName == wrapper.Name.LocalName && m.BodyElementNamespace == wrapper.Name.NamespaceName)
-                .Select(m => new OperationCandidate(o, m.Direction)))
+            .SelectMany(o => new[] { o.Request, o.Response })
+            .Where(m => m.BodyElementName == wrapper.Name.LocalName && m.BodyElementNamespace == wrapper.Name.NamespaceName)
             .ToList();
         var payloadRoot = wrapper?.Elements().FirstOrDefault();
         var payloadCandidates = payloadRoot is null ? [] : ElementsNamed(sets, payloadRoot.Name);

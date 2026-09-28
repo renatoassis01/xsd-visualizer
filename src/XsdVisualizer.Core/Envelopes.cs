@@ -18,8 +18,8 @@ public sealed partial class Operation
     /// do <paramref name="payload"/>); o envelope por fora, os headers e o Body seguem o WSDL e o <paramref name="endpoint"/>.
     /// <paramref name="pins"/>: ramos fixados na árvore do Payload, usados pelo Maximal.
     /// </summary>
-    public IReadOnlyList<Sample> GenerateEnvelopes(MessageDirection direction, SampleKind kind,
-        Endpoint? endpoint = null, PayloadBinding? payload = null, IReadOnlyDictionary<string, int>? pins = null)
+    internal IReadOnlyList<Sample> GenerateEnvelopes(MessageDirection direction, SampleKind kind,
+        Endpoint? endpoint, PayloadBinding? payload, IReadOnlyDictionary<string, int>? pins)
     {
         endpoint ??= DefaultEndpoint;
         var message = Message(direction);
@@ -101,7 +101,7 @@ public sealed partial class Operation
     /// o schema do WSDL e o Payload contra o Global Element do <paramref name="payload"/>. Payload compactado (ou em
     /// string) é validado à parte; suas Validation Issues se referem ao Payload descompactado (InPayload).
     /// </summary>
-    public EnvelopeValidation ValidateEnvelope(string xml, MessageDirection direction, PayloadBinding? payload)
+    internal EnvelopeValidation ValidateEnvelope(string xml, MessageDirection direction, PayloadBinding? payload)
     {
         var message = Message(direction);
         XDocument document;

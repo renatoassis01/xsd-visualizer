@@ -19,8 +19,8 @@ public class EnvelopeBindingTests
         Assert.True(binding.IsEnvelope);
         // resultMsg é a Response de enviar e de enviarZip: dois candidatos, o usuário escolhe.
         Assert.Equal(["enviar Response", "enviarZip Response"],
-            binding.OperationCandidates.Select(c => $"{c.Operation.Name} {c.Direction}").Order());
-        Assert.Null(binding.BoundOperation);
+            binding.MessageCandidates.Select(c => $"{c.Operation.Name} {c.Direction}").Order());
+        Assert.Null(binding.BoundMessage);
         Assert.Equal("retPedido", Assert.Single(binding.Candidates).Name);
     }
 
@@ -34,7 +34,7 @@ public class EnvelopeBindingTests
             <soap:Envelope xmlns:soap="{Soap12}"><soap:Body><dadosMsg xmlns="{WsdlFixture.Tns}"/></soap:Body></soap:Envelope>
             """, [set]);
 
-        Assert.Equal(("enviar", MessageDirection.Request), (binding.BoundOperation!.Operation.Name, binding.BoundOperation.Direction));
+        Assert.Equal(("enviar", MessageDirection.Request), (binding.BoundMessage!.Operation.Name, binding.BoundMessage.Direction));
         Assert.Empty(binding.Candidates);
     }
 }

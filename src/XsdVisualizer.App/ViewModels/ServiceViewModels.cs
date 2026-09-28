@@ -92,15 +92,15 @@ public sealed partial class OperationViewModel : ViewModelBase
     {
         if (_loading) return;
         // Primeiro vínculo de um Body string: já vem marcado como compactado.
-        if (value is not null && _store.Get(Model, Direction) is null) SetCompressedSilently(Message.BodyIsString);
-        _store.Set(Model, Direction, value?.Element, Compressed);
+        if (value is not null && _store.Get(Message) is null) SetCompressedSilently(Message.BodyIsString);
+        _store.Set(Message, value?.Element, Compressed);
         BuildPayloadTree();
     }
 
     partial void OnCompressedChanged(bool value)
     {
         if (_loading) return;
-        _store.Set(Model, Direction, SelectedPayload?.Element, value);
+        _store.Set(Message, SelectedPayload?.Element, value);
     }
 
     public PayloadBinding? CurrentBinding => SelectedPayload is { } choice ? new PayloadBinding(choice.Element, Compressed) : null;
@@ -120,7 +120,7 @@ public sealed partial class OperationViewModel : ViewModelBase
     private void LoadDirection()
     {
         _loading = true;
-        var binding = _store.Get(Model, Direction);
+        var binding = _store.Get(Message);
         SelectedPayload = binding is null ? null : _store.PayloadChoices.FirstOrDefault(c => c.Element == binding.Element);
         Compressed = binding?.Compressed ?? Message.BodyIsString;
         _loading = false;

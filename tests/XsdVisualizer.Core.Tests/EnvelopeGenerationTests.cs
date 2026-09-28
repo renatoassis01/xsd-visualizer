@@ -27,7 +27,7 @@ public class EnvelopeGenerationTests
         using var folder = WsdlFixture.Folder();
         var (set, enviar, _) = Open(folder);
 
-        var envelope = Assert.Single(enviar.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal, payload: Payload(set, "pedido")));
+        var envelope = Assert.Single(enviar.Request.GenerateEnvelopes(SampleKind.Maximal, payload: Payload(set, "pedido")));
 
         Assert.True(envelope.IsValid, string.Join("\n", envelope.Issues) + "\n" + envelope.Xml);
         var root = XDocument.Parse(envelope.Xml).Root!;
@@ -45,7 +45,7 @@ public class EnvelopeGenerationTests
         using var folder = WsdlFixture.Folder();
         var (_, enviar, _) = Open(folder);
 
-        var envelope = Assert.Single(enviar.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal));
+        var envelope = Assert.Single(enviar.Request.GenerateEnvelopes(SampleKind.Maximal));
 
         Assert.False(envelope.IsValid);
         Assert.Contains(envelope.Issues, i => i.Message.Contains("Payload Binding"));
@@ -57,7 +57,7 @@ public class EnvelopeGenerationTests
         using var folder = WsdlFixture.Folder();
         var (set, _, enviarZip) = Open(folder);
 
-        var envelope = Assert.Single(enviarZip.GenerateEnvelopes(MessageDirection.Request, SampleKind.Minimal,
+        var envelope = Assert.Single(enviarZip.Request.GenerateEnvelopes(SampleKind.Minimal,
             payload: Payload(set, "pedido", compressed: true)));
 
         Assert.True(envelope.IsValid, string.Join("\n", envelope.Issues));
@@ -75,7 +75,7 @@ public class EnvelopeGenerationTests
         var (set, enviar, _) = Open(folder);
         var soap11 = enviar.Endpoints.Single(e => e.SoapVersion == SoapVersion.Soap11);
 
-        var envelope = Assert.Single(enviar.GenerateEnvelopes(MessageDirection.Response, SampleKind.Maximal, soap11, Payload(set, "retPedido")));
+        var envelope = Assert.Single(enviar.Response.GenerateEnvelopes(SampleKind.Maximal, soap11, Payload(set, "retPedido")));
 
         Assert.True(envelope.IsValid, string.Join("\n", envelope.Issues) + "\n" + envelope.Xml);
         var root = XDocument.Parse(envelope.Xml).Root!;
@@ -92,7 +92,7 @@ public class EnvelopeGenerationTests
         var (set, enviar, _) = Open(folder);
         var pedido = Payload(set, "pedido");
 
-        var envelopes = enviar.GenerateEnvelopes(MessageDirection.Request, SampleKind.Coverage, payload: pedido);
+        var envelopes = enviar.Request.GenerateEnvelopes(SampleKind.Coverage, payload: pedido);
 
         Assert.Equal(pedido.Element.GenerateCoverageSet().Count, envelopes.Count);
         Assert.All(envelopes, e => Assert.True(e.IsValid, string.Join("\n", e.Issues)));
@@ -107,7 +107,7 @@ public class EnvelopeGenerationTests
         using var folder = WsdlFixture.Folder();
         var (set, enviar, _) = Open(folder);
 
-        string Generate() => enviar.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal, payload: Payload(set, "pedido"))[0].Xml;
+        string Generate() => enviar.Request.GenerateEnvelopes(SampleKind.Maximal, payload: Payload(set, "pedido"))[0].Xml;
 
         Assert.Equal(Generate(), Generate());
     }
@@ -120,7 +120,7 @@ public class EnvelopeGenerationTests
         var pedido = Payload(set, "pedido");
         var choice = pedido.Element.Tree.Children.Single().Children.Single(c => c.Kind == NodeKind.Choice);
 
-        var envelope = enviar.GenerateEnvelopes(MessageDirection.Request, SampleKind.Maximal, payload: pedido,
+        var envelope = enviar.Request.GenerateEnvelopes(SampleKind.Maximal, payload: pedido,
             pins: new Dictionary<string, int> { [choice.Path] = 1 })[0];
 
         Assert.Contains("<CNPJ>", envelope.Xml);
