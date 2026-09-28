@@ -56,7 +56,9 @@ public class OutputSnapshotTests
                 yield return ($"{id}/{endpoint.Name}/lote.response.min", response.Xml + Issues(response.Issues));
             }
             var compressed = zip.Request.GenerateEnvelopes(SampleKind.Minimal, payload: enviNFe with { Compressed = true })[0];
-            yield return ($"{id}/zip.request.min", compressed.Xml + compressed.Envelope!.DecompressedPayload);
+            // Os bytes do gzip variam com o zlib de cada sistema; o que se compara é o envelope sem o base64 e o Payload.
+            yield return ($"{id}/zip.request.min",
+                Base64Text.Replace(compressed.Xml, "[gzip+base64]") + compressed.Envelope!.DecompressedPayload);
             var unbound = lote.Request.GenerateEnvelopes(SampleKind.Maximal)[0];
             yield return ($"{id}/lote.request.unbound", unbound.Xml + Issues(unbound.Issues));
             var invalid = lote.Request.ValidateEnvelope(unbound.Xml.Replace("<nfeDadosMsg", "<nfeResultMsg").Replace("</nfeDadosMsg>", "</nfeResultMsg>"),
@@ -71,6 +73,8 @@ public class OutputSnapshotTests
         var diff = nfePair.DiffSamples(SampleKind.Maximal);
         yield return ("comparison/nfe.diff", string.Join("\n", diff.Before.Concat(diff.After).Select(l => $"{l.Number}|{l.Kind}|{l.Path}|{l.Text}")));
     }
+
+    private static readonly System.Text.RegularExpressions.Regex Base64Text = new("[A-Za-z0-9+/]{64,}={0,2}");
 
     private static string Issues(IEnumerable<ValidationIssue> issues) =>
         string.Join("\n", issues.Select(i => $"{i.Line}:{i.Column}:{i.Severity}:{i.InPayload}:{i.Message}"));

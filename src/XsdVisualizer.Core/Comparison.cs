@@ -90,7 +90,8 @@ public sealed class Comparison
                 md.AppendLine();
             }
         }
-        return md.ToString();
+        // Mesmo resumo em qualquer sistema (AppendLine usaria \r\n no Windows).
+        return md.ToString().ReplaceLineEndings("\n");
     }
 
     private static bool SameName(GlobalElement x, GlobalElement y) => x.Name == y.Name && x.Namespace == y.Namespace;
