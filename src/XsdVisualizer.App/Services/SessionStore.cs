@@ -19,6 +19,19 @@ public sealed class Session
     public List<string> Recent { get; set; } = [];
     public ThemeChoice Theme { get; set; } = ThemeChoice.System;
     public string Language { get; set; } = LanguageChoice.System;
+    /// <summary>Payload Bindings por "&lt;wsdl&gt;|&lt;service&gt;|&lt;operation&gt;|&lt;Request/Response&gt;".</summary>
+    public Dictionary<string, SavedPayloadBinding> PayloadBindings { get; set; } = new();
+    /// <summary>Endpoint escolhido por "&lt;wsdl&gt;|&lt;service&gt;|&lt;operation&gt;".</summary>
+    public Dictionary<string, string> Endpoints { get; set; } = new();
+}
+
+/// <summary>Global Element de um Payload Binding, identificado pelo arquivo que o declara.</summary>
+public sealed class SavedPayloadBinding
+{
+    public string ElementName { get; set; } = "";
+    public string ElementNamespace { get; set; } = "";
+    public string ElementSourceFile { get; set; } = "";
+    public bool Compressed { get; set; }
 }
 
 public sealed class SessionStore

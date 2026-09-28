@@ -5,12 +5,21 @@ namespace XsdVisualizer.App.ViewModels;
 
 public sealed class SchemaSetViewModel : ViewModelBase
 {
-    public SchemaSetViewModel(SchemaSet model)
+    public SchemaSetViewModel(SchemaSet model, IPayloadBindings store)
     {
         Model = model;
         var duplicated = model.GlobalElements.GroupBy(e => e.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
         GlobalElements = model.GlobalElements.Select(e => new GlobalElementViewModel(e, duplicated.Contains(e.Name))).ToList();
+        Services = model.Services.Select(s => new ServiceViewModel(s, store)).ToList();
+        Children = Services.Count == 0
+            ? GlobalElements.Cast<object>().ToList()
+            : GlobalElements.Cast<object>().Append(new ServicesGroupViewModel(Services)).ToList();
     }
+
+    public IReadOnlyList<ServiceViewModel> Services { get; }
+    public IEnumerable<OperationViewModel> Operations => Services.SelectMany(s => s.Operations);
+    /// <summary>Filhos na árvore: os Global Elements e, se houver WSDL, o grupo "Serviços".</summary>
+    public IReadOnlyList<object> Children { get; }
 
     public SchemaSet Model { get; }
     public string Name => Model.Name;

@@ -84,4 +84,25 @@
   <data name="SearchResults" xml:space="preserve"><value>{0} resultado(s)</value></data>
   <data name="NoSearchResults" xml:space="preserve"><value>Nenhum resultado</value></data>
   <data name="ClearSearch" xml:space="preserve"><value>Limpar pesquisa (Esc)</value></data>
+  <data name="Services" xml:space="preserve"><value>Serviços</value></data>
+  <data name="Endpoint" xml:space="preserve"><value>Endpoint</value></data>
+  <data name="Request" xml:space="preserve"><value>Request</value></data>
+  <data name="Response" xml:space="preserve"><value>Response</value></data>
+  <data name="BodyLabel" xml:space="preserve"><value>Body</value></data>
+  <data name="BodyAny" xml:space="preserve"><value>{0}: conteúdo livre (xs:any)</value></data>
+  <data name="BodyString" xml:space="preserve"><value>{0}: texto (string)</value></data>
+  <data name="HeadersLabel" xml:space="preserve"><value>Headers</value></data>
+  <data name="NoHeaders" xml:space="preserve"><value>nenhum</value></data>
+  <data name="PayloadLabel" xml:space="preserve"><value>Payload</value></data>
+  <data name="PayloadPlaceholder" xml:space="preserve"><value>Escolha o Global Element do Payload…</value></data>
+  <data name="Compressed" xml:space="preserve"><value>Compactado (gzip+base64)</value></data>
+  <data name="PayloadHint" xml:space="preserve"><value>O WSDL não diz qual XML vai no Body: escolha o Global Element (de qualquer Schema Set aberto).</value></data>
+  <data name="OpenPayload" xml:space="preserve"><value>Abrir Payload</value></data>
+  <data name="PayloadTag" xml:space="preserve"><value>Payload</value></data>
+  <data name="NoOperation" xml:space="preserve"><value>Nenhum Service aberto tem uma Operation com &lt;{0}&gt; no Body.</value></data>
+  <data name="ManyOperations" xml:space="preserve"><value>Há várias Operations possíveis: escolha uma para validar.</value></data>
+  <data name="PayloadUnbound" xml:space="preserve"><value>Sem Payload Binding nesta Operation: o Payload não é validado.</value></data>
+  <data name="PayloadTitle" xml:space="preserve"><value>{0} · Payload</value></data>
+  <data name="OperationLabel" xml:space="preserve"><value>Operation</value></data>
+  <data name="ManyPayloadCandidates" xml:space="preserve"><value>Há vários Global Elements possíveis para o Payload: escolha um para validá-lo.</value></data>
 </root>

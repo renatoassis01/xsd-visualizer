@@ -8,7 +8,7 @@ using XsdVisualizer.Core;
 
 namespace XsdVisualizer.App.ViewModels;
 
-public sealed partial class MainViewModel : ViewModelBase, IDisposable
+public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayloadBindings
 {
     private const int MaxSearchResults = 300;
     private readonly SessionStore _session;
@@ -45,8 +45,63 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
 
     partial void OnSelectedSchemaItemChanged(object? value)
     {
-        if (value is GlobalElementViewModel element) SelectedElement = element;
+        switch (value)
+        {
+            case GlobalElementViewModel element:
+                SelectedOperation = null;
+                SelectedElement = element;
+                break;
+            case OperationViewModel operation:
+                SelectedElement = null;
+                SelectedOperation = operation;
+                break;
+        }
     }
+
+    // ---- Operation selecionada (WSDL) ----
+    [ObservableProperty] public partial OperationViewModel? SelectedOperation { get; set; }
+    public bool HasSelectedOperation => SelectedOperation is not null;
+    public bool ShowElementPanel => SelectedOperation is null;
+
+    partial void OnSelectedOperationChanged(OperationViewModel? oldValue, OperationViewModel? newValue)
+    {
+        if (oldValue is not null)
+        {
+            oldValue.PinsChanged -= OnEnvelopePinsChanged;
+            oldValue.NodeSelected -= OnNodeSelected;
+        }
+        SelectedNode = null;
+        if (newValue is not null)
+        {
+            newValue.PinsChanged += OnEnvelopePinsChanged;
+            newValue.NodeSelected += OnNodeSelected;
+            newValue.RefreshChoices();
+        }
+        OnPropertyChanged(nameof(HasSelectedOperation));
+        OnPropertyChanged(nameof(ShowElementPanel));
+        NotifyGenerate();
+    }
+
+    /// <summary>Fixar um ramo na árvore do Payload regera o Envelope Maximal (aba atualizada no lugar).</summary>
+    private async void OnEnvelopePinsChanged(OperationViewModel operation)
+    {
+        var (direction, endpoint, binding) = (operation.Direction, operation.SelectedEndpoint, operation.CurrentBinding);
+        var pins = new Dictionary<string, int>(operation.PayloadOwner?.Pins ?? new());
+        var sample = (await Task.Run(() => operation.Model.GenerateEnvelopes(direction, SampleKind.Maximal, endpoint, binding, pins)))[0];
+        ShowSamples(t => t.IsMaximalEnvelopeOf(operation.Model, direction), $"{operation.Name} · {DirectionLabel(direction)} · max", [sample]);
+    }
+
+    private void ShowSamples(Func<EditorTabViewModel, bool> existing, string title, IReadOnlyList<Sample> samples)
+    {
+        if (Tabs.FirstOrDefault(existing) is { } tab)
+            tab.ReplaceSamples(samples);
+        else
+            Tabs.Add(tab = EditorTabViewModel.ForSamples(title, samples));
+        SelectedTab = tab;
+    }
+
+    private static string DirectionLabel(MessageDirection direction) =>
+        direction == MessageDirection.Request ? Strings.Request.ToLowerInvariant() : Strings.Response.ToLowerInvariant();
 
     partial void OnSelectedElementChanged(GlobalElementViewModel? oldValue, GlobalElementViewModel? newValue)
     {
@@ -65,6 +120,11 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         if (TreeRoots.FirstOrDefault() is { } root) root.IsSelected = true;
         SearchText = "";
         OnPropertyChanged(nameof(HasSelectedElement));
+        NotifyGenerate();
+    }
+
+    private void NotifyGenerate()
+    {
         GenerateMaximalCommand.NotifyCanExecuteChanged();
         GenerateMinimalCommand.NotifyCanExecuteChanged();
         GenerateCoverageSetCommand.NotifyCanExecuteChanged();
@@ -82,17 +142,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     {
         var pins = new Dictionary<string, int>(element.Pins);
         var sample = await Task.Run(() => element.Model.GenerateMaximal(pins));
-        if (Tabs.FirstOrDefault(t => t.IsMaximalOf(element.Model)) is { } tab)
-        {
-            tab.ReplaceSamples([sample]);
-            SelectedTab = tab;
-        }
-        else
-        {
-            tab = EditorTabViewModel.ForSamples($"{element.Model.Name} · max", [sample]);
-            Tabs.Add(tab);
-            SelectedTab = tab;
-        }
+        ShowSamples(t => t.IsMaximalOf(element.Model), $"{element.Model.Name} · max", [sample]);
     }
 
     // ---- Pesquisa na árvore ----
@@ -174,12 +224,13 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         await OpenDocumentAsync(file);
     }
 
-    /// <summary>Trata o que foi arrastado: pastas e .xsd abrem Schema Sets; .xml abre Documents.</summary>
+    /// <summary>Trata o que foi arrastado: pastas, .xsd e .wsdl abrem Schema Sets; .xml abre Documents.</summary>
     public async Task OpenDroppedAsync(IEnumerable<string> paths)
     {
         foreach (var path in paths)
         {
-            if (Directory.Exists(path) || path.EndsWith(".xsd", StringComparison.OrdinalIgnoreCase))
+            if (Directory.Exists(path) || path.EndsWith(".xsd", StringComparison.OrdinalIgnoreCase)
+                || path.EndsWith(".wsdl", StringComparison.OrdinalIgnoreCase))
                 await OpenSchemaSetAsync(path);
             else if (File.Exists(path))
                 await OpenDocumentAsync(path);
@@ -212,8 +263,9 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         await RunBusy(string.Format(Strings.Loading, Path.GetFileName(folder)), async () =>
         {
             var set = await Task.Run(() => _loader.Open(folder));
-            var vm = new SchemaSetViewModel(set);
+            var vm = new SchemaSetViewModel(set, this);
             SchemaSets.Add(vm);
+            SchemaSetsChanged();
             Watch(folder);
             if (remember) Recent.Replace(SessionStore.Touch(Recent, folder));
             SaveSession();
@@ -229,7 +281,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
             var text = await File.ReadAllTextAsync(file);
             // Schema Sets ainda carregando (ex.: vindos na mesma linha de comando) entram no Binding.
             await Task.WhenAll(_opening.Values.ToList());
-            var tab = EditorTabViewModel.ForDocument(file, text, SchemaSets.Select(s => s.Model));
+            var tab = EditorTabViewModel.ForDocument(file, text, SchemaSets.Select(s => s.Model), Get);
             Tabs.Add(tab);
             SelectedTab = tab;
             Status = Strings.Ready;
@@ -242,6 +294,8 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         SchemaSets.Remove(set);
         if (_watchers.Remove(set.Folder, out var watcher)) watcher.Dispose();
         if (SelectedElement is not null && set.GlobalElements.Contains(SelectedElement)) SelectedElement = null;
+        if (SelectedOperation is not null && set.Operations.Contains(SelectedOperation)) SelectedOperation = null;
+        SchemaSetsChanged();
         SaveSession();
         RefreshBindings();
     }
@@ -257,8 +311,9 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         if (index < 0) return;
         var selectedName = SelectedElement is { } e && SchemaSets[index].GlobalElements.Contains(e) ? (e.Model.Name, e.Model.SourceFile) : default;
         var set = await Task.Run(() => _loader.Open(folder));
-        var vm = new SchemaSetViewModel(set);
+        var vm = new SchemaSetViewModel(set, this);
         SchemaSets[index] = vm;
+        SchemaSetsChanged();
         if (selectedName != default)
             SelectedElement = vm.GlobalElements.FirstOrDefault(g => (g.Model.Name, g.Model.SourceFile) == selectedName);
         RefreshBindings();
@@ -272,6 +327,60 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
 
     private void SaveSession() => _session.SaveSchemaSets(SchemaSets.Select(s => s.Folder), Recent);
 
+    // ---- Payload Bindings (IPayloadBindings) ----
+    public IReadOnlyList<GlobalElementChoice> PayloadChoices { get; private set; } = [];
+
+    /// <summary>Schema Sets mudaram: a lista de Global Elements para Payload e os vínculos salvos são refeitos.</summary>
+    private void SchemaSetsChanged()
+    {
+        PayloadChoices = SchemaSets.SelectMany(s => s.Model.GlobalElements).Select(e => new GlobalElementChoice(e)).ToList();
+        foreach (var operation in SchemaSets.SelectMany(s => s.Operations)) operation.RefreshChoices();
+    }
+
+    private static string OperationKey(Operation operation) =>
+        $"{operation.Service.SourceFile}|{operation.Service.Name}|{operation.Name}";
+
+    public PayloadBinding? Get(Operation operation, MessageDirection direction)
+    {
+        if (!_session.Current.PayloadBindings.TryGetValue($"{OperationKey(operation)}|{direction}", out var saved)) return null;
+        var element = SchemaSets.SelectMany(s => s.Model.GlobalElements).FirstOrDefault(e =>
+            e.Name == saved.ElementName && e.Namespace == saved.ElementNamespace && e.SourceFile == saved.ElementSourceFile);
+        return element is null ? null : new PayloadBinding(element, saved.Compressed);
+    }
+
+    public void Set(Operation operation, MessageDirection direction, GlobalElement? element, bool compressed)
+    {
+        var key = $"{OperationKey(operation)}|{direction}";
+        if (element is null) _session.Current.PayloadBindings.Remove(key);
+        else _session.Current.PayloadBindings[key] = new SavedPayloadBinding
+        {
+            ElementName = element.Name,
+            ElementNamespace = element.Namespace,
+            ElementSourceFile = element.SourceFile,
+            Compressed = compressed,
+        };
+        _session.Save();
+        RefreshBindings();
+    }
+
+    public string? GetEndpoint(Operation operation) =>
+        _session.Current.Endpoints.GetValueOrDefault(OperationKey(operation));
+
+    public void SetEndpoint(Operation operation, Endpoint endpoint)
+    {
+        _session.Current.Endpoints[OperationKey(operation)] = endpoint.Name;
+        _session.Save();
+    }
+
+    [RelayCommand]
+    private void OpenPayload(EditorTabViewModel tab)
+    {
+        if (tab.PayloadText is not { } text) return;
+        var payload = EditorTabViewModel.ForPayload(string.Format(Strings.PayloadTitle, tab.Title), text, tab.PayloadElement);
+        Tabs.Add(payload);
+        SelectedTab = payload;
+    }
+
     /// <summary>Depois de trocar o idioma: textos que o view model guarda voltam a ser lidos dos recursos.</summary>
     public void RefreshTexts()
     {
@@ -280,16 +389,36 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     }
 
     // ---- Gerar ----
-    private bool CanGenerate() => SelectedElement is not null && !IsBusy;
+    private bool CanGenerate() => (SelectedElement is not null || SelectedOperation is not null) && !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanGenerate))]
-    private Task GenerateMaximal() => GenerateAsync(e => [e.Model.GenerateMaximal(new Dictionary<string, int>(e.Pins))], "max");
+    private Task GenerateMaximal() => SelectedOperation is { } op
+        ? GenerateEnvelopesAsync(op, SampleKind.Maximal, "max")
+        : GenerateAsync(e => [e.Model.GenerateMaximal(new Dictionary<string, int>(e.Pins))], "max");
 
     [RelayCommand(CanExecute = nameof(CanGenerate))]
-    private Task GenerateMinimal() => GenerateAsync(e => [e.Model.GenerateMinimal()], "min");
+    private Task GenerateMinimal() => SelectedOperation is { } op
+        ? GenerateEnvelopesAsync(op, SampleKind.Minimal, "min")
+        : GenerateAsync(e => [e.Model.GenerateMinimal()], "min");
 
     [RelayCommand(CanExecute = nameof(CanGenerate))]
-    private Task GenerateCoverageSet() => GenerateAsync(e => e.Model.GenerateCoverageSet(), Strings.CoverageSet);
+    private Task GenerateCoverageSet() => SelectedOperation is { } op
+        ? GenerateEnvelopesAsync(op, SampleKind.Coverage, Strings.CoverageSet)
+        : GenerateAsync(e => e.Model.GenerateCoverageSet(), Strings.CoverageSet);
+
+    private async Task GenerateEnvelopesAsync(OperationViewModel operation, SampleKind kind, string suffix)
+    {
+        var (direction, endpoint, binding) = (operation.Direction, operation.SelectedEndpoint, operation.CurrentBinding);
+        var pins = new Dictionary<string, int>(operation.PayloadOwner?.Pins ?? new());
+        await RunBusy(string.Format(Strings.Generating, operation.Name), async () =>
+        {
+            var samples = await Task.Run(() => operation.Model.GenerateEnvelopes(direction, kind, endpoint, binding, pins));
+            var tab = EditorTabViewModel.ForSamples($"{operation.Name} · {DirectionLabel(direction)} · {suffix}", samples);
+            Tabs.Add(tab);
+            SelectedTab = tab;
+            Status = Strings.Ready;
+        });
+    }
 
     private async Task GenerateAsync(Func<GlobalElementViewModel, IReadOnlyList<Sample>> generate, string suffix)
     {
@@ -313,7 +442,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         await RunBusy(string.Format(Strings.Exporting, set.Name), async () =>
         {
             var progress = new Progress<GlobalElement>(e => Status = string.Format(Strings.Exporting, e.Name));
-            var result = await Task.Run(() => SampleExporter.ExportAll(set.Model, output, progress, cancellation), cancellation);
+            var result = await Task.Run(() => SampleExporter.ExportAll(set.Model, output, progress, cancellation, Get), cancellation);
             Status = string.Format(Strings.ExportDone, result.Written, result.Invalid, Path.Combine(output, set.Name));
         });
     }
@@ -392,9 +521,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         finally
         {
             IsBusy = false;
-            GenerateMaximalCommand.NotifyCanExecuteChanged();
-            GenerateMinimalCommand.NotifyCanExecuteChanged();
-            GenerateCoverageSetCommand.NotifyCanExecuteChanged();
+            NotifyGenerate();
         }
     }
 

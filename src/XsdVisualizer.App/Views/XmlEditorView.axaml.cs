@@ -70,7 +70,8 @@ public partial class XmlEditorView : UserControl
     private void GoTo(ValidationIssue issue)
     {
         var document = Editor.Document;
-        if (document is null || issue.Line < 1 || issue.Line > document.LineCount) return;
+        // Issues do Payload compactado apontam para o Payload descompactado, não para este texto.
+        if (document is null || issue.InPayload || issue.Line < 1 || issue.Line > document.LineCount) return;
         var line = document.GetLineByNumber(issue.Line);
         Editor.CaretOffset = line.Offset + Math.Clamp(issue.Column - 1, 0, line.Length);
         Editor.ScrollTo(issue.Line, Math.Max(issue.Column, 1));

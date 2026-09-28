@@ -24,6 +24,13 @@
                             <TextBlock Text="{x:Static res:Strings.Save}" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    <Button IsVisible="{Binding HasPayloadToOpen}"
+                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenPayloadCommand}" CommandParameter="{Binding}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource IconFile}" Width="14" Height="14" />
+                            <TextBlock Text="{x:Static res:Strings.OpenPayload}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                     <Button Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SaveAsCommand}" CommandParameter="{Binding}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <PathIcon Data="{StaticResource IconSave}" Width="14" Height="14" />
@@ -40,8 +47,20 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
+                    <DockPanel IsVisible="{Binding IsEnvelope}">
+                        <TextBlock DockPanel.Dock="Left" Text="{x:Static res:Strings.OperationLabel}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <ComboBox DockPanel.Dock="Left" ItemsSource="{Binding OperationCandidates}" SelectedItem="{Binding BoundOperation}"
+                                  IsVisible="{Binding OperationCandidates.Count}" MinWidth="220" MaxWidth="520">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:OperationChoice">
+                                    <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Panel />
+                    </DockPanel>
                     <DockPanel IsVisible="{Binding IsDocument}">
-                        <TextBlock DockPanel.Dock="Left" Text="{x:Static res:Strings.Binding}" VerticalAlignment="Center" Margin="0,0,6,0"
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding BindingLabel}" VerticalAlignment="Center" Margin="0,0,6,0"
                                    IsVisible="{Binding Candidates.Count}" />
                         <ComboBox DockPanel.Dock="Left" ItemsSource="{Binding Candidates}" SelectedItem="{Binding BoundElement}"
                                   IsVisible="{Binding Candidates.Count}" MinWidth="220" MaxWidth="520">
@@ -75,11 +94,17 @@
                 <ListBox x:Name="IssueList" ItemsSource="{Binding Issues}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="core:ValidationIssue">
+                            <DockPanel>
+                            <Border DockPanel.Dock="Left" IsVisible="{Binding InPayload}" CornerRadius="4" Padding="5,0" Margin="0,0,6,0"
+                                    VerticalAlignment="Top" Background="{DynamicResource SystemControlHighlightAccentBrush}">
+                                <TextBlock Text="{x:Static res:Strings.PayloadTag}" FontSize="11" FontWeight="SemiBold" Foreground="White" />
+                            </Border>
                             <TextBlock TextWrapping="Wrap" FontSize="12">
                                 <Run Text="{Binding Line, StringFormat='{}{0}:'}" FontWeight="SemiBold" />
                                 <Run Text="{Binding Column, StringFormat='{}{0}  '}" FontWeight="SemiBold" />
                                 <Run Text="{Binding Message}" />
                             </TextBlock>
+                            </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
