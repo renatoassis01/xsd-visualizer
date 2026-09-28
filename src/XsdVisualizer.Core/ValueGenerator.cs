@@ -12,23 +12,51 @@ internal sealed class ValueGenerator
     private readonly NameTable _nameTable = new();
     private readonly XmlNamespaceManager _namespaces;
     private readonly Dictionary<string, XsdRegexGenerator?> _regexCache = new();
+    private readonly HashSet<string> _ids = [];
 
     public ValueGenerator() => _namespaces = new XmlNamespaceManager(_nameTable);
 
-    /// <param name="pickEnumeration">Escolhe um valor de enumeração (null = primeiro).</param>
-    public string Generate(XmlSchemaSimpleType type, string name, int variant, Func<IReadOnlyList<string>, string?> pickEnumeration)
+    /// <summary>
+    /// Gera um valor válido para o tipo, evitando os já usados neste mesmo nó (<paramref name="takenHere"/>)
+    /// e, para xs:ID, os já usados no documento: repetições podem estar sob xs:unique/xs:key.
+    /// Só repete um valor quando o tipo não oferece outro.
+    /// </summary>
+    /// <param name="pickEnumeration">Escolhe entre os valores de enumeração oferecidos (null = o primeiro).</param>
+    public string Generate(XmlSchemaSimpleType type, string name, int variant, ISet<string> takenHere,
+        Func<IReadOnlyList<string>, string?> pickEnumeration)
     {
-        var constraints = Constraints.Of(type);
-        if (constraints.Enumerations.Count > 0)
-            return pickEnumeration(constraints.Enumerations) ?? constraints.Enumerations[0];
+        var isId = BuiltInCode(type) == XmlTypeCode.Id;
+        bool Free(string value) => !takenHere.Contains(value) && !(isId && _ids.Contains(value));
 
-        string? fallback = null;
-        foreach (var candidate in Candidates(type, constraints, name, variant).Take(MaxCandidates))
+        var constraints = Constraints.Of(type);
+        string chosen;
+        if (constraints.Enumerations.Count > 0)
         {
-            fallback ??= candidate;
-            if (IsValid(type, candidate)) return candidate;
+            var free = constraints.Enumerations.Where(Free).ToList();
+            // Todos já usados: roda pela ocorrência, para que vizinhas (mesmo escopo de xs:unique) difiram.
+            IReadOnlyList<string> offered = free.Count > 0
+                ? free
+                : [constraints.Enumerations[variant % constraints.Enumerations.Count]];
+            chosen = pickEnumeration(offered) ?? offered[0];
         }
-        return fallback ?? name;
+        else
+        {
+            string? firstCandidate = null, firstValid = null, firstFree = null;
+            foreach (var candidate in Candidates(type, constraints, name, variant).Take(MaxCandidates))
+            {
+                firstCandidate ??= candidate;
+                if (!IsValid(type, candidate)) continue;
+                firstValid ??= candidate;
+                if (!Free(candidate)) continue;
+                firstFree = candidate;
+                break;
+            }
+            chosen = firstFree ?? firstValid ?? firstCandidate ?? name;
+        }
+
+        takenHere.Add(chosen);
+        if (isId) _ids.Add(chosen);
+        return chosen;
     }
 
     public static IReadOnlyList<string> EnumerationsOf(XmlSchemaSimpleType type) => Constraints.Of(type).Enumerations;
@@ -52,13 +80,13 @@ internal sealed class ValueGenerator
         {
             case XmlSchemaDatatypeVariety.List when ListItemType(type) is { } item:
                 // Um item só; se houver restrições de tamanho da lista, repete o item.
-                var one = Generate(item, name, variant, _ => null);
+                var one = Generate(item, name, variant, new HashSet<string>(), _ => null);
                 var count = Math.Max(1, constraints.MinLength ?? constraints.Length ?? 1);
                 yield return string.Join(' ', Enumerable.Repeat(one, count));
                 yield break;
             case XmlSchemaDatatypeVariety.Union when UnionMembers(type) is { Count: > 0 } members:
                 foreach (var member in members)
-                    yield return Generate(member, name, variant, _ => null);
+                    yield return Generate(member, name, variant, new HashSet<string>(), _ => null);
                 yield break;
         }
 
@@ -75,6 +103,7 @@ internal sealed class ValueGenerator
 
     private IEnumerable<string> PatternCandidates(Constraints constraints, string name, int variant)
     {
+        yield return variant == 0 ? name : $"{name}{variant + 1}";
         yield return name;
         var generators = constraints.Patterns
             .Select(p => _regexCache.TryGetValue(p, out var g) ? g : _regexCache[p] = XsdRegexGenerator.TryParse(p))
@@ -152,11 +181,10 @@ internal sealed class ValueGenerator
                 break;
             case XmlTypeCode.Id or XmlTypeCode.Idref or XmlTypeCode.NCName or XmlTypeCode.Name or XmlTypeCode.QName
                 or XmlTypeCode.NmToken or XmlTypeCode.Entity:
-                foreach (var v in TextCandidates(c, NameLike(name) + (variant == 0 ? "" : n.ToString(CultureInfo.InvariantCulture))))
-                    yield return v;
+                foreach (var v in TextCandidates(c, NameLike(name), "", variant)) yield return v;
                 break;
             default:
-                foreach (var v in TextCandidates(c, variant == 0 ? name : $"{name} {n}")) yield return v;
+                foreach (var v in TextCandidates(c, name, " ", variant)) yield return v;
                 break;
         }
     }
@@ -183,15 +211,25 @@ internal sealed class ValueGenerator
         yield return Math.Clamp(preferred, c.MinLength ?? 0, c.MaxLength ?? int.MaxValue);
     }
 
-    /// <summary>Texto legível (derivado do nome do nó) ajustado aos limites de tamanho.</summary>
-    private static IEnumerable<string> TextCandidates(Constraints c, string text)
+    /// <summary>
+    /// Texto legível (derivado do nome do nó) ajustado aos limites de tamanho: "nome", depois "nome 2", "nome 3"…
+    /// começando pela variante pedida. O número é mantido mesmo quando o maxLength corta o nome.
+    /// </summary>
+    private static IEnumerable<string> TextCandidates(Constraints c, string text, string separator, int variant)
     {
         var min = c.Length ?? c.MinLength ?? 0;
         var max = c.Length ?? c.MaxLength ?? int.MaxValue;
-        var value = text;
-        while (value.Length < min) value += text.Length > 0 ? text : "x";
-        if (value.Length > max) value = value[..max];
-        yield return value;
+        for (var k = variant + 1; k <= variant + 60; k++)
+        {
+            var suffix = k == 1 ? "" : separator + k.ToString(CultureInfo.InvariantCulture);
+            if (suffix.Length > max) suffix = k.ToString(CultureInfo.InvariantCulture);
+            if (suffix.Length > max) break;
+            var value = text;
+            while (value.Length + suffix.Length < min) value += text.Length > 0 ? text : "x";
+            value = value[..Math.Min(value.Length, max - suffix.Length)] + suffix;
+            if (value.Length < min) value = value.PadRight(min, 'x');
+            yield return value;
+        }
         yield return new string('x', Math.Max(min, Math.Min(max, 1)));
     }
 

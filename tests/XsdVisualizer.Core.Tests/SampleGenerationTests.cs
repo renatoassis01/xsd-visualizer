@@ -235,6 +235,57 @@ public class SampleGenerationTests
         Assert.True(sample.IsValid, string.Join("\n", sample.Issues));
         Assert.Single(XDocument.Parse(sample.Xml).Root!.Elements());
     }
+
+    [Fact]
+    public void Id_attributes_get_values_unique_across_the_whole_document()
+    {
+        using var folder = new SchemaFolder(("assinatura.xsd", SchemaFolder.Xsd("""
+            <xs:complexType name="TParte"><xs:attribute name="Id" type="xs:ID"/></xs:complexType>
+            <xs:element name="assinatura">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="info" type="TParte"/>
+                  <xs:element name="valor" type="TParte"/>
+                  <xs:element name="chave" type="TParte" maxOccurs="2"/>
+                </xs:sequence>
+                <xs:attribute name="Id" type="xs:ID"/>
+              </xs:complexType>
+            </xs:element>
+            """)));
+
+        var sample = Open(folder, "assinatura").GenerateMaximal();
+
+        Assert.True(sample.IsValid, string.Join("\n", sample.Issues) + "\n" + sample.Xml);
+    }
+
+    [Fact]
+    public void Repeated_elements_satisfy_unique_and_key_constraints()
+    {
+        using var folder = new SchemaFolder(("pagamentos.xsd", SchemaFolder.Xsd($"""
+            <xs:element name="pagamentos">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="pagamento" maxOccurs="unbounded">
+                    <xs:complexType>
+                      <xs:sequence>
+                        {Restricted("idTransacao", """base="xs:string"><xs:pattern value="[!-ÿ]{1}[ -ÿ]{0,}[!-ÿ]{1}|[!-ÿ]{1}"/><xs:maxLength value="40"/>""")}
+                        {Restricted("meio", """base="xs:string"><xs:enumeration value="pix"/><xs:enumeration value="cartao"/>""")}
+                        {Restricted("codigo", """base="xs:string"><xs:maxLength value="6"/>""")}
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+              <xs:key name="pk_idTransacao"><xs:selector xpath="pagamento"/><xs:field xpath="idTransacao"/></xs:key>
+              <xs:unique name="unique_meio"><xs:selector xpath="pagamento"/><xs:field xpath="meio"/></xs:unique>
+              <xs:unique name="unique_codigo"><xs:selector xpath="pagamento"/><xs:field xpath="codigo"/></xs:unique>
+            </xs:element>
+            """)));
+
+        var sample = Open(folder, "pagamentos").GenerateMaximal();
+
+        Assert.True(sample.IsValid, string.Join("\n", sample.Issues) + "\n" + sample.Xml);
+    }
 }
 
 internal static class XElementExtensions

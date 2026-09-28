@@ -22,7 +22,7 @@ public class RealSchemaSetsTests
         var set = new SchemaSetLoader().Open(Fixture(package));
 
         var failures = set.GlobalElements
-            .SelectMany(e => e.GenerateCoverageSet().Append(e.GenerateMinimal()))
+            .SelectMany(e => e.GenerateCoverageSet().Append(e.GenerateMinimal()).Append(e.GenerateMaximal()))
             .Where(s => !s.IsValid)
             .Select(s => $"{Path.GetFileName(s.Element.SourceFile)} {s.FileName}: {s.Issues.First()}")
             .ToList();

@@ -22,6 +22,7 @@ internal sealed class SampleGenerator
     private readonly GenerationMode _mode;
     private readonly IGenerationChoices _choices;
     private readonly Dictionary<string, int> _occurrences = new();
+    private readonly Dictionary<string, HashSet<string>> _taken = new();
     private readonly ValueGenerator _values = new();
     private XmlWriter _writer = null!;
 
@@ -128,7 +129,8 @@ internal sealed class SampleGenerator
     {
         if (node.FixedValue is not null) return node.FixedValue;
         var variant = _occurrences[node.Path] = _occurrences.GetValueOrDefault(node.Path, -1) + 1;
-        return _values.Generate(node.SimpleType!, node.Name, variant, values => _choices.PickEnumeration(node, values));
+        var taken = _taken.TryGetValue(node.Path, out var set) ? set : _taken[node.Path] = [];
+        return _values.Generate(node.SimpleType!, node.Name, variant, taken, values => _choices.PickEnumeration(node, values));
     }
 }
 

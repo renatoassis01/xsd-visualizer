@@ -54,4 +54,27 @@ public class ValidationTests
         var issue = Assert.Single(issues);
         Assert.Equal(2, issue.Line);
     }
+
+    [Fact]
+    public void Duplicate_ids_and_keys_are_reported()
+    {
+        using var folder = new SchemaFolder(("lista.xsd", SchemaFolder.Xsd("""
+            <xs:element name="lista">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="item" maxOccurs="unbounded">
+                    <xs:complexType><xs:attribute name="Id" type="xs:ID"/><xs:attribute name="codigo" type="xs:string"/></xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+              <xs:unique name="unique_codigo"><xs:selector xpath="item"/><xs:field xpath="@codigo"/></xs:unique>
+            </xs:element>
+            """)));
+        var lista = new SchemaSetLoader().Open(folder.Path).GlobalElements.Single();
+
+        var issues = lista.Validate("""<lista><item Id="a" codigo="1"/><item Id="a" codigo="1"/></lista>""");
+
+        Assert.Contains(issues, i => i.Message.Contains("already used as an ID"));
+        Assert.Contains(issues, i => i.Message.Contains("unique_codigo"));
+    }
 }

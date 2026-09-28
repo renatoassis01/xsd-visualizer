@@ -84,7 +84,10 @@ public sealed class GlobalElement
         {
             ValidationType = ValidationType.Schema,
             Schemas = Unit.Schemas,
-            ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings,
+            // As flags substituem o padrão: sem ProcessIdentityConstraints, xs:ID/xs:key/xs:unique não são checados.
+            ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings
+                | XmlSchemaValidationFlags.ProcessIdentityConstraints
+                | XmlSchemaValidationFlags.AllowXmlAttributes,
         };
         settings.ValidationEventHandler += (_, e) => issues.Add(new ValidationIssue(
             e.Message, null, e.Exception.LineNumber, e.Exception.LinePosition,
