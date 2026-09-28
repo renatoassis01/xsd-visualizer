@@ -78,4 +78,7 @@
   <data name="LanguageSystem" xml:space="preserve"><value>Same as system</value></data>
   <data name="Author" xml:space="preserve"><value>Author</value></data>
   <data name="SettingsHint" xml:space="preserve"><value>Changes apply immediately and are saved.</value></data>
+  <data name="Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="CopyTip" xml:space="preserve"><value>Copy the whole XML</value></data>
+  <data name="Copied" xml:space="preserve"><value>XML copied to the clipboard.</value></data>
 </root>

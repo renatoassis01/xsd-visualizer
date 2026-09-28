@@ -1,6 +1,8 @@
 using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
+using XsdVisualizer.App.Resources;
 using XsdVisualizer.App.ViewModels;
 using XsdVisualizer.Core;
 
@@ -54,6 +56,13 @@ public partial class XmlEditorView : UserControl
     {
         _underlines.Issues = _tab?.Issues.ToList() ?? [];
         Editor.TextArea.TextView.InvalidateLayer(_underlines.Layer);
+    }
+
+    private async void OnCopyClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(this) is not { Clipboard: { } clipboard } topLevel || Editor.Document is null) return;
+        await clipboard.SetTextAsync(Editor.Document.Text);
+        if (topLevel.DataContext is MainViewModel main) main.Status = Strings.Copied;
     }
 
     private void GoTo(ValidationIssue issue)
