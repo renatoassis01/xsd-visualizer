@@ -41,7 +41,19 @@ internal sealed class SchemaResolver(ISchemaDownloader downloader, string cacheD
         ["www.w3.org/TR/xmldsig-core1/xmldsig-core-schema.xsd"] = "W3C.xmldsig-core-schema.xsd",
         ["www.w3.org/2001/xml.xsd"] = "W3C.xml.xsd",
         ["www.w3.org/2009/01/xml.xsd"] = "W3C.xml.xsd",
+        ["schemas.xmlsoap.org/soap/envelope/"] = "W3C.soap11-envelope.xsd",
+        ["www.w3.org/2003/05/soap-envelope"] = "W3C.soap12-envelope.xsd",
+        ["www.w3.org/2003/05/soap-envelope/"] = "W3C.soap12-envelope.xsd",
     };
+
+    /// <summary>Resolve só os schemas embutidos (e arquivos locais); nunca vai à rede.</summary>
+    public static SchemaResolver EmbeddedOnly() =>
+        new(new NoDownloads(), Path.Combine(Path.GetTempPath(), "xsdvis-no-cache"), _ => { });
+
+    private sealed class NoDownloads : ISchemaDownloader
+    {
+        public byte[]? Download(Uri uri) => null;
+    }
 
     public override object? GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
     {

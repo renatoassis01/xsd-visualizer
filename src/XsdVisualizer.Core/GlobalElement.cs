@@ -52,29 +52,14 @@ public sealed class GlobalElement
         } while (choices.HasUncovered && generated.Count < limit);
 
         return generated
-            .Select((g, i) => Finish(SampleKind.Coverage, i + 1, WithComment(g.Xml, CoverageComment(i + 1, generated.Count, g.Covers)), g.Covers))
+            .Select((g, i) => Finish(SampleKind.Coverage, i + 1,
+                SampleComments.Insert(g.Xml, SampleComments.Coverage($"Coverage Set de {Name}: Sample {i + 1} de {generated.Count}", g.Covers)),
+                g.Covers))
             .ToList();
     }
 
-    private string CoverageComment(int number, int total, IReadOnlyList<string> covers)
-    {
-        var lines = new List<string> { $" Coverage Set de {Name}: Sample {number} de {total}" };
-        if (covers.Count > 0)
-        {
-            lines.Add(" cobre:");
-            lines.AddRange(covers.Select(c => "   " + c));
-        }
-        return string.Join("\n", lines).Replace("--", "- -") + "\n";
-    }
-
-    private static string WithComment(string xml, string comment)
-    {
-        var endOfDeclaration = xml.IndexOf("?>", StringComparison.Ordinal) + 2;
-        return $"{xml[..endOfDeclaration]}\n<!--{comment}-->{xml[endOfDeclaration..]}";
-    }
-
     private Sample Finish(SampleKind kind, int number, string xml, IReadOnlyList<string> covers) =>
-        new(this, kind, number, xml, covers, Validate(xml));
+        new(this, kind, number, xml, covers, Validate(xml), Validate);
 
     /// <summary>Valida um XML contra a unidade de compilação em que este elemento foi declarado.</summary>
     public IReadOnlyList<ValidationIssue> Validate(string xml)
