@@ -54,23 +54,40 @@
                         <TextBlock Text="{x:Static res:Strings.OpenXml}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Button Classes="toolbar">
+                <Button Classes="toolbar" x:Name="RecentButton">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource IconHistory}" />
                         <TextBlock Text="{x:Static res:Strings.Recent}" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button.Flyout>
                         <Flyout Placement="BottomEdgeAlignedLeft">
-                            <ItemsControl ItemsSource="{Binding Recent}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="x:String">
-                                        <Button Classes="toolbar" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                                                Content="{Binding}"
-                                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenRecentCommand}"
-                                                CommandParameter="{Binding}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <StackPanel Width="440" Spacing="2">
+                                <TextBlock Text="{x:Static res:Strings.Recent}" FontWeight="SemiBold" Margin="10,4,10,6" Opacity="0.7" />
+                                <TextBlock Text="{x:Static res:Strings.NoRecent}" Margin="10,0,10,6" Opacity="0.6"
+                                           IsVisible="{Binding !Recent.Count}" />
+                                <ItemsControl ItemsSource="{Binding Recent}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <!-- Conteúdo em TextBlock: texto direto no Button trata "_" como tecla de atalho e some com ele. -->
+                                            <Button Classes="toolbar" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                    ToolTip.Tip="{Binding}" Click="OnRecentClick"
+                                                    Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenRecentCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                                    <PathIcon Data="{StaticResource IconFolder}" Foreground="{StaticResource FolderBrush}"
+                                                              Width="20" Height="20" VerticalAlignment="Center" />
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Converter={x:Static views:PathConverters.FolderName}}"
+                                                                   FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding Converter={x:Static views:PathConverters.ParentFolder}}"
+                                                                   FontSize="11" Opacity="0.6" TextTrimming="PrefixCharacterEllipsis" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
                         </Flyout>
                     </Button.Flyout>
                 </Button>
@@ -93,8 +110,10 @@
                 <TreeView ItemsSource="{Binding SchemaSets}" SelectedItem="{Binding SelectedSchemaItem}">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="vm:SchemaSetViewModel" ItemsSource="{Binding GlobalElements}">
-                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{Binding Folder}">
-                                <StackPanel MaxWidth="180">
+                            <StackPanel Orientation="Horizontal" Spacing="6" ToolTip.Tip="{Binding Folder}">
+                                <PathIcon Data="{StaticResource IconFolder}" Foreground="{StaticResource FolderBrush}"
+                                          Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,0,0" />
+                                <StackPanel MaxWidth="160">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Text="{Binding LoadIssuesSummary}" Foreground="OrangeRed" FontSize="11"
                                                IsVisible="{Binding HasLoadIssues}">
@@ -118,7 +137,11 @@
                             </StackPanel>
                         </TreeDataTemplate>
                         <DataTemplate DataType="vm:GlobalElementViewModel">
-                            <TextBlock Text="{Binding DisplayName}" ToolTip.Tip="{Binding Namespace}" />
+                            <StackPanel Orientation="Horizontal" Spacing="6" ToolTip.Tip="{Binding Namespace}">
+                                <PathIcon Data="{StaticResource IconXsd}" Foreground="{DynamicResource SystemControlHighlightAccentBrush}"
+                                          Width="14" Height="14" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" />
+                            </StackPanel>
                         </DataTemplate>
                     </TreeView.DataTemplates>
                 </TreeView>

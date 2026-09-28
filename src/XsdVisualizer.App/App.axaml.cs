@@ -2,7 +2,6 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using XsdVisualizer.App.Resources;
@@ -101,13 +100,19 @@ public partial class App : Application
         CultureInfo.DefaultThreadCurrentUICulture = culture;
     }
 
-    /// <summary>Menu do aplicativo no macOS (substitui o "About Avalonia"): Sobre e Configurações (⌘,).</summary>
+    /// <summary>Textos do menu do aplicativo no macOS (declarado em App.axaml) no idioma atual.</summary>
     private void BuildNativeMenu()
     {
-        var about = new NativeMenuItem(Strings.About);
-        about.Click += (_, _) => { if (MainWindow is { } w) _ = w.ShowAboutAsync(); };
-        var settings = new NativeMenuItem(Strings.SettingsMenu) { Gesture = new KeyGesture(Key.OemComma, KeyModifiers.Meta) };
-        settings.Click += (_, _) => ShowSettings();
-        NativeMenu.SetMenu(this, new NativeMenu { Items = { about, new NativeMenuItemSeparator(), settings } });
+        if (NativeMenu.GetMenu(this) is not { } menu) return;
+        var items = menu.Items.OfType<NativeMenuItem>().Where(i => i is not NativeMenuItemSeparator).ToList();
+        items[0].Header = Strings.About;
+        items[1].Header = Strings.SettingsMenu;
     }
+
+    private void OnAboutClick(object? sender, EventArgs e)
+    {
+        if (MainWindow is { } window) _ = window.ShowAboutAsync();
+    }
+
+    private void OnSettingsClick(object? sender, EventArgs e) => ShowSettings();
 }

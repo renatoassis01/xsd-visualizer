@@ -60,6 +60,8 @@ public partial class MainWindow : Window, IDialogService
 
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(this);
 
+    private void OnRecentClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => RecentButton.Flyout?.Hide();
+
     private void OnSettingsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
         (Avalonia.Application.Current as App)?.ShowSettings();
 
