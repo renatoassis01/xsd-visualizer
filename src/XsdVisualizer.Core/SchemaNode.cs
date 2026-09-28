@@ -61,4 +61,6 @@ public sealed class SchemaNode
     internal XmlSchemaType? SchemaType { get; init; }
     internal XmlSchemaSimpleType? SimpleType { get; init; }
     internal XmlQualifiedName? XsiTypeName { get; init; }
+    internal XmlSchemaContentProcessing WildcardProcessing { get; init; }
+    internal string? TargetNamespace { get; init; }
 }

@@ -165,6 +165,8 @@ internal sealed class SchemaTreeBuilder(XmlSchemaSet schemas)
                     MinOccurs = min,
                     MaxOccurs = max,
                     WildcardNamespace = any.Namespace ?? "##any",
+                    WildcardProcessing = any.ProcessContentsCorrect(),
+                    TargetNamespace = any.TargetNamespaceOf(),
                     Documentation = Documentation(any.Annotation),
                 };
             case XmlSchemaGroupRef group when group.Particle is { } inner:
@@ -260,5 +262,19 @@ internal sealed class SchemaTreeBuilder(XmlSchemaSet schemas)
             .Where(t => !string.IsNullOrEmpty(t));
         var joined = string.Join("\n", texts);
         return joined.Length == 0 ? null : joined;
+    }
+}
+
+internal static class WildcardExtensions
+{
+    /// <summary>processContents efetivo (o padrão do XSD é strict).</summary>
+    public static XmlSchemaContentProcessing ProcessContentsCorrect(this XmlSchemaAny any) =>
+        any.ProcessContents == XmlSchemaContentProcessing.None ? XmlSchemaContentProcessing.Strict : any.ProcessContents;
+
+    public static string TargetNamespaceOf(this XmlSchemaObject o)
+    {
+        for (var p = o; p is not null; p = p.Parent)
+            if (p is XmlSchema schema) return schema.TargetNamespace ?? "";
+        return "";
     }
 }

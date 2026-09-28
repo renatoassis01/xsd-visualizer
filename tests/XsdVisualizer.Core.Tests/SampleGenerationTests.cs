@@ -215,6 +215,26 @@ public class SampleGenerationTests
         Assert.Contains(sample.Issues, i => i.Message.Contains("codigo"));
         Assert.NotEmpty(XDocument.Parse(sample.Xml).Root!.Elements("codigo"));
     }
+
+    [Fact]
+    public void A_required_lax_wildcard_gets_a_placeholder_element()
+    {
+        using var folder = new SchemaFolder(("evento.xsd", SchemaFolder.Xsd("""
+            <xs:element name="detEvento">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:any processContents="lax"/>
+                  <xs:any namespace="##other" processContents="skip" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            """, "urn:evento")));
+
+        var sample = Open(folder, "detEvento").GenerateMinimal();
+
+        Assert.True(sample.IsValid, string.Join("\n", sample.Issues));
+        Assert.Single(XDocument.Parse(sample.Xml).Root!.Elements());
+    }
 }
 
 internal static class XElementExtensions

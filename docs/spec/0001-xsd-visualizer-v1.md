@@ -57,7 +57,7 @@ Um aplicativo desktop multiplataforma (Windows, macOS, Linux) em que o usuário 
 33. Como analista fiscal, quero que cada Sample do Coverage Set tenha um comentário no topo listando o que ele cobre (ramos, opcionais, valores de enumeração), para saber por que aquele arquivo existe.
 34. Como analista fiscal, quero gerar os Samples de todos os Global Elements de um Schema Set de uma vez para uma pasta, no layout `<SchemaSet>/<GlobalElement>/<GlobalElement>.{max,min,cov-NN}.xml`, para ter um acervo completo de exemplos.
 35. Como desenvolvedor, quero que um Sample que o gerador não consiga tornar válido (regex não suportada, facets conflitantes, wildcard obrigatório estrito) ainda seja gerado, mas marcado como inválido com suas Validation Issues, para nunca perder informação silenciosamente.
-36. Como desenvolvedor, quero que wildcards sejam omitidos nos Samples, para que o gerador não invente conteúdo.
+36. Como desenvolvedor, quero que wildcards opcionais sejam omitidos nos Samples e que um wildcard obrigatório lax/skip receba só um placeholder, para que o gerador não invente conteúdo além do necessário para o Sample ser válido.
 37. Como desenvolvedor, quero que tipos recursivos sejam expandidos uma única vez nos Samples, para que a geração termine.
 38. Como analista fiscal, quero abrir qualquer Sample gerado no editor, para lê-lo com syntax highlight.
 39. Como analista fiscal, quero salvar um Sample com "salvar como", para usá-lo fora do app.
@@ -104,7 +104,7 @@ Um aplicativo desktop multiplataforma (Windows, macOS, Linux) em que o usuário 
   - Repetições: Minimal = `minOccurs`; Maximal = `max(minOccurs, min(maxOccurs, 2))`.
   - Recursão: expandida uma vez; depois, apenas o mínimo (opcionais recursivos omitidos).
   - Choices, substitution groups, elementos/tipos abstratos e `xsi:type` são tratados todos como "alternativas": fixáveis na árvore e cobertas pelo Coverage Set. Sem fixação, usa-se a primeira alternativa.
-  - Wildcards são sempre omitidos.
+  - Wildcards opcionais são omitidos. Um wildcard obrigatório com `processContents` lax/skip recebe um elemento-placeholder (`<exemplo/>`) num namespace permitido, pois qualquer elemento não declarado é válido ali; um obrigatório strict fica sem conteúdo e o Sample sai marcado inválido. (Ajuste feito na implementação: os envelopes de evento genéricos da SEFAZ, como `detEvento`, têm `xs:any` lax obrigatório.)
   - A `Signature` (xmldsig) sai estruturalmente válida com valores fictícios.
 - **Coverage Set** (ADR-0001): não é produto cartesiano. Alternativas independentes variam em paralelo, de modo que o número de Samples fique próximo do maior choice/enumeração. Cada ramo, opcional e valor de enumeração aparece ao menos uma vez. Cada Sample leva um comentário XML no topo listando o que cobre.
 - **Saída do "gerar todos":** `<pasta escolhida>/<SchemaSet>/<GlobalElement>/<GlobalElement>.max.xml`, `.min.xml`, `.cov-NN.xml`.

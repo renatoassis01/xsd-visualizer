@@ -1,5 +1,6 @@
 using System.Text;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace XsdVisualizer.Core;
 
@@ -103,9 +104,25 @@ internal sealed class SampleGenerator
                 case NodeKind.Choice when node.Children.Count > 0:
                     WriteParticle(node.Children[_choices.PickBranch(node)], mode, depth);
                     break;
-                // Wildcards são sempre omitidos.
+                case NodeKind.AnyElement when i < node.MinOccurs && node.WildcardProcessing != XmlSchemaContentProcessing.Strict:
+                    // Wildcards opcionais são omitidos; um obrigatório lax/skip aceita qualquer elemento não declarado.
+                    _writer.WriteElementString("exemplo", PlaceholderNamespace(node), "");
+                    break;
             }
         }
+    }
+
+    private static string PlaceholderNamespace(SchemaNode any)
+    {
+        var target = any.TargetNamespace ?? "";
+        var first = (any.WildcardNamespace ?? "##any").Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "##any";
+        return first switch
+        {
+            "##any" or "##local" => "",
+            "##targetNamespace" => target,
+            "##other" => target == "urn:exemplo" ? "urn:exemplo:outro" : "urn:exemplo",
+            _ => first,
+        };
     }
 
     private string Value(SchemaNode node)
