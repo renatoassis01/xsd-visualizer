@@ -105,4 +105,37 @@
   <data name="PayloadTitle" xml:space="preserve"><value>{0} · Payload</value></data>
   <data name="OperationLabel" xml:space="preserve"><value>Operation</value></data>
   <data name="ManyPayloadCandidates" xml:space="preserve"><value>Há vários Global Elements possíveis para o Payload: escolha um para validá-lo.</value></data>
+  <data name="Compare" xml:space="preserve"><value>Comparar</value></data>
+  <data name="CompareTip" xml:space="preserve"><value>Comparar dois Schema Sets abertos (ex.: o pacote antigo e o novo de uma NT)</value></data>
+  <data name="CompareTitle" xml:space="preserve"><value>Comparar Schema Sets</value></data>
+  <data name="Before" xml:space="preserve"><value>Antes</value></data>
+  <data name="After" xml:space="preserve"><value>Depois</value></data>
+  <data name="NeedTwoSets" xml:space="preserve"><value>Abra pelo menos dois Schema Sets para comparar.</value></data>
+  <data name="ComparisonTitle" xml:space="preserve"><value>Comparação: {0} → {1}</value></data>
+  <data name="OnlyChanged" xml:space="preserve"><value>Só alterados</value></data>
+  <data name="OnlyChanges" xml:space="preserve"><value>Só mudanças</value></data>
+  <data name="ShowDocumentation" xml:space="preserve"><value>Mudanças de documentação</value></data>
+  <data name="NextChange" xml:space="preserve"><value>Próxima mudança</value></data>
+  <data name="PreviousChange" xml:space="preserve"><value>Mudança anterior</value></data>
+  <data name="ExportSummary" xml:space="preserve"><value>Exportar resumo…</value></data>
+  <data name="CopySummary" xml:space="preserve"><value>Copiar resumo</value></data>
+  <data name="SummaryCopied" xml:space="preserve"><value>Resumo copiado para a área de transferência.</value></data>
+  <data name="PairWith" xml:space="preserve"><value>Parear com…</value></data>
+  <data name="StatusAdded" xml:space="preserve"><value>novo</value></data>
+  <data name="StatusRemoved" xml:space="preserve"><value>removido</value></data>
+  <data name="StatusModified" xml:space="preserve"><value>alterado</value></data>
+  <data name="StatusUnchanged" xml:space="preserve"><value>igual</value></data>
+  <data name="KindAdded" xml:space="preserve"><value>Entrou</value></data>
+  <data name="KindRemoved" xml:space="preserve"><value>Saiu</value></data>
+  <data name="KindModified" xml:space="preserve"><value>Mudou</value></data>
+  <data name="KindDocumentation" xml:space="preserve"><value>Só documentação</value></data>
+  <data name="KindUnchanged" xml:space="preserve"><value>Igual</value></data>
+  <data name="Comparing" xml:space="preserve"><value>Comparando {0} → {1}…</value></data>
+  <data name="ChangesCount" xml:space="preserve"><value>{0} mudança(s)</value></data>
+  <data name="SelectPairHint" xml:space="preserve"><value>Selecione um Global Element à esquerda.</value></data>
+  <data name="NoChanges" xml:space="preserve"><value>Sem mudanças.</value></data>
+  <data name="EnumerationAdded" xml:space="preserve"><value>Valores que entraram</value></data>
+  <data name="EnumerationRemoved" xml:space="preserve"><value>Valores que saíram</value></data>
+  <data name="Pairs" xml:space="preserve"><value>Global Elements</value></data>
+  <data name="Changes" xml:space="preserve"><value>Mudanças</value></data>
 </root>

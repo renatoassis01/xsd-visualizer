@@ -58,6 +58,13 @@ public partial class MainWindow : Window, IDialogService
         return file?.TryGetLocalPath();
     }
 
+    public async Task<(XsdVisualizer.Core.SchemaSet Before, XsdVisualizer.Core.SchemaSet After)?> PickComparisonAsync(
+        IReadOnlyList<XsdVisualizer.Core.SchemaSet> sets) =>
+        await new CompareDialog(sets).ShowDialog<(XsdVisualizer.Core.SchemaSet, XsdVisualizer.Core.SchemaSet)?>(this);
+
+    public void ShowComparison(ComparisonViewModel comparison) =>
+        new ComparisonWindow { DataContext = comparison }.Show(this);
+
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(this);
 
     private async void OnRecentClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

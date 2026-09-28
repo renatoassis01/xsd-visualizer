@@ -120,7 +120,7 @@ public sealed class ElementPair
     public PairStatus Status =>
         Before is null ? PairStatus.Added
         : After is null ? PairStatus.Removed
-        : Tree.ChangeCount > 0 ? PairStatus.Modified
+        : Tree.Kind == ChangeKind.Modified || Tree.ChangeCount > 0 ? PairStatus.Modified
         : PairStatus.Unchanged;
 
     /// <summary>Árvore de Changes: a união das duas árvores, pareadas pelo caminho de nomes.</summary>
@@ -139,6 +139,5 @@ public sealed class ElementPair
 
     /// <summary>Todas as Changes (sem os nós iguais), em ordem de árvore.</summary>
     public IReadOnlyList<ChangeNode> Changes(bool includeDocumentation = false) =>
-        Tree.DescendantsAndSelf().Where(n => n.Kind != ChangeKind.Unchanged
-            && (includeDocumentation || n.Kind != ChangeKind.DocumentationOnly)).ToList();
+        Tree.ChangesAndSelf().Where(n => includeDocumentation || n.Kind != ChangeKind.DocumentationOnly).ToList();
 }

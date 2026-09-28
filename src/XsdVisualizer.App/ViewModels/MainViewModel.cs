@@ -391,6 +391,22 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable, IPayload
         foreach (var set in SchemaSets) set.RefreshTexts();
     }
 
+    // ---- Comparar ----
+    [RelayCommand]
+    private async Task Compare()
+    {
+        if (Dialogs is null) return;
+        if (SchemaSets.Count < 2)
+        {
+            Status = Strings.NeedTwoSets;
+            return;
+        }
+        if (await Dialogs.PickComparisonAsync(SchemaSets.Select(s => s.Model).ToList()) is not var (before, after)) return;
+        var comparison = new ComparisonViewModel(before, after);
+        Dialogs.ShowComparison(comparison);
+        await comparison.LoadAsync();
+    }
+
     // ---- Gerar ----
     private bool CanGenerate() => (SelectedElement is not null || SelectedOperation is not null) && !IsBusy;
 

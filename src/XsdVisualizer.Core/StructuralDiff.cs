@@ -25,8 +25,11 @@ public sealed class ChangeNode
         Kind = kind;
         Differences = differences;
         Children = children;
-        ChangeCount = children.Sum(c => c.ChangeCount + (c.Kind is ChangeKind.Added or ChangeKind.Removed or ChangeKind.Modified ? 1 : 0));
-        DocumentationChangeCount = children.Sum(c => c.DocumentationChangeCount + (c.Kind == ChangeKind.DocumentationOnly ? 1 : 0));
+        // Um grupo que entrou ou saiu conta como uma mudança só: o conteúdo dele vem junto.
+        ChangeCount = children.Sum(c => c.Kind is ChangeKind.Added or ChangeKind.Removed ? 1
+            : c.ChangeCount + (c.Kind == ChangeKind.Modified ? 1 : 0));
+        DocumentationChangeCount = children.Sum(c => c.Kind is ChangeKind.Added or ChangeKind.Removed ? 0
+            : c.DocumentationChangeCount + (c.Kind == ChangeKind.DocumentationOnly ? 1 : 0));
     }
 
     public string Label { get; }
@@ -40,6 +43,16 @@ public sealed class ChangeNode
     /// <summary>Changes (sem contar só documentação) nos descendentes.</summary>
     public int ChangeCount { get; }
     public int DocumentationChangeCount { get; }
+
+    /// <summary>Changes em ordem de árvore, sem descer em grupos que entraram ou saíram inteiros.</summary>
+    internal IEnumerable<ChangeNode> ChangesAndSelf()
+    {
+        if (Kind != ChangeKind.Unchanged) yield return this;
+        if (Kind is ChangeKind.Added or ChangeKind.Removed) yield break;
+        foreach (var child in Children)
+            foreach (var node in child.ChangesAndSelf())
+                yield return node;
+    }
 
     public IEnumerable<ChangeNode> DescendantsAndSelf()
     {
@@ -121,7 +134,7 @@ internal static class StructuralDiff
     private static List<(string Key, Named? Before, Named? After)> Merge(
         List<(string Key, Named Named)> before, List<(string Key, Named Named)> after)
     {
-        var merged = after.Select(a => (a.Key, Before: before.FirstOrDefault(b => b.Key == a.Key).Named, After: (Named?)a.Named)).ToList();
+        var merged = after.Select(a => (a.Key, Before: (Named?)before.FirstOrDefault(b => b.Key == a.Key).Named, After: (Named?)a.Named)).ToList();
         for (var i = 0; i < before.Count; i++)
         {
             if (after.Any(a => a.Key == before[i].Key)) continue;
@@ -152,7 +165,12 @@ internal static class StructuralDiff
             result.Add(new PropertyChange("enumeration", null, null, added, removed));
 
         foreach (var kind in before.Facets.Concat(after.Facets).Select(f => f.Kind).Where(k => k != "enumeration").Distinct())
-            Add(kind, FacetValue(before, kind), FacetValue(after, kind));
+        {
+            var (b, a) = (FacetValue(before, kind), FacetValue(after, kind));
+            // Mesma regra escrita de outro jeito ("*" e "{0,}") não é mudança.
+            if (kind == "pattern" && b is not null && a is not null && NormalizePattern(b) == NormalizePattern(a)) continue;
+            Add(kind, b, a);
+        }
 
         Add("documentation", before.Documentation, after.Documentation);
         return result;
@@ -163,6 +181,19 @@ internal static class StructuralDiff
 
     private static string EffectiveCardinality(SchemaNode node) =>
         Cardinalities.TryGetValue(node, out var value) ? value : node.Cardinality;
+
+    private static readonly (System.Text.RegularExpressions.Regex Pattern, string Replacement)[] EquivalentQuantifiers =
+    [
+        (new(@"\{0,\}"), "*"),
+        (new(@"\{1,\}"), "+"),
+        (new(@"\{0,1\}"), "?"),
+        (new(@"\{(\d+),\1\}"), "{$1}"),
+        (new(@"\{1\}"), ""),
+    ];
+
+    /// <summary>Forma canônica dos quantificadores de uma regex XSD, para comparar regras e não grafias.</summary>
+    internal static string NormalizePattern(string pattern) =>
+        EquivalentQuantifiers.Aggregate(pattern, (p, q) => q.Pattern.Replace(p, q.Replacement));
 
     private static string? FacetValue(SchemaNode node, string kind)
     {

@@ -67,4 +67,54 @@ public class StructuralDiffTests
 
         Assert.All(comparison.Pairs, p => Assert.Equal(PairStatus.Unchanged, p.Status));
     }
+
+    [Fact]
+    public void Equivalent_patterns_written_differently_are_not_a_change()
+    {
+        static string Xsd(string pattern) => SchemaFolder.Xsd($"""
+            <xs:element name="xServ"><xs:simpleType><xs:restriction base="xs:string"><xs:pattern value="{pattern}"/></xs:restriction></xs:simpleType></xs:element>
+            """);
+        using var before = new SchemaFolder(("s.xsd", Xsd("[!-ÿ]{1}[ -ÿ]*[!-ÿ]{1}|[!-ÿ]{1}")), ("t.xsd", Xsd("[0-9]{2,2}")));
+        using var after = new SchemaFolder(("s.xsd", Xsd("[!-ÿ][ -ÿ]{0,}[!-ÿ]|[!-ÿ]")), ("t.xsd", Xsd("[0-9]{2}")));
+
+        var comparison = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path));
+
+        Assert.All(comparison.Pairs, p => Assert.Equal(PairStatus.Unchanged, p.Status));
+    }
+
+    [Fact]
+    public void A_pattern_that_really_changes_is_a_modification()
+    {
+        static string Xsd(string pattern) => SchemaFolder.Xsd($"""
+            <xs:element name="cep"><xs:simpleType><xs:restriction base="xs:string"><xs:pattern value="{pattern}"/></xs:restriction></xs:simpleType></xs:element>
+            """);
+        using var before = new SchemaFolder(("s.xsd", Xsd("[0-9]{8}")));
+        using var after = new SchemaFolder(("s.xsd", Xsd("[0-9]{5}-[0-9]{3}")));
+
+        var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single();
+
+        Assert.Equal(PairStatus.Modified, pair.Status);
+        Assert.Equal("pattern [0-9]{8} → [0-9]{5}-[0-9]{3}", Assert.Single(pair.Changes()).Differences.Select(d => $"{d.Property} {d.Before} → {d.After}").Single());
+    }
+
+    [Fact]
+    public void A_group_that_entered_counts_as_one_change_and_its_children_are_not_listed_separately()
+    {
+        using var before = new SchemaFolder(("n.xsd", SchemaFolder.Xsd("""
+            <xs:element name="imposto"><xs:complexType><xs:sequence><xs:element name="ICMS" type="xs:string"/></xs:sequence></xs:complexType></xs:element>
+            """)));
+        using var after = new SchemaFolder(("n.xsd", SchemaFolder.Xsd("""
+            <xs:element name="imposto"><xs:complexType><xs:sequence>
+              <xs:element name="ICMS" type="xs:string"/>
+              <xs:element name="IBSCBS"><xs:complexType><xs:sequence><xs:element name="CST" type="xs:string"/><xs:element name="vBC" type="xs:decimal"/></xs:sequence></xs:complexType></xs:element>
+            </xs:sequence></xs:complexType></xs:element>
+            """)));
+
+        var pair = Comparison.Compare(new SchemaSetLoader().Open(before.Path), new SchemaSetLoader().Open(after.Path)).Pairs.Single();
+
+        Assert.Equal(1, pair.Tree.ChangeCount);
+        Assert.Equal(["IBSCBS"], pair.Changes().Select(c => c.Label));
+        var ibscbs = pair.Tree.Children.Single(c => c.Label == "IBSCBS");
+        Assert.Equal(["CST Added", "vBC Added"], ibscbs.Children.Select(c => $"{c.Label} {c.Kind}"));
+    }
 }

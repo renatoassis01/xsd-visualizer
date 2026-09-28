@@ -75,6 +75,12 @@
                         <TextBlock Text="{x:Static res:Strings.OpenXml}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
+                <Button Classes="toolbar" Command="{Binding CompareCommand}" ToolTip.Tip="{x:Static res:Strings.CompareTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconCompare}" />
+                        <TextBlock Text="{x:Static res:Strings.Compare}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
                 <Button Classes="toolbar" x:Name="RecentButton">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource IconHistory}" />

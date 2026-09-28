@@ -1,0 +1,179 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:XsdVisualizer.App.ViewModels"
+        xmlns:res="using:XsdVisualizer.App.Resources"
+        xmlns:ae="using:AvaloniaEdit"
+        xmlns:views="using:XsdVisualizer.App.Views"
+        x:Class="XsdVisualizer.App.Views.ComparisonWindow"
+        x:DataType="vm:ComparisonViewModel"
+        Title="{Binding Title}" Icon="/Assets/app.png"
+        Width="1500" Height="900" WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="TextBlock.added"><Setter Property="Foreground" Value="{DynamicResource DiffAddedText}" /></Style>
+        <Style Selector="TextBlock.removed"><Setter Property="Foreground" Value="{DynamicResource DiffRemovedText}" /></Style>
+        <Style Selector="TextBlock.modified"><Setter Property="Foreground" Value="{DynamicResource DiffModifiedText}" /></Style>
+        <Style Selector="TextBlock.removed.label"><Setter Property="TextDecorations" Value="Strikethrough" /></Style>
+        <Style Selector="TextBlock.docOnly"><Setter Property="Opacity" Value="0.6" /></Style>
+        <Style Selector="Ellipse.added"><Setter Property="Fill" Value="{DynamicResource DiffAddedText}" /></Style>
+        <Style Selector="Ellipse.removed"><Setter Property="Fill" Value="{DynamicResource DiffRemovedText}" /></Style>
+        <Style Selector="Ellipse.modified"><Setter Property="Fill" Value="{DynamicResource DiffModifiedText}" /></Style>
+        <Style Selector="Ellipse.unchanged"><Setter Property="Fill" Value="Gray" /><Setter Property="Opacity" Value="0.4" /></Style>
+        <Style Selector="TreeView.changes TreeViewItem" x:DataType="vm:ChangeNodeViewModel">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+        </Style>
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- Barra: título, Minimal/Maximal, resumo -->
+        <Border DockPanel.Dock="Top" Padding="12,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                    <Button Classes="toolbar" Click="OnCopySummary">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource IconCopy}" />
+                            <TextBlock Text="{x:Static res:Strings.CopySummary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Click="OnExportSummary">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource IconDownload}" />
+                            <TextBlock Text="{x:Static res:Strings.ExportSummary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="18">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PathIcon Data="{StaticResource IconCompare}" Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
+                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <RadioButton Content="{x:Static res:Strings.Maximal}" IsChecked="{Binding !UseMinimal}" GroupName="kind" />
+                        <RadioButton Content="{x:Static res:Strings.Minimal}" IsChecked="{Binding UseMinimal}" GroupName="kind" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Status}" Opacity="0.7" VerticalAlignment="Center" />
+                    <ProgressBar IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" MinWidth="200" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition Width="400" MinWidth="300" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition Width="*" MinWidth="400" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Element Pairs -->
+            <DockPanel Grid.Column="0" Margin="10" ClipToBounds="True">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                    <CheckBox DockPanel.Dock="Right" Content="{x:Static res:Strings.OnlyChanged}" IsChecked="{Binding OnlyChangedPairs}" FontSize="12" />
+                    <TextBlock Classes="caption" Text="{x:Static res:Strings.Pairs}" VerticalAlignment="Center" />
+                </DockPanel>
+                <ListBox ItemsSource="{Binding Pairs}" SelectedItem="{Binding SelectedPair}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ElementPairViewModel">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                <Ellipse Width="9" Height="9" VerticalAlignment="Top" Margin="0,5,0,0"
+                                         Classes.added="{Binding Status, Converter={x:Static views:DiffConverters.IsAdded}}"
+                                         Classes.removed="{Binding Status, Converter={x:Static views:DiffConverters.IsRemoved}}"
+                                         Classes.modified="{Binding Status, Converter={x:Static views:DiffConverters.IsModified}}"
+                                         Classes.unchanged="{Binding Status, Converter={x:Static views:DiffConverters.IsUnchanged}}"
+                                         />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Files}" FontSize="11" Opacity="0.6" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding StatusText}" FontSize="11" Opacity="0.8" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+
+            <!-- Árvore de Changes + detalhes -->
+            <Grid Grid.Column="2" Margin="10" RowDefinitions="Auto,Auto,*,4,Auto" ClipToBounds="True">
+                <DockPanel Grid.Row="0" Margin="0,0,0,6">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2">
+                        <Button Classes="icon" Command="{Binding PreviousChangeCommand}" ToolTip.Tip="{x:Static res:Strings.PreviousChange}">
+                            <PathIcon Data="{StaticResource IconUp}" />
+                        </Button>
+                        <Button Classes="icon" Command="{Binding NextChangeCommand}" ToolTip.Tip="{x:Static res:Strings.NextChange}">
+                            <PathIcon Data="{StaticResource IconDown}" />
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Classes="caption" Text="{x:Static res:Strings.Changes}" VerticalAlignment="Center" />
+                </DockPanel>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="14" Margin="0,0,0,6">
+                    <CheckBox Content="{x:Static res:Strings.OnlyChanges}" IsChecked="{Binding OnlyChanges}" FontSize="12" />
+                    <CheckBox Content="{x:Static res:Strings.ShowDocumentation}" IsChecked="{Binding ShowDocumentation}" FontSize="12" />
+                </StackPanel>
+                <Panel Grid.Row="2">
+                    <TextBlock Text="{x:Static res:Strings.SelectPairHint}" Opacity="0.6" IsVisible="{Binding !HasSelectedPair}" />
+                    <TreeView Classes="changes" ItemsSource="{Binding TreeRoots}">
+                        <TreeView.DataTemplates>
+                            <TreeDataTemplate DataType="vm:ChangeNodeViewModel" ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Classes="label" Text="{Binding Label}" VerticalAlignment="Center"
+                                               Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}"
+                                               Classes.modified="{Binding IsModified}" Classes.docOnly="{Binding IsDocumentationOnly}" />
+                                    <TextBlock Text="{Binding TypeName}" FontSize="11" FontStyle="Italic" Opacity="0.6" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding CountText}" FontSize="11" Opacity="0.7" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.DataTemplates>
+                    </TreeView>
+                </Panel>
+                <GridSplitter Grid.Row="3" ResizeDirection="Rows" />
+                <ScrollViewer Grid.Row="4" MaxHeight="240" DataContext="{Binding SelectedChange}" x:DataType="vm:ChangeNodeViewModel"
+                              IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Spacing="4" Margin="0,8,0,0">
+                        <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Model.Path}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding KindText}" FontWeight="SemiBold"
+                                   Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}" Classes.modified="{Binding IsModified}" />
+                        <ItemsControl ItemsSource="{Binding DifferenceLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}" FontSize="12" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <GridSplitter Grid.Column="3" ResizeDirection="Columns" />
+
+            <!-- Lado a lado -->
+            <Grid Grid.Column="4" ColumnDefinitions="*,1,*" RowDefinitions="Auto,*" ClipToBounds="True">
+                <Border Grid.Column="0" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                    <TextBlock>
+                        <Run Text="{x:Static res:Strings.Before}" FontWeight="SemiBold" />
+                        <Run Text="{Binding Before.Name, StringFormat='  {0}'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    </TextBlock>
+                </Border>
+                <Border Grid.Column="2" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                    <TextBlock>
+                        <Run Text="{x:Static res:Strings.After}" FontWeight="SemiBold" />
+                        <Run Text="{Binding After.Name, StringFormat='  {0}'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    </TextBlock>
+                </Border>
+                <ae:TextEditor Grid.Row="1" Grid.Column="0" x:Name="BeforeEditor" IsReadOnly="True" ShowLineNumbers="False"
+                               FontFamily="{DynamicResource MonospaceFont}" FontSize="12" HorizontalScrollBarVisibility="Auto" />
+                <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+                <ae:TextEditor Grid.Row="1" Grid.Column="2" x:Name="AfterEditor" IsReadOnly="True" ShowLineNumbers="False"
+                               FontFamily="{DynamicResource MonospaceFont}" FontSize="12" HorizontalScrollBarVisibility="Auto" />
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>
