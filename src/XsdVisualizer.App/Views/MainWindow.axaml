@@ -375,19 +375,19 @@
                     <StackPanel Spacing="8" Margin="0,8,0,0">
                         <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
-                        <Border Classes="field">
-                            <DockPanel>
-                                <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
-                                        ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
-                                    <PathIcon Data="{StaticResource IconCopy}" />
-                                </Button>
-                                <StackPanel Spacing="2">
-                                    <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                            <Border Classes="field">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
+                                            ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
+                                        <PathIcon Data="{StaticResource IconCopy}" />
+                                    </Button>
                                     <SelectableTextBlock Text="{Binding Node.Path}" FontSize="11" TextWrapping="Wrap"
-                                                         FontFamily="{DynamicResource MonospaceFont}" />
-                                </StackPanel>
-                            </DockPanel>
-                        </Border>
+                                                         FontFamily="{DynamicResource MonospaceFont}" VerticalAlignment="Center" />
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
                         <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" Foreground="{DynamicResource WarningText}"
                                    IsVisible="{Binding Notes, Converter={x:Static ObjectConverters.IsNotNull}}" />
                         <Grid ColumnDefinitions="*,8,*">

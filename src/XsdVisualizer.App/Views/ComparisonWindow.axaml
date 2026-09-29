@@ -221,19 +221,19 @@
                                 <TextBlock Text="{Binding KindText}" />
                             </Border>
                         </StackPanel>
-                        <Border Classes="field">
-                            <DockPanel>
-                                <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
-                                        ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
-                                    <PathIcon Data="{StaticResource IconCopy}" />
-                                </Button>
-                                <StackPanel Spacing="2">
-                                    <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                            <Border Classes="field">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
+                                            ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
+                                        <PathIcon Data="{StaticResource IconCopy}" />
+                                    </Button>
                                     <SelectableTextBlock Text="{Binding Model.Path}" FontSize="11" TextWrapping="Wrap"
-                                                         FontFamily="{DynamicResource MonospaceFont}" />
-                                </StackPanel>
-                            </DockPanel>
-                        </Border>
+                                                         FontFamily="{DynamicResource MonospaceFont}" VerticalAlignment="Center" />
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
                         <ItemsControl ItemsSource="{Binding Differences}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
