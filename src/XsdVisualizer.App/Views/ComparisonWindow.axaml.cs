@@ -32,6 +32,11 @@ public partial class ComparisonWindow : Window
         AfterEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(AfterEditor, BeforeEditor);
         ApplyTheme();
         SetHintVisible(CurrentApp?.Preferences.HideComparisonHint != true, save: false);
+        // ⌘F/Ctrl+F: dentro do XML, a busca de texto do editor; fora dele, a pesquisa na árvore de Changes.
+        AvaloniaEdit.Search.SearchPanel.Install(BeforeEditor);
+        AvaloniaEdit.Search.SearchPanel.Install(AfterEditor);
+        SearchShortcut.Text = OperatingSystem.IsMacOS() ? "⌘F" : "Ctrl+F";
+        AddHandler(KeyDownEvent, OnSearchShortcut);
         Action<Themes.ThemeColors> onTheme = _ => ApplyTheme();
         Themes.ThemeApplier.Changed += onTheme;
         Closed += (_, _) => Themes.ThemeApplier.Changed -= onTheme;
@@ -49,6 +54,21 @@ public partial class ComparisonWindow : Window
         if (!save || CurrentApp is not { } app) return;
         app.Preferences.HideComparisonHint = !visible;
         app.SavePreferences();
+    }
+
+    private void OnSearchShortcut(object? sender, Avalonia.Input.KeyEventArgs e)
+    {
+        var modifier = OperatingSystem.IsMacOS() ? Avalonia.Input.KeyModifiers.Meta : Avalonia.Input.KeyModifiers.Control;
+        if (e.Handled || e.Key != Avalonia.Input.Key.F || e.KeyModifiers != modifier || !SearchBox.IsEnabled) return;
+        SearchBox.Focus();
+        SearchBox.SelectAll();
+        e.Handled = true;
+    }
+
+    private async void OnCopyPathClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: ChangeNodeViewModel change } || Clipboard is not { } clipboard) return;
+        await clipboard.SetTextAsync(change.Model.Path);
     }
 
     private void OnHideHint(object? sender, RoutedEventArgs e) => SetHintVisible(false, save: true);

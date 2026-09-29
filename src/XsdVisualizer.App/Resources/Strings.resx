@@ -130,6 +130,10 @@
   <data name="SummaryRemoved" xml:space="preserve"><value>{0} saíram</value></data>
   <data name="HideHint" xml:space="preserve"><value>Esconder explicação</value></data>
   <data name="ShowHint" xml:space="preserve"><value>Mostrar explicação do XML lado a lado</value></data>
+  <data name="SearchChanges" xml:space="preserve"><value>Pesquisar campo por nome ou documentação</value></data>
+  <data name="SearchChangesTip" xml:space="preserve"><value>Procura no Global Element selecionado, pelo nome do campo e pela documentação de antes e de depois. Com “Só mudanças” marcado, encontra só o que mudou. Campos abaixo de um tipo recursivo (↻) não entram na comparação nem na pesquisa. Não procura dentro do XML: para isso, clique no XML e use ⌘F (macOS) ou Ctrl+F.</value></data>
+  <data name="ChangeSearchResultsOnlyChanges" xml:space="preserve"><value>{0} resultado(s) entre as mudanças</value></data>
+  <data name="NoChangeSearchResultsOnlyChanges" xml:space="preserve"><value>Nenhuma mudança com esse texto. Desmarque “Só mudanças” para procurar em todos os campos.</value></data>
   <data name="KindAdded" xml:space="preserve"><value>Entrou</value></data>
   <data name="KindRemoved" xml:space="preserve"><value>Saiu</value></data>
   <data name="KindModified" xml:space="preserve"><value>Mudou</value></data>

@@ -63,3 +63,4 @@ Um botão **Comparar** abre uma Comparison entre dois Schema Sets abertos (**Bef
 
 - Glossário: Comparison, Before/After, Element Pair, Change (CONTEXT.md).
 - O diff de Samples é complementar: mudanças que um Maximal não exercita (outros ramos, outros valores de enumeração) aparecem só na árvore de Changes.
+- Pesquisa na árvore de Changes (depois desta spec): procura no Element Pair selecionado, por nome e documentação (Before e After), só entre os nós que os filtros mostram; não entra abaixo de tipos recursivos nem procura no XML (o editor tem a própria busca, ⌘F/Ctrl+F).

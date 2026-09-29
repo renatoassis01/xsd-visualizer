@@ -370,21 +370,24 @@
                 </Panel>
                 <GridSplitter Grid.Row="4" ResizeDirection="Rows" />
                 <!-- Detalhes do nó: caminho copiável, tipo e cardinalidade lado a lado, facets e documentação -->
-                <ScrollViewer Grid.Row="5" MaxHeight="300" DataContext="{Binding Tree.SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
+                <ScrollViewer Grid.Row="5" MaxHeight="300" VerticalAlignment="Top" DataContext="{Binding Tree.SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
                               IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <StackPanel Spacing="8" Margin="0,8,0,0">
                         <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
-                        <Border Classes="field">
-                            <DockPanel>
-                                <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
-                                        ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
-                                    <PathIcon Data="{StaticResource IconCopy}" />
-                                </Button>
-                                <SelectableTextBlock Text="{Binding Node.Path}" FontSize="11" TextWrapping="Wrap"
-                                                     FontFamily="{DynamicResource MonospaceFont}" />
-                            </DockPanel>
-                        </Border>
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                            <Border Classes="field">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
+                                            ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
+                                        <PathIcon Data="{StaticResource IconCopy}" />
+                                    </Button>
+                                    <SelectableTextBlock Text="{Binding Node.Path}" FontSize="11" TextWrapping="Wrap"
+                                                         FontFamily="{DynamicResource MonospaceFont}" VerticalAlignment="Center" />
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
                         <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" Foreground="{DynamicResource WarningText}"
                                    IsVisible="{Binding Notes, Converter={x:Static ObjectConverters.IsNotNull}}" />
                         <Grid ColumnDefinitions="*,8,*">
@@ -464,7 +467,8 @@
                         </StackPanel>
                     </StackPanel>
                 </Grid>
-                <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0">
+                <!-- Sem abas, fica escondido: senão cobre o estado vazio e os botões dele não recebem o clique -->
+                <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0" IsVisible="{Binding Tabs.Count}">
                     <TabControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:EditorTabViewModel">
                             <StackPanel Orientation="Horizontal" Spacing="4">

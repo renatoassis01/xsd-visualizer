@@ -191,6 +191,13 @@ The Comparison window has three areas:
    - The ⌃ ⌄ arrows go to the previous or next change.
 3. **Side-by-side XML** (right): a Sample from Before and one from After, with added lines in green, removed lines in red and modified lines in amber. Clicking a change scrolls both sides to it. **Minimal** (the default) and **Maximal**, at the top, switch the kind of Sample used: the Minimal is leaner and goes through the selected change; the Maximal shows every optional item of the chosen branch at once.
 
+**Searching changes.** The *Search fields by name or documentation* box, in the Changes column, searches the selected Global Element by field name and by the documentation before and after. Results appear in a list with the kind of change; click one to open and select that node in the tree. **⌘F** (macOS) or **Ctrl+F** jumps to the box and **Esc** clears it. Limits:
+
+- It searches only the selected pair, not every Global Element.
+- It follows the tree's filters: with **Only changes** checked it finds only what changed; uncheck it to search every field. Documentation-only changes are included when **Documentation changes** is checked.
+- Fields below a recursive type (↻) are not part of the comparison, nor of the search.
+- It does not search inside the XML. To find text in the side-by-side XML, click it and use **⌘F** / **Ctrl+F**: it opens the editor's search, one side at a time.
+
 **Limits of the side-by-side XML.** The tree shows every change. The XML is only an example:
 
 - For each choice between alternatives it uses one branch, and for value lists it uses one value.

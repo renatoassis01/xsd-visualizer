@@ -162,6 +162,77 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     {
         SelectedChange = null;
         TreeRoots = SelectedPair is null ? [] : [new ChangeNodeViewModel(SelectedPair.Model.Tree, this, null) { IsExpanded = true }];
+        RunSearch(); // o par e os filtros mudam o que a pesquisa encontra
+    }
+
+    // ---- Pesquisa na árvore de Changes ----
+    private const int MaxSearchResults = 300;
+    [ObservableProperty] public partial string SearchText { get; set; } = "";
+    [ObservableProperty] public partial IReadOnlyList<ChangeSearchResult> SearchResults { get; private set; } = [];
+    [ObservableProperty] public partial ChangeSearchResult? SelectedSearchResult { get; set; }
+
+    partial void OnSearchTextChanged(string value) => RunSearch();
+
+    public bool HasSearchText => !string.IsNullOrWhiteSpace(SearchText);
+
+    /// <summary>Quantos achou e onde procurou: com "Só mudanças", só entre o que mudou.</summary>
+    public string SearchSummary => SearchResults.Count > 0
+        ? string.Format(OnlyChanges ? Strings.ChangeSearchResultsOnlyChanges : Strings.SearchResults, SearchResults.Count)
+        : OnlyChanges ? Strings.NoChangeSearchResultsOnlyChanges : Strings.NoSearchResults;
+
+    [RelayCommand]
+    private void ClearSearch() => SearchText = "";
+
+    private void RunSearch()
+    {
+        SearchResults = Search(SearchText);
+        OnPropertyChanged(nameof(SearchSummary));
+        OnPropertyChanged(nameof(HasSearchText));
+    }
+
+    partial void OnSelectedSearchResultChanged(ChangeSearchResult? value)
+    {
+        if (value is not null) Reveal(value.Chain);
+    }
+
+    /// <summary>
+    /// Procura no par selecionado, pelo nome e pela documentação (antes e depois), só entre os nós que a árvore
+    /// mostra: com "Só mudanças", só o que mudou. A árvore para nos tipos recursivos, e a pesquisa também.
+    /// </summary>
+    private IReadOnlyList<ChangeSearchResult> Search(string text)
+    {
+        if (SelectedPair is null || string.IsNullOrWhiteSpace(text)) return [];
+        text = text.Trim();
+        var results = new List<ChangeSearchResult>();
+        var pending = new Stack<IReadOnlyList<ChangeNode>>();
+        pending.Push([SelectedPair.Model.Tree]);
+        while (pending.Count > 0 && results.Count < MaxSearchResults)
+        {
+            var chain = pending.Pop();
+            var node = chain[^1];
+            if (chain.Count > 1 && Matches(node, text)) results.Add(new ChangeSearchResult(chain));
+            foreach (var child in node.Children.Where(Shows).Reverse())
+                pending.Push([.. chain, child]);
+        }
+        return results;
+    }
+
+    private static bool Matches(ChangeNode node, string text) =>
+        node.Label.Contains(text, StringComparison.OrdinalIgnoreCase)
+        || (node.Before?.Documentation?.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (node.After?.Documentation?.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false);
+
+    /// <summary>Expande os ancestrais do resultado na árvore e o seleciona.</summary>
+    private void Reveal(IReadOnlyList<ChangeNode> chain)
+    {
+        var current = TreeRoots.FirstOrDefault(r => r.Model == chain[0]);
+        foreach (var node in chain.Skip(1))
+        {
+            if (current is null) return;
+            current.IsExpanded = true;
+            current = current.Children.FirstOrDefault(c => c.Model == node);
+        }
+        current?.IsSelected = true;
     }
 
     internal bool Shows(ChangeNode node) =>
@@ -296,11 +367,14 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
     public bool HasDocumentation => !string.IsNullOrWhiteSpace(Documentation);
     public string KindText => ChangeKindText.Of(Kind);
 
-    /// <summary>Linhas "propriedade: antes → depois" (e valores de enumeração que entraram/saíram).</summary>
-    public IReadOnlyList<string> DifferenceLines => Model.Differences.Select(d => d.Describe(PropertyName, arrow: " → ")).ToList();
+    /// <summary>O que mudou, uma caixa por propriedade: antes → depois, ou os valores de enumeração que entraram/saíram.</summary>
+    public IReadOnlyList<DifferenceRow> Differences => Model.Differences.Select(d => new DifferenceRow(
+        PropertyName(d.Property), d.Before ?? "—", d.After ?? "—",
+        d.Property == "enumeration" ? string.Join(", ", d.AddedValues.Select(v => "+" + v)) : null,
+        d.Property == "enumeration" ? string.Join(", ", d.RemovedValues.Select(v => "−" + v)) : null)).ToList();
 
-    /// <summary>Linhas "propriedade: valor" da definição do campo (tipo, cardinalidade, facets, valor fixo/padrão).</summary>
-    public IReadOnlyList<string> DefinitionLines => Model.Definition.Select(d => $"{PropertyName(d.Property)}: {d.Value}").ToList();
+    /// <summary>Definição do campo (tipo, cardinalidade, facets, valor fixo/padrão), propriedade e valor.</summary>
+    public IReadOnlyList<DefinitionRow> Definition => Model.Definition.Select(d => new DefinitionRow(PropertyName(d.Property), d.Value)).ToList();
     public bool HasDefinition => Model.Definition.Count > 0;
 
     private static string PropertyName(string property) => property switch
@@ -312,4 +386,27 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
         "documentation" => Strings.Documentation,
         _ => property,
     };
+}
+
+/// <summary>Uma propriedade que mudou; numa enumeração, Added/Removed trazem os valores e Before/After não valem.</summary>
+public sealed record DifferenceRow(string Name, string Before, string After, string? Added, string? Removed)
+{
+    public bool IsEnumeration => Added is not null;
+    public bool HasAdded => !string.IsNullOrEmpty(Added);
+    public bool HasRemoved => !string.IsNullOrEmpty(Removed);
+}
+
+public sealed record DefinitionRow(string Name, string Value);
+
+/// <summary>Resultado da pesquisa na árvore de Changes: o caminho de nós da raiz até ele.</summary>
+public sealed record ChangeSearchResult(IReadOnlyList<ChangeNode> Chain)
+{
+    public ChangeNode Node => Chain[^1];
+    public string Label => Node.Label;
+    public string ParentPath => string.Join("/", Chain.Take(Chain.Count - 1).Select(n => n.Label));
+    public string KindText => Node.Kind == ChangeKind.Unchanged ? "" : ChangeKindText.Of(Node.Kind);
+    public bool HasKind => KindText != "";
+    public bool IsAdded => Node.Kind == ChangeKind.Added;
+    public bool IsRemoved => Node.Kind == ChangeKind.Removed;
+    public bool IsModified => Node.Kind == ChangeKind.Modified;
 }
