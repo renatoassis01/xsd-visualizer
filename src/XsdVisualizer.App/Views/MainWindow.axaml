@@ -464,7 +464,8 @@
                         </StackPanel>
                     </StackPanel>
                 </Grid>
-                <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0">
+                <!-- Sem abas, fica escondido: senão cobre o estado vazio e os botões dele não recebem o clique -->
+                <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0" IsVisible="{Binding Tabs.Count}">
                     <TabControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:EditorTabViewModel">
                             <StackPanel Orientation="Horizontal" Spacing="4">
