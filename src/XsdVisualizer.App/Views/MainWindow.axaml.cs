@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using XsdVisualizer.App.Services;
 using XsdVisualizer.App.ViewModels;
@@ -13,6 +14,24 @@ public partial class MainWindow : Window, IDialogService
         InitializeComponent();
         AddHandler(DragDrop.DragOverEvent, OnDragOver);
         AddHandler(DragDrop.DropEvent, OnDrop);
+        SearchShortcut.Text = OperatingSystem.IsMacOS() ? "⌘F" : "Ctrl+F";
+        // Túnel: o atalho vale mesmo com o foco no editor, que consome as teclas.
+        AddHandler(KeyDownEvent, OnSearchShortcut, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+    }
+
+    private void OnSearchShortcut(object? sender, KeyEventArgs e)
+    {
+        var modifier = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+        if (e.Key != Key.F || e.KeyModifiers != modifier || !SearchBox.IsEffectivelyVisible || !SearchBox.IsEnabled) return;
+        SearchBox.Focus();
+        SearchBox.SelectAll();
+        e.Handled = true;
+    }
+
+    private async void OnCopyPathClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: SchemaNodeViewModel node } || Clipboard is not { } clipboard) return;
+        await clipboard.SetTextAsync(node.Node.Path);
     }
 
     protected override void OnDataContextChanged(EventArgs e)

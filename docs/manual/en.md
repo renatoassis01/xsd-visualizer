@@ -82,7 +82,7 @@ Select a Global Element on the left to see its tree in the middle. Each row show
 | `1..1`, `0..n` | cardinality (min..max) |
 | italic text | type (`TAmb`, `xs:string`…) |
 
-When you select a node, the details panel shows its **path**, **type**, **cardinality**, **facets** (length, `pattern`, digits, ranges, enumeration values), fixed or default value, and **documentation** (`xs:documentation`).
+When you select a node, the details panel shows its **path**, **type**, **cardinality**, **facets** (length, `pattern`, digits, ranges, enumeration values), fixed or default value, and **documentation** (`xs:documentation`). The button next to the path copies it.
 
 Some special cases:
 
@@ -90,7 +90,7 @@ Some special cases:
 - **Recursion.** A type that contains itself is marked as recursive and only expands when you ask.
 - **Wildcards** (`xs:any`, `xs:anyAttribute`) say which namespace they accept content from.
 
-**Search.** The *Search by name or documentation* box searches the whole Global Element, including branches that have not been expanded yet. Results appear in a list right below it; click one to open and select that node in the tree. **Esc** clears the search.
+**Search.** The *Search by name or documentation* box searches the whole Global Element, including branches that have not been expanded yet. Results appear in a list right below it; click one to open and select that node in the tree. **⌘F** (macOS) or **Ctrl+F** jumps to the search; **Esc** clears it.
 
 ## 5. Generating Samples
 
@@ -181,7 +181,7 @@ When a new version of a set of schemas comes out, the **Compare** button shows w
 The Comparison window has three areas:
 
 1. **Global Elements** (left): the Global Elements that were added, removed, changed or left unchanged, with their number of changes. Pairs are matched by namespace, name and file; failing that, by namespace and name when there is only one on each side. **Only with changes** hides the unchanged ones.
-2. **Changes** (middle): the Global Element's tree with each change colored.
+2. **Changes** (middle): the Global Element's tree with each change colored and labeled in words (*Added*, *Removed*, *Modified*). At the top, a summary of the pair: how many fields were modified, added and removed.
    - 🟢 **Added:** a new element or attribute.
    - 🔴 **Removed:** an element or attribute that is gone.
    - 🟡 **Modified:** a change of type, cardinality, facets (length, `pattern`, digits, ranges), fixed or default value, or enumeration values. The details panel shows *before → after* and, for enumerations, the values added and removed.
@@ -197,6 +197,8 @@ The Comparison window has three areas:
 - Clicking a change in another branch regenerates the XML through it. In the Minimal, the selected change is included too, even when it is optional.
 - Changes to list values, patterns or lengths show in the details but may not change the XML.
 
+This explanation also shows above the XML; the ✕ hides it and the ⓘ next to *After* brings it back.
+
 **Summary.** **Copy summary** and **Export summary…** produce Markdown listing the Global Elements that were added, removed and changed. For each changed one, there is a table with the path, the kind of change and *before → after* (or, for added or removed fields, the field definition), ready to paste into an issue or a team document.
 
 The comparison covers XSDs. WSDL Services and Operations are not compared, and renames show up as a removal plus an addition.
@@ -207,7 +209,7 @@ Open **Settings** (on macOS, also from the app menu or with ⌘,). Changes apply
 
 ![Settings](../images/en/settings.png)
 
-- **Theme:** Same as system, Light, Dark, GitHub Light, GitHub Dark, Dracula, Gruvbox Light, Andromeda, One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha and Tokyo Night (Night, Storm, Moon and Day). Each theme has a color swatch next to its name. The theme changes the whole app: windows, panels, the editor, syntax colors, Comparison diff colors and Validation Issue underlines.
+- **Theme:** Indigo (the default; follows the system's light/dark mode), Same as system, Light, Dark, GitHub Light, GitHub Dark, Dracula, Gruvbox Light, Andromeda, One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha and Tokyo Night (Night, Storm, Moon and Day). Each theme has a color swatch next to its name. The theme changes the whole app: windows, panels, the editor, syntax colors, Comparison diff colors and Validation Issue underlines.
 - **Diff colors:** From theme (default), GitHub, VS Code, Color blind (blue/orange), Tritanopia (blue/red), Classic (blue for changes), High contrast, Monokai, Solarized or Claude. Changes only the added, removed and modified colors of the Comparison, in any theme. The swatch next to each option shows the colors on the current theme.
 - **Language:** Same as system, Português (Brasil) or English.
 

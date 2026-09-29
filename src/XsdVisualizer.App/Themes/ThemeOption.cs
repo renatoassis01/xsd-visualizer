@@ -16,6 +16,7 @@ public sealed record ThemeOption(AppTheme Theme)
         ThemeChoice.Dark => Strings.ThemeDark,
         ThemeChoice.GitHubLight => Strings.ThemeGitHubLight,
         ThemeChoice.GitHubDark => Strings.ThemeGitHubDark,
+        ThemeChoice.Indigo => Strings.ThemeIndigo,
         _ => Theme.Name,
     };
 

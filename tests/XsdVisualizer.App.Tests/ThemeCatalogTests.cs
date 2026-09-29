@@ -24,7 +24,7 @@ public class ThemeCatalogTests
     public void The_list_offers_system_light_dark_and_the_named_themes_in_order()
     {
         Assert.Equal(
-            [ThemeChoice.System, ThemeChoice.Light, ThemeChoice.Dark, ThemeChoice.GitHubLight, ThemeChoice.GitHubDark,
+            [ThemeChoice.System, ThemeChoice.Light, ThemeChoice.Dark, ThemeChoice.Indigo, ThemeChoice.GitHubLight, ThemeChoice.GitHubDark,
              ThemeChoice.Dracula, ThemeChoice.GruvboxLight, ThemeChoice.Andromeda, ThemeChoice.OneLight, ThemeChoice.OneDark,
              ThemeChoice.Nord, ThemeChoice.CatppuccinLatte, ThemeChoice.CatppuccinMocha, ThemeChoice.TokyoNight,
              ThemeChoice.TokyoNightStorm, ThemeChoice.TokyoNightMoon, ThemeChoice.TokyoNightDay],

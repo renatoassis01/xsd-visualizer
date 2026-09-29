@@ -42,6 +42,7 @@
         <StreamGeometry x:Key="IconCompare">M9,14H2V16H9V19L13,15L9,11V14M15,13V10H22V8H15V5L11,9L15,13Z</StreamGeometry>
         <StreamGeometry x:Key="IconUp">M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z</StreamGeometry>
         <StreamGeometry x:Key="IconDown">M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z</StreamGeometry>
+        <StreamGeometry x:Key="IconUpload">M14,13V17H10V13H7L12,8L17,13M19.35,10.03C18.67,6.59 15.64,4 12,4C9.11,4 6.6,5.64 5.35,8.03C2.34,8.36 0,10.9 0,14A6,6 0 0,0 6,20H19A5,5 0 0,0 24,15C24,12.36 21.95,10.22 19.35,10.03Z</StreamGeometry>
         <StreamGeometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z</StreamGeometry>
     </Application.Resources>
 
@@ -136,6 +137,70 @@
         <Style Selector="ListBox.results ListBoxItem">
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="CornerRadius" Value="6" />
+        </Style>
+
+        <!-- Seleção tonal (cor de seleção do tema) em vez do destaque saturado do Fluent. -->
+        <Style Selector="TreeViewItem:selected /template/ Border#PART_LayoutRoot">
+            <Setter Property="Background" Value="{DynamicResource SelectionBackground}" />
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SelectionBackground}" />
+        </Style>
+        <Style Selector="TreeViewItem, ListBoxItem">
+            <Setter Property="CornerRadius" Value="4" />
+        </Style>
+
+        <!-- Rótulo de seção: pequeno, discreto. -->
+        <Style Selector="TextBlock.section">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+            <Setter Property="LetterSpacing" Value="0.4" />
+        </Style>
+
+        <!-- Caixa tonal para valores (tipo, caminho, facets). -->
+        <Style Selector="Border.field">
+            <Setter Property="Background" Value="{DynamicResource SubtleBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="8,6" />
+        </Style>
+
+        <!-- Badge (pílula): contagens e tipo de mudança. -->
+        <Style Selector="Border.badge">
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Padding" Value="7,1" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="{DynamicResource SubtleBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Border.badge TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+        </Style>
+        <Style Selector="Border.badge.added"><Setter Property="Background" Value="{DynamicResource DiffAddedBackground}" /><Setter Property="BorderBrush" Value="{DynamicResource DiffAddedText}" /></Style>
+        <Style Selector="Border.badge.added TextBlock"><Setter Property="Foreground" Value="{DynamicResource DiffAddedText}" /></Style>
+        <Style Selector="Border.badge.removed"><Setter Property="Background" Value="{DynamicResource DiffRemovedBackground}" /><Setter Property="BorderBrush" Value="{DynamicResource DiffRemovedText}" /></Style>
+        <Style Selector="Border.badge.removed TextBlock"><Setter Property="Foreground" Value="{DynamicResource DiffRemovedText}" /></Style>
+        <Style Selector="Border.badge.modified"><Setter Property="Background" Value="{DynamicResource DiffModifiedBackground}" /><Setter Property="BorderBrush" Value="{DynamicResource DiffModifiedText}" /></Style>
+        <Style Selector="Border.badge.modified TextBlock"><Setter Property="Foreground" Value="{DynamicResource DiffModifiedText}" /></Style>
+
+        <!-- Atalho de teclado mostrado dentro de um campo. -->
+        <Style Selector="Border.kbd">
+            <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="5,0" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Border.kbd TextBlock">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontFamily" Value="{StaticResource MonospaceFont}" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
         </Style>
 
         <Style Selector="ToolTip">

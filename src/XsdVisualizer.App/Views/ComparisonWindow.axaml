@@ -82,10 +82,13 @@
                 <CheckBox DockPanel.Dock="Top" Content="{x:Static res:Strings.OnlyChanged}" IsChecked="{Binding OnlyChangedPairs}"
                           FontSize="12" Margin="0,0,0,6" />
                 <ListBox ItemsSource="{Binding Pairs}" SelectedItem="{Binding SelectedPair}">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem"><Setter Property="Padding" Value="8,5" /></Style>
+                    </ListBox.Styles>
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ElementPairViewModel">
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                <Ellipse Width="9" Height="9" VerticalAlignment="Top" Margin="0,5,0,0"
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" ToolTip.Tip="{Binding StatusText}">
+                                <Ellipse Width="8" Height="8" VerticalAlignment="Top" Margin="0,6,0,0"
                                          Classes.added="{Binding Status, Converter={x:Static views:DiffConverters.IsAdded}}"
                                          Classes.removed="{Binding Status, Converter={x:Static views:DiffConverters.IsRemoved}}"
                                          Classes.modified="{Binding Status, Converter={x:Static views:DiffConverters.IsModified}}"
@@ -94,9 +97,14 @@
                                          />
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding Files}" FontSize="11" Opacity="0.6" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding StatusText}" FontSize="11" Opacity="0.8" />
+                                    <TextBlock Text="{Binding Files}" FontSize="11" Foreground="{DynamicResource MutedText}"
+                                               TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
+                                <Border Grid.Column="2" Classes="badge" VerticalAlignment="Top" Margin="0,1,0,0"
+                                        Classes.added="{Binding Status, Converter={x:Static views:DiffConverters.IsAdded}}"
+                                        Classes.removed="{Binding Status, Converter={x:Static views:DiffConverters.IsRemoved}}">
+                                    <TextBlock Text="{Binding BadgeText}" />
+                                </Border>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -118,9 +126,17 @@
                     </StackPanel>
                     <TextBlock Classes="caption" Text="{x:Static res:Strings.Changes}" VerticalAlignment="Center" />
                 </DockPanel>
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="14" Margin="0,0,0,6">
-                    <CheckBox Content="{x:Static res:Strings.OnlyChanges}" IsChecked="{Binding OnlyChanges}" FontSize="12" />
-                    <CheckBox Content="{x:Static res:Strings.ShowDocumentation}" IsChecked="{Binding ShowDocumentation}" FontSize="12" />
+                <StackPanel Grid.Row="1" Spacing="6" Margin="0,0,0,6">
+                    <!-- Resumo do par: quantas mudanças de cada tipo (texto além da cor) -->
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasSelectedPair}">
+                        <Border Classes="badge modified" IsVisible="{Binding ModifiedCount}"><TextBlock Text="{Binding ModifiedCount, StringFormat={x:Static res:Strings.SummaryModified}}" /></Border>
+                        <Border Classes="badge added" IsVisible="{Binding AddedCount}"><TextBlock Text="{Binding AddedCount, StringFormat={x:Static res:Strings.SummaryAdded}}" /></Border>
+                        <Border Classes="badge removed" IsVisible="{Binding RemovedCount}"><TextBlock Text="{Binding RemovedCount, StringFormat={x:Static res:Strings.SummaryRemoved}}" /></Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="14">
+                        <CheckBox Content="{x:Static res:Strings.OnlyChanges}" IsChecked="{Binding OnlyChanges}" FontSize="12" />
+                        <CheckBox Content="{x:Static res:Strings.ShowDocumentation}" IsChecked="{Binding ShowDocumentation}" FontSize="12" />
+                    </StackPanel>
                 </StackPanel>
                 <Panel Grid.Row="2">
                     <TextBlock Text="{x:Static res:Strings.SelectPairHint}" Opacity="0.6" IsVisible="{Binding !HasSelectedPair}" />
@@ -132,7 +148,14 @@
                                                Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}"
                                                Classes.modified="{Binding IsModified}" Classes.docOnly="{Binding IsDocumentationOnly}" />
                                     <TextBlock Text="{Binding TypeName}" FontSize="11" FontStyle="Italic" Opacity="0.6" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CountText}" FontSize="11" Opacity="0.7" VerticalAlignment="Center" />
+                                    <Border Classes="badge" IsVisible="{Binding CountText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            ToolTip.Tip="{Binding CountText}">
+                                        <TextBlock Text="{Binding Count}" />
+                                    </Border>
+                                    <Border Classes="badge" IsVisible="{Binding HasBadge}"
+                                            Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}" Classes.modified="{Binding IsModified}">
+                                        <TextBlock Text="{Binding BadgeText}" />
+                                    </Border>
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.DataTemplates>
@@ -142,10 +165,18 @@
                 <ScrollViewer Grid.Row="4" MaxHeight="320" DataContext="{Binding SelectedChange}" x:DataType="vm:ChangeNodeViewModel"
                               IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <StackPanel Spacing="4" Margin="0,8,0,0">
-                        <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Model.Path}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding KindText}" FontWeight="SemiBold"
-                                   Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}" Classes.modified="{Binding IsModified}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
+                            <Border Classes="badge"
+                                    Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}" Classes.modified="{Binding IsModified}">
+                                <TextBlock Text="{Binding KindText}" />
+                            </Border>
+                        </StackPanel>
+                        <Border Classes="field">
+                            <SelectableTextBlock Text="{Binding Model.Path}" FontSize="11" TextWrapping="Wrap"
+                                                 FontFamily="{DynamicResource MonospaceFont}" />
+                        </Border>
                         <ItemsControl ItemsSource="{Binding DifferenceLines}" Margin="0,6,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
@@ -153,7 +184,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock Text="{x:Static res:Strings.Definition}" FontWeight="SemiBold" Margin="0,6,0,0"
+                        <TextBlock Classes="section" Text="{x:Static res:Strings.Definition}" Margin="0,6,0,0"
                                    IsVisible="{Binding HasDefinition}" />
                         <ItemsControl ItemsSource="{Binding DefinitionLines}">
                             <ItemsControl.ItemTemplate>
@@ -162,7 +193,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock Text="{x:Static res:Strings.Documentation}" FontWeight="SemiBold" Margin="0,6,0,0"
+                        <TextBlock Classes="section" Text="{x:Static res:Strings.Documentation}" Margin="0,6,0,0"
                                    IsVisible="{Binding HasDocumentation}" />
                         <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" IsVisible="{Binding HasDocumentation}" />
                     </StackPanel>
@@ -174,9 +205,14 @@
             <!-- Lado a lado -->
             <Grid Grid.Column="4" ColumnDefinitions="*,1,*" RowDefinitions="Auto,Auto,*" ClipToBounds="True">
                 <!-- Limitação do lado a lado, explicada onde ela aparece -->
-                <Border Grid.Row="0" Grid.ColumnSpan="3" Padding="10,6" BorderThickness="0,0,0,1"
+                <Border Grid.Row="0" Grid.ColumnSpan="3" Padding="10,6" BorderThickness="0,0,0,1" x:Name="Hint"
+                        Background="{DynamicResource SubtleBackground}"
                         BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
                     <DockPanel>
+                        <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="8,0,0,0"
+                                ToolTip.Tip="{x:Static res:Strings.HideHint}" Click="OnHideHint">
+                            <PathIcon Data="{StaticResource IconClose}" Width="10" Height="10" />
+                        </Button>
                         <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconInfo}" Width="14" Height="14" Opacity="0.7"
                                   VerticalAlignment="Top" Margin="0,1,8,0" />
                         <TextBlock Text="{x:Static res:Strings.ComparisonHint}" TextWrapping="Wrap" FontSize="11" Opacity="0.75" />
@@ -189,10 +225,16 @@
                     </TextBlock>
                 </Border>
                 <Border Grid.Row="1" Grid.Column="2" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                    <DockPanel>
+                    <Button DockPanel.Dock="Right" Classes="icon" x:Name="ShowHintButton" Padding="2"
+                            ToolTip.Tip="{x:Static res:Strings.ShowHint}" Click="OnShowHint">
+                        <PathIcon Data="{StaticResource IconInfo}" />
+                    </Button>
                     <TextBlock>
                         <Run Text="{x:Static res:Strings.After}" FontWeight="SemiBold" />
                         <Run Text="{Binding After.Name, StringFormat='  {0}'}" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                     </TextBlock>
+                    </DockPanel>
                 </Border>
                 <ae:TextEditor Grid.Row="2" Grid.Column="0" x:Name="BeforeEditor" IsReadOnly="True" ShowLineNumbers="False"
                                Background="{DynamicResource EditorBackground}" Foreground="{DynamicResource EditorForeground}"

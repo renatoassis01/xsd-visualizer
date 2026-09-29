@@ -44,8 +44,9 @@ public static class ThemeApplier
         var fluent = new FluentTheme();
         if (theme.IsNamed)
         {
-            var dark = theme.Mode == ThemeMode.Dark;
-            fluent.Palettes[dark ? ThemeVariant.Dark : ThemeVariant.Light] = Palette(theme.ColorsFor(dark));
+            // Um tema nomeado que segue o sistema (Índigo) traz as duas paletas; os demais, só a do seu modo.
+            foreach (var dark in theme.Mode == ThemeMode.System ? new[] { false, true } : [theme.Mode == ThemeMode.Dark])
+                fluent.Palettes[dark ? ThemeVariant.Dark : ThemeVariant.Light] = Palette(theme.ColorsFor(dark));
         }
         var index = app.Styles.ToList().FindIndex(s => s is FluentTheme);
         if (index >= 0) app.Styles[index] = fluent;
@@ -77,6 +78,14 @@ public static class ThemeApplier
         Set("WarningText", c.IssueWarning);
         Set("OnAccentText", c.OnAccent);
         Set("ErrorText", c.IssueError);
+        Set("SelectionBackground", c.Selection);
+        Set("SubtleBackground", c.Panel);
+        Set("CardBackground", c.Editor);
+        Set("SubtleBorder", c.Border);
+        Set("MutedText", c.TextMuted);
+        Set("DiffAddedBackground", c.DiffAddedLine);
+        Set("DiffRemovedBackground", c.DiffRemovedLine);
+        Set("DiffModifiedBackground", c.DiffModifiedLine);
         Changed?.Invoke(c);
     }
 

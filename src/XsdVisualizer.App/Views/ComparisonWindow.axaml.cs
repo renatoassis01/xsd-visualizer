@@ -31,12 +31,28 @@ public partial class ComparisonWindow : Window
         BeforeEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(BeforeEditor, AfterEditor);
         AfterEditor.TextArea.TextView.ScrollOffsetChanged += (_, _) => Sync(AfterEditor, BeforeEditor);
         ApplyTheme();
+        SetHintVisible(CurrentApp?.Preferences.HideComparisonHint != true, save: false);
         Action<Themes.ThemeColors> onTheme = _ => ApplyTheme();
         Themes.ThemeApplier.Changed += onTheme;
         Closed += (_, _) => Themes.ThemeApplier.Changed -= onTheme;
     }
 
     private ComparisonViewModel? Vm => DataContext as ComparisonViewModel;
+
+    private static App? CurrentApp => Application.Current as App;
+
+    /// <summary>A explicação do lado a lado some depois de lida; o ⓘ a traz de volta. Fica lembrado na sessão.</summary>
+    private void SetHintVisible(bool visible, bool save)
+    {
+        Hint.IsVisible = visible;
+        ShowHintButton.IsVisible = !visible;
+        if (!save || CurrentApp is not { } app) return;
+        app.Preferences.HideComparisonHint = !visible;
+        app.SavePreferences();
+    }
+
+    private void OnHideHint(object? sender, RoutedEventArgs e) => SetHintVisible(false, save: true);
+    private void OnShowHint(object? sender, RoutedEventArgs e) => SetHintVisible(true, save: true);
 
     protected override void OnDataContextChanged(EventArgs e)
     {
