@@ -76,10 +76,11 @@
 
             <!-- Element Pairs -->
             <DockPanel Grid.Column="0" Margin="10" ClipToBounds="True">
-                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-                    <CheckBox DockPanel.Dock="Right" Content="{x:Static res:Strings.OnlyChanged}" IsChecked="{Binding OnlyChangedPairs}" FontSize="12" />
-                    <TextBlock Classes="caption" Text="{x:Static res:Strings.Pairs}" VerticalAlignment="Center" />
-                </DockPanel>
+                <!-- Título e filtro em linhas próprias, como na coluna de Changes: lado a lado, um cobria o outro -->
+                <TextBlock DockPanel.Dock="Top" Classes="caption" Text="{x:Static res:Strings.Pairs}" Margin="0,0,0,6"
+                           TextTrimming="CharacterEllipsis" />
+                <CheckBox DockPanel.Dock="Top" Content="{x:Static res:Strings.OnlyChanged}" IsChecked="{Binding OnlyChangedPairs}"
+                          FontSize="12" Margin="0,0,0,6" />
                 <ListBox ItemsSource="{Binding Pairs}" SelectedItem="{Binding SelectedPair}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ElementPairViewModel">
