@@ -138,6 +138,12 @@
   <data name="Changes" xml:space="preserve"><value>Changes</value></data>
   <data name="ThemeGitHubLight" xml:space="preserve"><value>GitHub Light</value></data>
   <data name="ThemeGitHubDark" xml:space="preserve"><value>GitHub Dark</value></data>
+  <data name="DiffColors" xml:space="preserve"><value>Diff colors</value></data>
+  <data name="DiffFromTheme" xml:space="preserve"><value>From theme</value></data>
+  <data name="DiffTritanopia" xml:space="preserve"><value>Tritanopia (blue/red)</value></data>
+  <data name="DiffClassic" xml:space="preserve"><value>Classic (blue for changes)</value></data>
+  <data name="DiffHighContrast" xml:space="preserve"><value>High contrast</value></data>
+  <data name="DiffColorBlind" xml:space="preserve"><value>Color blind (blue/orange)</value></data>
   <data name="ComparisonHint" xml:space="preserve"><value>The tree on the left shows every change. The side-by-side XML is an example: for each choice between alternatives it uses one branch, and for value lists it uses one value. Clicking a change in another branch regenerates the XML through it. Changes to list values, patterns or lengths show in the details but may not change the XML.</value></data>
   <data name="Definition" xml:space="preserve">
     <value>Field definition</value>

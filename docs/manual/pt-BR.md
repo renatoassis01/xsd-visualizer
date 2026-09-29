@@ -207,7 +207,8 @@ Abra em **Configurações** (no macOS, também no menu do app ou com ⌘,). As m
 
 ![Configurações](../images/pt-BR/settings.png)
 
-- **Tema:** Igual ao sistema, Claro, Escuro, GitHub Claro, GitHub Escuro, Dracula, Gruvbox Light e Andromeda. Cada tema tem uma amostra de cores ao lado do nome. O tema muda o app inteiro: janelas, painéis, editor, cores de sintaxe, cores do diff da Comparação e sublinhado das Validation Issues.
+- **Tema:** Igual ao sistema, Claro, Escuro, GitHub Claro, GitHub Escuro, Dracula, Gruvbox Light, Andromeda, One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha e Tokyo Night (Night, Storm, Moon e Day). Cada tema tem uma amostra de cores ao lado do nome. O tema muda o app inteiro: janelas, painéis, editor, cores de sintaxe, cores do diff da Comparação e sublinhado das Validation Issues.
+- **Cores do diff:** Do tema (padrão), GitHub, VS Code, Daltônico (azul/laranja), Tritanopia (azul/vermelho), Clássico (azul para alteração), Alto contraste, Monokai, Solarized ou Claude. Troca só as cores de entrou, saiu e mudou da Comparação, em qualquer tema. A amostra ao lado de cada opção mostra as cores sobre o tema atual.
 - **Idioma:** Igual ao sistema, Português (Brasil) ou English.
 
 ![Tema Dracula](../images/pt-BR/theme-dracula.png)

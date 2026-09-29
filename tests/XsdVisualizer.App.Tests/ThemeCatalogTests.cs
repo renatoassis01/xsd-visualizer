@@ -6,23 +6,32 @@ namespace XsdVisualizer.App.Tests;
 
 public class ThemeCatalogTests
 {
-    public static TheoryData<ThemeChoice, bool> Palettes()
+    /// <summary>Cada tema, em cada modo que ele usa, com cada esquema de cores do diff.</summary>
+    public static TheoryData<ThemeChoice, bool, DiffColorsChoice> Palettes()
     {
-        var data = new TheoryData<ThemeChoice, bool>();
+        var data = new TheoryData<ThemeChoice, bool, DiffColorsChoice>();
         foreach (var theme in ThemeCatalog.All)
             foreach (var dark in theme.Mode == ThemeMode.System ? new[] { false, true } : new[] { theme.Mode == ThemeMode.Dark })
-                data.Add(theme.Choice, dark);
+                foreach (var diff in DiffPaletteCatalog.All)
+                    data.Add(theme.Choice, dark, diff.Choice);
         return data;
     }
+
+    private static ThemeColors ColorsOf(ThemeChoice choice, bool dark, DiffColorsChoice diff) =>
+        DiffPaletteCatalog.Get(diff).ApplyTo(ThemeCatalog.Get(choice).ColorsFor(dark), dark);
 
     [Fact]
     public void The_list_offers_system_light_dark_and_the_named_themes_in_order()
     {
         Assert.Equal(
             [ThemeChoice.System, ThemeChoice.Light, ThemeChoice.Dark, ThemeChoice.GitHubLight, ThemeChoice.GitHubDark,
-             ThemeChoice.Dracula, ThemeChoice.GruvboxLight, ThemeChoice.Andromeda],
+             ThemeChoice.Dracula, ThemeChoice.GruvboxLight, ThemeChoice.Andromeda, ThemeChoice.OneLight, ThemeChoice.OneDark,
+             ThemeChoice.Nord, ThemeChoice.CatppuccinLatte, ThemeChoice.CatppuccinMocha, ThemeChoice.TokyoNight,
+             ThemeChoice.TokyoNightStorm, ThemeChoice.TokyoNightMoon, ThemeChoice.TokyoNightDay],
             ThemeCatalog.All.Select(t => t.Choice));
-        Assert.Equal(["Dracula", "Andromeda"], ThemeCatalog.All.Where(t => t.Mode == ThemeMode.Dark && t.IsNamed).Select(t => t.Name).Where(n => !n.StartsWith("GitHub")));
+        Assert.Equal(
+            ["Dracula", "Andromeda", "One Dark", "Nord", "Catppuccin Mocha", "Tokyo Night", "Tokyo Night Storm", "Tokyo Night Moon"],
+            ThemeCatalog.All.Where(t => t.Mode == ThemeMode.Dark && t.IsNamed).Select(t => t.Name).Where(n => !n.StartsWith("GitHub")));
     }
 
     [Fact]
@@ -34,23 +43,23 @@ public class ThemeCatalogTests
 
     [Theory]
     [MemberData(nameof(Palettes))]
-    public void Every_theme_defines_every_color(ThemeChoice choice, bool dark)
+    public void Every_theme_defines_every_color(ThemeChoice choice, bool dark, DiffColorsChoice diff)
     {
-        var colors = ThemeCatalog.Get(choice).ColorsFor(dark);
+        var colors = ColorsOf(choice, dark, diff);
 
         foreach (var property in typeof(ThemeColors).GetProperties())
         {
             var value = property.GetValue(colors);
             Assert.True(value is ThemeColor color && ThemeColor.Parse(color.ToString()) == color,
-                $"{choice}/{(dark ? "dark" : "light")}: {property.Name} = '{value}'");
+                $"{choice}/{(dark ? "dark" : "light")}/{diff}: {property.Name} = '{value}'");
         }
     }
 
     [Theory]
     [MemberData(nameof(Palettes))]
-    public void Text_is_readable_on_every_background(ThemeChoice choice, bool dark)
+    public void Text_is_readable_on_every_background(ThemeChoice choice, bool dark, DiffColorsChoice diff)
     {
-        var c = ThemeCatalog.Get(choice).ColorsFor(dark);
+        var c = ColorsOf(choice, dark, diff);
 
         AssertContrast(c.Text, c.Window, 4.5, "texto/janela");
         AssertContrast(c.Text, c.Panel, 4.5, "texto/painel");
@@ -61,14 +70,14 @@ public class ThemeCatalogTests
             AssertContrast(c.Text, line, 4.5, "texto/linha do diff");
 
         void AssertContrast(ThemeColor fg, ThemeColor bg, double min, string what) =>
-            Assert.True(Contrast(fg, bg) >= min, $"{choice}/{(dark ? "dark" : "light")} {what}: {fg} sobre {bg} = {Contrast(fg, bg):0.00} (< {min})");
+            Assert.True(Contrast(fg, bg) >= min, $"{choice}/{(dark ? "dark" : "light")}/{diff} {what}: {fg} sobre {bg} = {Contrast(fg, bg):0.00} (< {min})");
     }
 
     [Theory]
     [MemberData(nameof(Palettes))]
-    public void Syntax_diff_link_and_underline_colors_stand_out_from_their_background(ThemeChoice choice, bool dark)
+    public void Syntax_diff_link_and_underline_colors_stand_out_from_their_background(ThemeChoice choice, bool dark, DiffColorsChoice diff)
     {
-        var c = ThemeCatalog.Get(choice).ColorsFor(dark);
+        var c = ColorsOf(choice, dark, diff);
         var onEditor = new Dictionary<string, ThemeColor>
         {
             ["tag"] = c.SyntaxTag, ["atributo"] = c.SyntaxAttribute, ["valor"] = c.SyntaxValue, ["comentário"] = c.SyntaxComment,
@@ -84,14 +93,14 @@ public class ThemeCatalogTests
             .Concat(onPanel.Where(kv => Contrast(kv.Value, c.Panel) < 3).Select(kv => $"{kv.Key} {kv.Value}/{c.Panel} {Contrast(kv.Value, c.Panel):0.00}"))
             .ToList();
 
-        Assert.True(failures.Count == 0, $"{choice}/{(dark ? "dark" : "light")}: " + string.Join("; ", failures));
+        Assert.True(failures.Count == 0, $"{choice}/{(dark ? "dark" : "light")}/{diff}: " + string.Join("; ", failures));
     }
 
     [Theory]
     [MemberData(nameof(Palettes))]
-    public void Colors_stay_readable_where_they_are_also_drawn(ThemeChoice choice, bool dark)
+    public void Colors_stay_readable_where_they_are_also_drawn(ThemeChoice choice, bool dark, DiffColorsChoice diff)
     {
-        var c = ThemeCatalog.Get(choice).ColorsFor(dark);
+        var c = ColorsOf(choice, dark, diff);
         var pairs = new List<(string What, ThemeColor Fg, ThemeColor Bg)> { ("texto secundário/editor (números de linha)", c.TextMuted, c.Editor) };
         foreach (var line in new[] { c.DiffAddedLine, c.DiffRemovedLine, c.DiffModifiedLine })
             foreach (var syntax in new[] { c.SyntaxTag, c.SyntaxAttribute, c.SyntaxValue, c.SyntaxComment, c.SyntaxDeclaration })
@@ -99,18 +108,48 @@ public class ThemeCatalogTests
 
         var failures = pairs.Where(p => Contrast(p.Fg, p.Bg) < 3).Select(p => $"{p.What}: {p.Fg}/{p.Bg} {Contrast(p.Fg, p.Bg):0.00}").ToList();
 
-        Assert.True(failures.Count == 0, $"{choice}/{(dark ? "dark" : "light")}: " + string.Join("; ", failures));
+        Assert.True(failures.Count == 0, $"{choice}/{(dark ? "dark" : "light")}/{diff}: " + string.Join("; ", failures));
     }
 
     [Theory]
     [MemberData(nameof(Palettes))]
-    public void Text_on_the_accent_color_is_readable(ThemeChoice choice, bool dark)
+    public void Text_on_the_accent_color_is_readable(ThemeChoice choice, bool dark, DiffColorsChoice diff)
     {
         var theme = ThemeCatalog.Get(choice);
         if (theme.UsesSystemAccent) return; // a cor de destaque vem do sistema operacional, não do catálogo
-        var c = theme.ColorsFor(dark);
+        var c = ColorsOf(choice, dark, diff);
 
         Assert.True(Contrast(c.OnAccent, c.Accent) >= 4.5, $"{choice}: {c.OnAccent} sobre {c.Accent} = {Contrast(c.OnAccent, c.Accent):0.00}");
+    }
+
+    [Fact]
+    public void The_diff_colors_offer_the_theme_ones_and_the_app_schemes_in_order()
+    {
+        Assert.Equal(
+            [DiffColorsChoice.Theme, DiffColorsChoice.GitHub, DiffColorsChoice.VSCode, DiffColorsChoice.ColorBlind,
+             DiffColorsChoice.Tritanopia, DiffColorsChoice.Classic, DiffColorsChoice.HighContrast, DiffColorsChoice.Monokai,
+             DiffColorsChoice.Solarized, DiffColorsChoice.Claude],
+            DiffPaletteCatalog.All.Select(p => p.Choice));
+    }
+
+    [Theory]
+    [MemberData(nameof(Palettes))]
+    public void A_diff_scheme_changes_only_the_diff_colors(ThemeChoice choice, bool dark, DiffColorsChoice diff)
+    {
+        var theme = ThemeCatalog.Get(choice).ColorsFor(dark);
+        var colors = ColorsOf(choice, dark, diff);
+        string[] diffColors =
+            [nameof(ThemeColors.DiffAdded), nameof(ThemeColors.DiffRemoved), nameof(ThemeColors.DiffModified),
+             nameof(ThemeColors.DiffAddedLine), nameof(ThemeColors.DiffRemovedLine), nameof(ThemeColors.DiffModifiedLine)];
+
+        foreach (var property in typeof(ThemeColors).GetProperties())
+        {
+            var (before, after) = (property.GetValue(theme), property.GetValue(colors));
+            if (diff == DiffColorsChoice.Theme || !diffColors.Contains(property.Name))
+                Assert.Equal(before, after);
+        }
+        if (diff != DiffColorsChoice.Theme)
+            Assert.Equal(DiffPaletteCatalog.Get(diff).ColorsFor(dark).Added, colors.DiffAdded);
     }
 
     [Fact]

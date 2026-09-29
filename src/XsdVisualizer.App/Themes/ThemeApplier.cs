@@ -16,6 +16,12 @@ public static class ThemeApplier
 {
     public static AppTheme Theme { get; private set; } = ThemeCatalog.All[0];
 
+    /// <summary>Cores do diff: as do tema ou um esquema do app que vale sobre qualquer tema.</summary>
+    public static DiffPalette Diff { get; private set; } = DiffPaletteCatalog.All[0];
+
+    /// <summary>Se as cores em uso são as do modo escuro do tema.</summary>
+    public static bool IsDark { get; private set; }
+
     /// <summary>Cores em uso agora (para "Igual ao sistema", as do modo atual do sistema).</summary>
     public static ThemeColors Colors { get; private set; } = ThemeCatalog.All[0].Light;
 
@@ -48,11 +54,18 @@ public static class ThemeApplier
         ApplyResources(app);
     }
 
+    public static void SetDiff(Application app, DiffPalette diff)
+    {
+        Diff = diff;
+        ApplyResources(app);
+    }
+
     /// <summary>Recursos próprios do app para o modo em vigor (chamado também quando o sistema troca claro/escuro).</summary>
     public static void ApplyResources(Application app)
     {
         var dark = Theme.Mode == ThemeMode.System ? app.ActualThemeVariant == ThemeVariant.Dark : Theme.Mode == ThemeMode.Dark;
-        var c = Colors = Theme.ColorsFor(dark);
+        IsDark = dark;
+        var c = Colors = Diff.ApplyTo(Theme.ColorsFor(dark), dark);
         Brushes = new ThemeBrushes(c);
         void Set(string key, ThemeColor color) => app.Resources[key] = ThemeBrushes.ToBrush(color);
         Set("EditorBackground", c.Editor);

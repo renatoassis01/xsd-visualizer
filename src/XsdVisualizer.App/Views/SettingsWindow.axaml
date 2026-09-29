@@ -4,12 +4,12 @@
         xmlns:themes="using:XsdVisualizer.App.Themes"
         x:Class="XsdVisualizer.App.Views.SettingsWindow"
         Title="{x:Static res:Strings.Settings}"
-        Width="420" SizeToContent="Height" CanResize="False"
+        Width="460" SizeToContent="Height" CanResize="False"
         WindowStartupLocation="CenterOwner"
         Icon="/Assets/app.png">
     <StackPanel Margin="24" Spacing="16">
         <TextBlock Text="{x:Static res:Strings.Settings}" FontSize="20" FontWeight="SemiBold" />
-        <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto" RowSpacing="12">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="12" ColumnSpacing="16">
             <TextBlock Grid.Row="0" Text="{x:Static res:Strings.Theme}" VerticalAlignment="Center" />
             <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ThemeBox" HorizontalAlignment="Stretch">
                 <ComboBox.ItemTemplate>
@@ -30,8 +30,27 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock Grid.Row="1" Text="{x:Static res:Strings.Language}" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="LanguageBox" HorizontalAlignment="Stretch" />
+            <TextBlock Grid.Row="1" Text="{x:Static res:Strings.DiffColors}" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="DiffBox" HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="themes:DiffOption">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <!-- Amostra: entrou, saiu e mudou sobre o fundo do editor do tema atual -->
+                            <Border Background="{Binding Background}" BorderBrush="{Binding Border}" BorderThickness="1"
+                                    CornerRadius="4" Padding="5,3" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="3">
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Added}" />
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Removed}" />
+                                    <Ellipse Width="9" Height="9" Fill="{Binding Modified}" />
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Grid.Row="2" Text="{x:Static res:Strings.Language}" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="LanguageBox" HorizontalAlignment="Stretch" />
         </Grid>
         <TextBlock Text="{x:Static res:Strings.SettingsHint}" Opacity="0.6" FontSize="12" TextWrapping="Wrap" />
         <Button x:Name="CloseButton" Classes="accent" Content="{x:Static res:Strings.Close}" HorizontalAlignment="Right"
