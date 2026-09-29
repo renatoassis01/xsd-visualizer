@@ -162,9 +162,9 @@
                     </TreeView>
                 </Panel>
                 <GridSplitter Grid.Row="3" ResizeDirection="Rows" />
-                <ScrollViewer Grid.Row="4" MaxHeight="320" DataContext="{Binding SelectedChange}" x:DataType="vm:ChangeNodeViewModel"
+                <ScrollViewer Grid.Row="4" MaxHeight="320" VerticalAlignment="Top" DataContext="{Binding SelectedChange}" x:DataType="vm:ChangeNodeViewModel"
                               IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
-                    <StackPanel Spacing="4" Margin="0,8,0,0">
+                    <StackPanel Spacing="8" Margin="0,8,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
                                        Foreground="{DynamicResource SystemControlHighlightAccentBrush}" />
@@ -177,25 +177,54 @@
                             <SelectableTextBlock Text="{Binding Model.Path}" FontSize="11" TextWrapping="Wrap"
                                                  FontFamily="{DynamicResource MonospaceFont}" />
                         </Border>
-                        <ItemsControl ItemsSource="{Binding DifferenceLines}" Margin="0,6,0,0">
+                        <ItemsControl ItemsSource="{Binding Differences}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="x:String">
-                                    <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}" FontSize="12" />
+                                <DataTemplate x:DataType="vm:DifferenceRow">
+                                    <Border Classes="field">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Classes="section" Text="{Binding Name}" />
+                                            <SelectableTextBlock TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}" FontSize="12"
+                                                                 IsVisible="{Binding !IsEnumeration}">
+                                                <Run Text="{Binding Before}" Foreground="{DynamicResource DiffRemovedText}" />
+                                                <Run Text="  →  " Foreground="{DynamicResource MutedText}" />
+                                                <Run Text="{Binding After}" Foreground="{DynamicResource DiffAddedText}" FontWeight="SemiBold" />
+                                            </SelectableTextBlock>
+                                            <SelectableTextBlock Text="{Binding Added}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}"
+                                                                 FontSize="12" Foreground="{DynamicResource DiffAddedText}" IsVisible="{Binding HasAdded}" />
+                                            <SelectableTextBlock Text="{Binding Removed}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}"
+                                                                 FontSize="12" Foreground="{DynamicResource DiffRemovedText}" IsVisible="{Binding HasRemoved}" />
+                                        </StackPanel>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock Classes="section" Text="{x:Static res:Strings.Definition}" Margin="0,6,0,0"
-                                   IsVisible="{Binding HasDefinition}" />
-                        <ItemsControl ItemsSource="{Binding DefinitionLines}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="x:String">
-                                    <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap" FontFamily="{DynamicResource MonospaceFont}" FontSize="12" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock Classes="section" Text="{x:Static res:Strings.Documentation}" Margin="0,6,0,0"
-                                   IsVisible="{Binding HasDocumentation}" />
-                        <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" IsVisible="{Binding HasDocumentation}" />
+                        <StackPanel Spacing="2" IsVisible="{Binding HasDefinition}">
+                            <TextBlock Classes="section" Text="{x:Static res:Strings.Definition}" />
+                            <Border Classes="field">
+                                <ItemsControl ItemsSource="{Binding Definition}" Grid.IsSharedSizeScope="True">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:DefinitionRow">
+                                            <Grid Margin="0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="name" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" FontSize="12" Foreground="{DynamicResource MutedText}" Margin="0,0,12,0" />
+                                                <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap"
+                                                                     FontFamily="{DynamicResource MonospaceFont}" FontSize="12" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Spacing="2" IsVisible="{Binding HasDocumentation}">
+                            <TextBlock Classes="section" Text="{x:Static res:Strings.Documentation}" />
+                            <SelectableTextBlock Text="{Binding Documentation}" TextWrapping="Wrap" />
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

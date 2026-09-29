@@ -370,7 +370,7 @@
                 </Panel>
                 <GridSplitter Grid.Row="4" ResizeDirection="Rows" />
                 <!-- Detalhes do nó: caminho copiável, tipo e cardinalidade lado a lado, facets e documentação -->
-                <ScrollViewer Grid.Row="5" MaxHeight="300" DataContext="{Binding Tree.SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
+                <ScrollViewer Grid.Row="5" MaxHeight="300" VerticalAlignment="Top" DataContext="{Binding Tree.SelectedNode}" x:DataType="vm:SchemaNodeViewModel"
                               IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <StackPanel Spacing="8" Margin="0,8,0,0">
                         <TextBlock Text="{Binding Label}" FontSize="15" FontWeight="SemiBold"

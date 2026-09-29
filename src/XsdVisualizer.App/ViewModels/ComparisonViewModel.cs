@@ -296,11 +296,14 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
     public bool HasDocumentation => !string.IsNullOrWhiteSpace(Documentation);
     public string KindText => ChangeKindText.Of(Kind);
 
-    /// <summary>Linhas "propriedade: antes → depois" (e valores de enumeração que entraram/saíram).</summary>
-    public IReadOnlyList<string> DifferenceLines => Model.Differences.Select(d => d.Describe(PropertyName, arrow: " → ")).ToList();
+    /// <summary>O que mudou, uma caixa por propriedade: antes → depois, ou os valores de enumeração que entraram/saíram.</summary>
+    public IReadOnlyList<DifferenceRow> Differences => Model.Differences.Select(d => new DifferenceRow(
+        PropertyName(d.Property), d.Before ?? "—", d.After ?? "—",
+        d.Property == "enumeration" ? string.Join(", ", d.AddedValues.Select(v => "+" + v)) : null,
+        d.Property == "enumeration" ? string.Join(", ", d.RemovedValues.Select(v => "−" + v)) : null)).ToList();
 
-    /// <summary>Linhas "propriedade: valor" da definição do campo (tipo, cardinalidade, facets, valor fixo/padrão).</summary>
-    public IReadOnlyList<string> DefinitionLines => Model.Definition.Select(d => $"{PropertyName(d.Property)}: {d.Value}").ToList();
+    /// <summary>Definição do campo (tipo, cardinalidade, facets, valor fixo/padrão), propriedade e valor.</summary>
+    public IReadOnlyList<DefinitionRow> Definition => Model.Definition.Select(d => new DefinitionRow(PropertyName(d.Property), d.Value)).ToList();
     public bool HasDefinition => Model.Definition.Count > 0;
 
     private static string PropertyName(string property) => property switch
@@ -313,3 +316,13 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
         _ => property,
     };
 }
+
+/// <summary>Uma propriedade que mudou; numa enumeração, Added/Removed trazem os valores e Before/After não valem.</summary>
+public sealed record DifferenceRow(string Name, string Before, string After, string? Added, string? Removed)
+{
+    public bool IsEnumeration => Added is not null;
+    public bool HasAdded => !string.IsNullOrEmpty(Added);
+    public bool HasRemoved => !string.IsNullOrEmpty(Removed);
+}
+
+public sealed record DefinitionRow(string Name, string Value);
