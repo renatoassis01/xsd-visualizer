@@ -191,6 +191,13 @@ A janela de Comparação tem três áreas:
    - As setas ⌃ ⌄ vão para a mudança anterior ou para a próxima.
 3. **XML lado a lado** (direita): um Sample do Antes e um do Depois, com as linhas que entraram em verde, as que saíram em vermelho e as que mudaram em âmbar. Clicar numa mudança rola os dois lados até ela. **Minimal** (o padrão) e **Maximal**, no topo, trocam o tipo de Sample usado: o Minimal é mais enxuto e passa pela mudança selecionada; o Maximal mostra de uma vez todos os opcionais do ramo escolhido.
 
+**Pesquisar mudanças.** O campo *Pesquisar campo por nome ou documentação*, na coluna Mudanças, procura no Global Element selecionado pelo nome do campo e pela documentação de antes e de depois. Os resultados aparecem numa lista com o tipo de mudança; clique num deles para abrir e selecionar o nó na árvore. **⌘F** (macOS) ou **Ctrl+F** leva ao campo e **Esc** o limpa. Limites:
+
+- Procura só no par selecionado, não em todos os Global Elements.
+- Respeita os filtros da árvore: com **Só mudanças** marcado, encontra só o que mudou; desmarque para procurar em todos os campos. Mudanças só de documentação entram quando **Mudanças de documentação** está marcado.
+- Campos abaixo de um tipo recursivo (↻) não entram na comparação, nem na pesquisa.
+- Não procura dentro do XML. Para achar um texto no XML lado a lado, clique nele e use **⌘F** / **Ctrl+F**: abre a busca do editor, um lado por vez.
+
 **Limites do XML lado a lado.** A árvore mostra todas as mudanças. O XML é só um exemplo:
 
 - Em cada escolha entre alternativas ele usa um ramo só; em listas de valores, um valor só.

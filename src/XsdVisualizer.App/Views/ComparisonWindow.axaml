@@ -137,6 +137,54 @@
                         <CheckBox Content="{x:Static res:Strings.OnlyChanges}" IsChecked="{Binding OnlyChanges}" FontSize="12" />
                         <CheckBox Content="{x:Static res:Strings.ShowDocumentation}" IsChecked="{Binding ShowDocumentation}" FontSize="12" />
                     </StackPanel>
+                    <!-- Pesquisa no par selecionado; o tooltip explica o alcance (filtro, recursão, XML) -->
+                    <TextBox x:Name="SearchBox" Classes="search" PlaceholderText="{x:Static res:Strings.SearchChanges}"
+                             Text="{Binding SearchText}" IsEnabled="{Binding HasSelectedPair}"
+                             ToolTip.Tip="{x:Static res:Strings.SearchChangesTip}">
+                        <TextBox.KeyBindings>
+                            <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                        </TextBox.KeyBindings>
+                        <TextBox.InnerLeftContent>
+                            <PathIcon Classes="searchIcon" Data="{StaticResource IconSearch}" />
+                        </TextBox.InnerLeftContent>
+                        <TextBox.InnerRightContent>
+                            <Panel>
+                                <Button Classes="icon" Margin="0,0,4,0" Command="{Binding ClearSearchCommand}"
+                                        ToolTip.Tip="{x:Static res:Strings.ClearSearch}" IsVisible="{Binding HasSearchText}">
+                                    <PathIcon Data="{StaticResource IconClose}" Width="10" Height="10" />
+                                </Button>
+                                <Border Classes="kbd" IsVisible="{Binding !HasSearchText}">
+                                    <TextBlock x:Name="SearchShortcut" />
+                                </Border>
+                            </Panel>
+                        </TextBox.InnerRightContent>
+                    </TextBox>
+                    <StackPanel Spacing="4" IsVisible="{Binding HasSearchText}">
+                        <TextBlock Text="{Binding SearchSummary}" FontSize="11" Foreground="{DynamicResource MutedText}"
+                                   TextWrapping="Wrap" Margin="4,0" />
+                        <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource SubtleBorder}"
+                                ClipToBounds="True" IsVisible="{Binding SearchResults.Count}">
+                            <ListBox Classes="results" MaxHeight="200" ItemsSource="{Binding SearchResults}"
+                                     SelectedItem="{Binding SelectedSearchResult}" Background="Transparent">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ChangeSearchResult">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Label}" FontWeight="SemiBold" FontSize="13" />
+                                                <TextBlock Text="{Binding ParentPath}" FontSize="11" Foreground="{DynamicResource MutedText}"
+                                                           TextTrimming="PrefixCharacterEllipsis" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Classes="badge" IsVisible="{Binding HasKind}"
+                                                    Classes.added="{Binding IsAdded}" Classes.removed="{Binding IsRemoved}"
+                                                    Classes.modified="{Binding IsModified}">
+                                                <TextBlock Text="{Binding KindText}" />
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
                 <Panel Grid.Row="2">
                     <TextBlock Text="{x:Static res:Strings.SelectPairHint}" Opacity="0.6" IsVisible="{Binding !HasSelectedPair}" />
