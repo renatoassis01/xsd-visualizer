@@ -183,11 +183,31 @@ public static class ThemeCatalog
         DiffAddedLine: "#DAE6DE", DiffRemovedLine: "#F2E1E7", DiffModifiedLine: "#E9E2DA", DiffBlankLine: "#D0D5E3",
         IssueError: "#F52A65", IssueWarning: "#8C6C3E");
 
+    // Índigo: base slate (neutros frios) com destaque índigo; claro e escuro, segue o sistema.
+    private static readonly ThemeColors IndigoLight = new(
+        Window: "#F8FAFC", Panel: "#F1F5F9", Editor: "#FFFFFF", Selection: "#E0E7FF", Hover: "#EEF2FF", Border: "#E2E8F0",
+        Text: "#0F172A", TextMuted: "#5B6B82", Accent: "#4F46E5", OnAccent: "#FFFFFF", Link: "#4338CA",
+        SyntaxTag: "#3730A3", SyntaxAttribute: "#0E7490", SyntaxValue: "#9D174D", SyntaxComment: "#64748B",
+        SyntaxDeclaration: "#6D28D9", SyntaxEntity: "#0E7490", SyntaxCData: "#9D174D",
+        DiffAdded: "#15803D", DiffRemoved: "#B91C1C", DiffModified: "#B45309",
+        DiffAddedLine: "#F0FDF4", DiffRemovedLine: "#FEF2F2", DiffModifiedLine: "#FFFBEB", DiffBlankLine: "#F8FAFC",
+        IssueError: "#DC2626", IssueWarning: "#B45309");
+
+    private static readonly ThemeColors IndigoDark = new(
+        Window: "#0F172A", Panel: "#0B1220", Editor: "#0F172A", Selection: "#312E81", Hover: "#1E293B", Border: "#334155",
+        Text: "#E2E8F0", TextMuted: "#94A3B8", Accent: "#818CF8", OnAccent: "#0F172A", Link: "#A5B4FC",
+        SyntaxTag: "#A5B4FC", SyntaxAttribute: "#67E8F9", SyntaxValue: "#F9A8D4", SyntaxComment: "#94A3B8",
+        SyntaxDeclaration: "#C4B5FD", SyntaxEntity: "#67E8F9", SyntaxCData: "#F9A8D4",
+        DiffAdded: "#4ADE80", DiffRemoved: "#F87171", DiffModified: "#FBBF24",
+        DiffAddedLine: "#0F2A22", DiffRemovedLine: "#2F1A22", DiffModifiedLine: "#2B2415", DiffBlankLine: "#0B1220",
+        IssueError: "#F87171", IssueWarning: "#FBBF24");
+
     public static IReadOnlyList<AppTheme> All { get; } =
     [
         new(ThemeChoice.System, "System", ThemeMode.System, DefaultLight, DefaultDark),
         new(ThemeChoice.Light, "Light", ThemeMode.Light, DefaultLight, DefaultLight),
         new(ThemeChoice.Dark, "Dark", ThemeMode.Dark, DefaultDark, DefaultDark),
+        new(ThemeChoice.Indigo, "Indigo", ThemeMode.System, IndigoLight, IndigoDark),
         new(ThemeChoice.GitHubLight, "GitHub Light", ThemeMode.Light, GitHubLight, GitHubLight),
         new(ThemeChoice.GitHubDark, "GitHub Dark", ThemeMode.Dark, GitHubDark, GitHubDark),
         new(ThemeChoice.Dracula, "Dracula", ThemeMode.Dark, Dracula, Dracula),

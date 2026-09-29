@@ -123,6 +123,13 @@
   <data name="CopySummary" xml:space="preserve"><value>Copy summary</value></data>
   <data name="SummaryCopied" xml:space="preserve"><value>Summary copied to the clipboard.</value></data>
   <data name="PairWith" xml:space="preserve"><value>Pair with…</value></data>
+  <data name="DropHintDetail" xml:space="preserve"><value>A single .xsd or .wsdl opens its whole folder. Or use the buttons below.</value></data>
+  <data name="CopyPath" xml:space="preserve"><value>Copy path</value></data>
+  <data name="SummaryModified" xml:space="preserve"><value>{0} modified</value></data>
+  <data name="SummaryAdded" xml:space="preserve"><value>{0} added</value></data>
+  <data name="SummaryRemoved" xml:space="preserve"><value>{0} removed</value></data>
+  <data name="HideHint" xml:space="preserve"><value>Hide explanation</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>Show side-by-side XML explanation</value></data>
   <data name="KindAdded" xml:space="preserve"><value>Added</value></data>
   <data name="KindRemoved" xml:space="preserve"><value>Removed</value></data>
   <data name="KindModified" xml:space="preserve"><value>Modified</value></data>
@@ -137,6 +144,7 @@
   <data name="Pairs" xml:space="preserve"><value>Global Elements</value></data>
   <data name="Changes" xml:space="preserve"><value>Changes</value></data>
   <data name="ThemeGitHubLight" xml:space="preserve"><value>GitHub Light</value></data>
+  <data name="ThemeIndigo" xml:space="preserve"><value>Indigo</value></data>
   <data name="ThemeGitHubDark" xml:space="preserve"><value>GitHub Dark</value></data>
   <data name="DiffColors" xml:space="preserve"><value>Diff colors</value></data>
   <data name="DiffFromTheme" xml:space="preserve"><value>From theme</value></data>

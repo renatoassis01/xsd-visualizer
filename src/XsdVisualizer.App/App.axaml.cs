@@ -40,6 +40,8 @@ public partial class App : Application
 
     public Session Preferences => _session.Current;
 
+    public void SavePreferences() => _session.Save();
+
     private MainWindow? MainWindow =>
         (ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as MainWindow;
 

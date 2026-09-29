@@ -72,6 +72,7 @@ public sealed partial class ComparisonViewModel : ViewModelBase
 
     partial void OnSelectedPairChanged(ElementPairViewModel? value)
     {
+        (AddedCount, RemovedCount, ModifiedCount) = value is null ? (0, 0, 0) : CountByKind(value.Model.Tree);
         RebuildTree();
         OnPropertyChanged(nameof(HasSelectedPair));
         OnPropertyChanged(nameof(PairCandidates));
@@ -79,6 +80,25 @@ public sealed partial class ComparisonViewModel : ViewModelBase
     }
 
     public bool HasSelectedPair => SelectedPair is not null;
+
+    // Resumo do par por tipo de mudança, contado como o ChangeCount: o que entrou ou saiu conta uma vez só.
+    [ObservableProperty] public partial int AddedCount { get; private set; }
+    [ObservableProperty] public partial int RemovedCount { get; private set; }
+    [ObservableProperty] public partial int ModifiedCount { get; private set; }
+
+    private static (int Added, int Removed, int Modified) CountByKind(ChangeNode node)
+    {
+        var (added, removed, modified) = (0, 0, 0);
+        foreach (var child in node.Children)
+        {
+            if (child.Kind == ChangeKind.Added) { added++; continue; }
+            if (child.Kind == ChangeKind.Removed) { removed++; continue; }
+            if (child.Kind == ChangeKind.Modified) modified++;
+            var (a, r, m) = CountByKind(child);
+            (added, removed, modified) = (added + a, removed + r, modified + m);
+        }
+        return (added, removed, modified);
+    }
 
     /// <summary>Para um par sem After: os Global Elements do After ainda sem par, para parear à mão.</summary>
     public IReadOnlyList<GlobalElementChoice> PairCandidates =>
@@ -227,6 +247,8 @@ public sealed class ElementPairViewModel(ElementPair model, bool isManual = fals
     public string StatusText => Status == ChangeKind.Modified
         ? string.Format(Strings.ChangesCount, Model.Tree.ChangeCount)
         : ChangeKindText.Of(Status).ToLowerInvariant(); // a lista de pares usa minúsculas (entrou, saiu, igual)
+    /// <summary>Pílula à direita do par: o número de mudanças ou, se entrou/saiu/igual, o tipo.</summary>
+    public string BadgeText => Status == ChangeKind.Modified ? Model.Tree.ChangeCount.ToString() : ChangeKindText.Of(Status);
 }
 
 public sealed partial class ChangeNodeViewModel : ViewModelBase
@@ -265,6 +287,9 @@ public sealed partial class ChangeNodeViewModel : ViewModelBase
     /// <summary>Quantas mudanças há dentro; um grupo que entrou ou saiu é uma mudança só, sem contador.</summary>
     public string CountText => Count > 0 && Kind is not (ChangeKind.Added or ChangeKind.Removed) ? string.Format(Strings.ChangesCount, Count) : "";
     public string? TypeName => (Model.After ?? Model.Before)?.TypeName;
+    /// <summary>Pílula do tipo de mudança, onde a cor sozinha não basta; um grupo alterado mostra o contador no lugar.</summary>
+    public string BadgeText => Kind == ChangeKind.Unchanged || CountText != "" ? "" : KindText;
+    public bool HasBadge => BadgeText != "";
 
     /// <summary>Documentação do campo (a do After; se saiu, a do Before).</summary>
     public string? Documentation => (Model.After ?? Model.Before)?.Documentation;

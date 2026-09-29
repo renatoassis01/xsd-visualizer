@@ -123,6 +123,13 @@
   <data name="CopySummary" xml:space="preserve"><value>Copiar resumo</value></data>
   <data name="SummaryCopied" xml:space="preserve"><value>Resumo copiado para a área de transferência.</value></data>
   <data name="PairWith" xml:space="preserve"><value>Parear com…</value></data>
+  <data name="DropHintDetail" xml:space="preserve"><value>Um .xsd ou .wsdl solto abre a pasta inteira dele. Ou use os botões abaixo.</value></data>
+  <data name="CopyPath" xml:space="preserve"><value>Copiar caminho</value></data>
+  <data name="SummaryModified" xml:space="preserve"><value>{0} mudaram</value></data>
+  <data name="SummaryAdded" xml:space="preserve"><value>{0} entraram</value></data>
+  <data name="SummaryRemoved" xml:space="preserve"><value>{0} saíram</value></data>
+  <data name="HideHint" xml:space="preserve"><value>Esconder explicação</value></data>
+  <data name="ShowHint" xml:space="preserve"><value>Mostrar explicação do XML lado a lado</value></data>
   <data name="KindAdded" xml:space="preserve"><value>Entrou</value></data>
   <data name="KindRemoved" xml:space="preserve"><value>Saiu</value></data>
   <data name="KindModified" xml:space="preserve"><value>Mudou</value></data>
@@ -137,6 +144,7 @@
   <data name="Pairs" xml:space="preserve"><value>Global Elements</value></data>
   <data name="Changes" xml:space="preserve"><value>Mudanças</value></data>
   <data name="ThemeGitHubLight" xml:space="preserve"><value>GitHub Claro</value></data>
+  <data name="ThemeIndigo" xml:space="preserve"><value>Índigo</value></data>
   <data name="ThemeGitHubDark" xml:space="preserve"><value>GitHub Escuro</value></data>
   <data name="DiffColors" xml:space="preserve"><value>Cores do diff</value></data>
   <data name="DiffFromTheme" xml:space="preserve"><value>Do tema</value></data>

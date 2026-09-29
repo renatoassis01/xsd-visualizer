@@ -82,7 +82,7 @@ Selecione um Global Element à esquerda para ver a árvore dele no meio. Cada li
 | `1..1`, `0..n` | cardinalidade (mínimo..máximo) |
 | texto em itálico | tipo (`TAmb`, `xs:string`…) |
 
-Ao selecionar um nó, o painel de detalhes mostra o **caminho**, o **tipo**, a **cardinalidade**, os **facets** (tamanho, `pattern`, dígitos, faixas, valores de enumeração), valor fixo ou padrão e a **documentação** (`xs:documentation`).
+Ao selecionar um nó, o painel de detalhes mostra o **caminho**, o **tipo**, a **cardinalidade**, os **facets** (tamanho, `pattern`, dígitos, faixas, valores de enumeração), valor fixo ou padrão e a **documentação** (`xs:documentation`). O botão ao lado do caminho o copia.
 
 Alguns casos especiais:
 
@@ -90,7 +90,7 @@ Alguns casos especiais:
 - **Recursão.** Um tipo que contém a si mesmo é marcado como recursivo e expandido só quando você pede.
 - **Wildcards** (`xs:any`, `xs:anyAttribute`) dizem de qual namespace aceitam conteúdo.
 
-**Pesquisar.** O campo *Pesquisar por nome ou documentação* procura no Global Element inteiro, inclusive em ramos que ainda não foram expandidos. Os resultados aparecem numa lista logo abaixo; clique num deles para abrir e selecionar o nó na árvore. **Esc** limpa a pesquisa.
+**Pesquisar.** O campo *Pesquisar por nome ou documentação* procura no Global Element inteiro, inclusive em ramos que ainda não foram expandidos. Os resultados aparecem numa lista logo abaixo; clique num deles para abrir e selecionar o nó na árvore. **⌘F** (macOS) ou **Ctrl+F** leva à pesquisa; **Esc** a limpa.
 
 ## 5. Gerar Samples
 
@@ -181,7 +181,7 @@ Quando sai uma nova versão de um conjunto de schemas, o botão **Comparar** mos
 A janela de Comparação tem três áreas:
 
 1. **Global Elements** (esquerda): os Global Elements que entraram, saíram, mudaram ou ficaram iguais, com o número de mudanças. Os pares são formados por namespace, nome e arquivo; na falta disso, por namespace e nome quando há um só de cada lado. **Só com mudanças** esconde os iguais.
-2. **Mudanças** (meio): a árvore do Global Element com cada mudança colorida.
+2. **Mudanças** (meio): a árvore do Global Element com cada mudança colorida e marcada por escrito (*Entrou*, *Saiu*, *Mudou*). No topo, um resumo do par: quantos campos mudaram, entraram e saíram.
    - 🟢 **Entrou:** elemento ou atributo novo.
    - 🔴 **Saiu:** elemento ou atributo removido.
    - 🟡 **Mudou:** mudança de tipo, cardinalidade, facets (tamanho, `pattern`, dígitos, faixas), valor fixo ou padrão, ou valores de enumeração. O painel de detalhes mostra *antes → depois* e, para enumerações, os valores que entraram e os que saíram.
@@ -197,6 +197,8 @@ A janela de Comparação tem três áreas:
 - Ao clicar numa mudança que está em outro ramo, o XML é gerado de novo passando por ela. No Minimal, a mudança selecionada também é incluída, mesmo que seja opcional.
 - Mudanças de valores de lista, de `pattern` ou de tamanho aparecem nos detalhes, mas podem não mudar o XML.
 
+Essa explicação também aparece em cima do XML; o ✕ a esconde e o ⓘ ao lado de *Depois* a traz de volta.
+
 **Resumo.** **Copiar resumo** e **Exportar resumo…** geram um Markdown com os Global Elements que entraram, saíram e mudaram. Para cada um que mudou, há uma tabela com o caminho, o tipo da mudança e *antes → depois* (ou, para campos que entraram ou saíram, a definição do campo), pronta para colar numa issue ou documento do time.
 
 A comparação cobre XSDs. Services e Operations de WSDL não são comparados, e renomeações aparecem como uma remoção mais uma entrada.
@@ -207,7 +209,7 @@ Abra em **Configurações** (no macOS, também no menu do app ou com ⌘,). As m
 
 ![Configurações](../images/pt-BR/settings.png)
 
-- **Tema:** Igual ao sistema, Claro, Escuro, GitHub Claro, GitHub Escuro, Dracula, Gruvbox Light, Andromeda, One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha e Tokyo Night (Night, Storm, Moon e Day). Cada tema tem uma amostra de cores ao lado do nome. O tema muda o app inteiro: janelas, painéis, editor, cores de sintaxe, cores do diff da Comparação e sublinhado das Validation Issues.
+- **Tema:** Índigo (o padrão; segue o claro/escuro do sistema), Igual ao sistema, Claro, Escuro, GitHub Claro, GitHub Escuro, Dracula, Gruvbox Light, Andromeda, One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha e Tokyo Night (Night, Storm, Moon e Day). Cada tema tem uma amostra de cores ao lado do nome. O tema muda o app inteiro: janelas, painéis, editor, cores de sintaxe, cores do diff da Comparação e sublinhado das Validation Issues.
 - **Cores do diff:** Do tema (padrão), GitHub, VS Code, Daltônico (azul/laranja), Tritanopia (azul/vermelho), Clássico (azul para alteração), Alto contraste, Monokai, Solarized ou Claude. Troca só as cores de entrou, saiu e mudou da Comparação, em qualquer tema. A amostra ao lado de cada opção mostra as cores sobre o tema atual.
 - **Idioma:** Igual ao sistema, Português (Brasil) ou English.
 

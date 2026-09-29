@@ -8,6 +8,7 @@ public enum ThemeChoice
 {
     System, Light, Dark, GitHubLight, GitHubDark, Dracula, GruvboxLight, Andromeda,
     OneLight, OneDark, Nord, CatppuccinLatte, CatppuccinMocha, TokyoNight, TokyoNightStorm, TokyoNightMoon, TokyoNightDay,
+    Indigo,
 }
 
 /// <summary>Cores do diff da Comparação: as do tema ou um esquema do app. Salvo como número: valores novos no fim.</summary>
@@ -26,9 +27,11 @@ public sealed class Session
 {
     public List<string> OpenSchemaSets { get; set; } = [];
     public List<string> Recent { get; set; } = [];
-    public ThemeChoice Theme { get; set; } = ThemeChoice.System;
+    public ThemeChoice Theme { get; set; } = ThemeChoice.Indigo;
     public DiffColorsChoice DiffColors { get; set; } = DiffColorsChoice.Theme;
     public string Language { get; set; } = LanguageChoice.System;
+    /// <summary>O usuário fechou a explicação do lado a lado na Comparação.</summary>
+    public bool HideComparisonHint { get; set; }
     /// <summary>Payload Bindings por "&lt;wsdl&gt;|&lt;service&gt;|&lt;operation&gt;|&lt;Request/Response&gt;".</summary>
     public Dictionary<string, SavedPayloadBinding> PayloadBindings { get; set; } = new();
     /// <summary>Endpoint escolhido por "&lt;wsdl&gt;|&lt;service&gt;|&lt;operation&gt;".</summary>
