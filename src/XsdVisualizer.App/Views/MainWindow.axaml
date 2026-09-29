@@ -381,8 +381,11 @@
                                         ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
                                     <PathIcon Data="{StaticResource IconCopy}" />
                                 </Button>
-                                <SelectableTextBlock Text="{Binding Node.Path}" FontSize="11" TextWrapping="Wrap"
-                                                     FontFamily="{DynamicResource MonospaceFont}" />
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                                    <SelectableTextBlock Text="{Binding Node.Path}" FontSize="11" TextWrapping="Wrap"
+                                                         FontFamily="{DynamicResource MonospaceFont}" />
+                                </StackPanel>
                             </DockPanel>
                         </Border>
                         <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" Foreground="{DynamicResource WarningText}"

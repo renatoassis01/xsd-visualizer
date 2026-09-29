@@ -65,6 +65,12 @@ public partial class ComparisonWindow : Window
         e.Handled = true;
     }
 
+    private async void OnCopyPathClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: ChangeNodeViewModel change } || Clipboard is not { } clipboard) return;
+        await clipboard.SetTextAsync(change.Model.Path);
+    }
+
     private void OnHideHint(object? sender, RoutedEventArgs e) => SetHintVisible(false, save: true);
     private void OnShowHint(object? sender, RoutedEventArgs e) => SetHintVisible(true, save: true);
 

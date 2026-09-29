@@ -222,8 +222,17 @@
                             </Border>
                         </StackPanel>
                         <Border Classes="field">
-                            <SelectableTextBlock Text="{Binding Model.Path}" FontSize="11" TextWrapping="Wrap"
-                                                 FontFamily="{DynamicResource MonospaceFont}" />
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Classes="icon" VerticalAlignment="Top" Margin="6,0,0,0"
+                                        ToolTip.Tip="{x:Static res:Strings.CopyPath}" Click="OnCopyPathClick">
+                                    <PathIcon Data="{StaticResource IconCopy}" />
+                                </Button>
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="section" Text="{x:Static res:Strings.Path}" />
+                                    <SelectableTextBlock Text="{Binding Model.Path}" FontSize="11" TextWrapping="Wrap"
+                                                         FontFamily="{DynamicResource MonospaceFont}" />
+                                </StackPanel>
+                            </DockPanel>
                         </Border>
                         <ItemsControl ItemsSource="{Binding Differences}">
                             <ItemsControl.ItemsPanel>
