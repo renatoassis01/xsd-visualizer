@@ -25,6 +25,7 @@ public partial class App : Application
         ActualThemeVariantChanged += (_, _) => Themes.ThemeApplier.ApplyResources(this);
         ApplyLanguage(_session.Current.Language);
         ApplyTheme(_session.Current.Theme);
+        Themes.ThemeApplier.SetDiff(this, Themes.DiffPaletteCatalog.Get(_session.Current.DiffColors));
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             _viewModel = new MainViewModel(_session);
@@ -52,6 +53,13 @@ public partial class App : Application
         _session.Current.Theme = theme;
         _session.Save();
         ApplyTheme(theme);
+    }
+
+    public void SetDiffColors(DiffColorsChoice diff)
+    {
+        _session.Current.DiffColors = diff;
+        _session.Save();
+        Themes.ThemeApplier.SetDiff(this, Themes.DiffPaletteCatalog.Get(diff));
     }
 
     /// <summary>Troca o idioma na hora: recria a janela principal (mesmo view model) e reabre as Configurações nela.</summary>

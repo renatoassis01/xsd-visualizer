@@ -3,7 +3,15 @@ using System.Text.Json;
 namespace XsdVisualizer.App.Services;
 
 /// <summary>Tema escolhido; os três primeiros valores são os de antes dos temas nomeados (sessões antigas continuam válidas).</summary>
-public enum ThemeChoice { System, Light, Dark, GitHubLight, GitHubDark, Dracula, GruvboxLight, Andromeda }
+// Salvo na sessão como número: valores novos entram sempre no fim.
+public enum ThemeChoice
+{
+    System, Light, Dark, GitHubLight, GitHubDark, Dracula, GruvboxLight, Andromeda,
+    OneLight, OneDark, Nord, CatppuccinLatte, CatppuccinMocha, TokyoNight, TokyoNightStorm, TokyoNightMoon, TokyoNightDay,
+}
+
+/// <summary>Cores do diff da Comparação: as do tema ou um esquema do app. Salvo como número: valores novos no fim.</summary>
+public enum DiffColorsChoice { Theme, GitHub, VSCode, ColorBlind, Tritanopia, Classic, HighContrast, Monokai, Solarized, Claude }
 
 /// <summary>"System" segue o idioma do sistema operacional; os demais são culturas (pt-BR, en).</summary>
 public static class LanguageChoice
@@ -19,6 +27,7 @@ public sealed class Session
     public List<string> OpenSchemaSets { get; set; } = [];
     public List<string> Recent { get; set; } = [];
     public ThemeChoice Theme { get; set; } = ThemeChoice.System;
+    public DiffColorsChoice DiffColors { get; set; } = DiffColorsChoice.Theme;
     public string Language { get; set; } = LanguageChoice.System;
     /// <summary>Payload Bindings por "&lt;wsdl&gt;|&lt;service&gt;|&lt;operation&gt;|&lt;Request/Response&gt;".</summary>
     public Dictionary<string, SavedPayloadBinding> PayloadBindings { get; set; } = new();

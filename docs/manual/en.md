@@ -207,7 +207,8 @@ Open **Settings** (on macOS, also from the app menu or with ⌘,). Changes apply
 
 ![Settings](../images/en/settings.png)
 
-- **Theme:** Same as system, Light, Dark, GitHub Light, GitHub Dark, Dracula, Gruvbox Light and Andromeda. Each theme has a color swatch next to its name. The theme changes the whole app: windows, panels, the editor, syntax colors, Comparison diff colors and Validation Issue underlines.
+- **Theme:** Same as system, Light, Dark, GitHub Light, GitHub Dark, Dracula, Gruvbox Light, Andromeda, One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha and Tokyo Night (Night, Storm, Moon and Day). Each theme has a color swatch next to its name. The theme changes the whole app: windows, panels, the editor, syntax colors, Comparison diff colors and Validation Issue underlines.
+- **Diff colors:** From theme (default), GitHub, VS Code, Color blind (blue/orange), Tritanopia (blue/red), Classic (blue for changes), High contrast, Monokai, Solarized or Claude. Changes only the added, removed and modified colors of the Comparison, in any theme. The swatch next to each option shows the colors on the current theme.
 - **Language:** Same as system, Português (Brasil) or English.
 
 ![Dracula theme](../images/en/theme-dracula.png)

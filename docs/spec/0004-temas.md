@@ -55,4 +55,6 @@ Em Configurações → Tema, uma lista única com Igual ao sistema, Claro, Escur
 
 ## Further Notes
 
+- Depois desta spec entraram One Light, One Dark, Nord, Catppuccin Latte, Catppuccin Mocha e Tokyo Night (Night, Storm, Moon, Day), com as mesmas regras. Onde a cor oficial não passa no contraste (comentários escuros, verde e amarelo em fundo claro, o texto do Tokyo Night Day), ela é escurecida ou clareada só o necessário e o ajuste fica anotado no catálogo.
+- Cores do diff (Configurações → Cores do diff): "Do tema" ou um esquema do app (GitHub, VS Code, Daltônico azul/laranja, Tritanopia, Clássico, Alto contraste, Monokai, Solarized, Claude), independente do tema. O texto usa a cor do esquema; o fundo da linha é o editor escurecido (tema escuro) ou clareado (tema claro) e tingido com ela, o mais forte (até 18%) que mantém texto e sintaxe do tema legíveis, e os testes de contraste rodam em cada tema × esquema.
 - "Tema" é vocabulário de interface, não do domínio; não entra no CONTEXT.md.
